@@ -14,3 +14,4 @@ data/kansas/wimas_*.json
 data/kansas/wizard_levels.json
 data/kansas/mirad/
 data/kansas/*.npy
+data/kansas/*_region.npz

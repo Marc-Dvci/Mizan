@@ -271,17 +271,39 @@ def _read_window(tif: Path, region: Region) -> np.ndarray:
     return out
 
 
+def _cache_key(region: Region) -> np.ndarray:
+    """Identity of the grid a cached raster was sampled on.
+
+    Shape alone is not the identity: two regions can share it and differ in origin, and
+    a cache hit on the wrong origin would silently move the whole basin.
+    """
+    return np.array([region.lon0, region.lat0, region.nrow, region.ncol,
+                     region.delr_m], dtype=float)
+
+
+def _load_cache(path: Path, region: Region, shape) -> np.ndarray | None:
+    if not path.exists():
+        return None
+    z = np.load(path)
+    if "key" not in z or not np.allclose(z["key"], _cache_key(region)):
+        return None
+    return z["arr"] if z["arr"].shape == shape else None
+
+
+def _save_cache(path: Path, region: Region, arr: np.ndarray) -> None:
+    np.savez_compressed(path, arr=arr, key=_cache_key(region))
+
+
 def evapotranspiration(region: Region) -> np.ndarray:
     """Annual actual evapotranspiration on the model grid, mm/yr, shape (nyear, r, c)."""
     years = np.arange(YEAR0, YEAR1 + 1)
-    cache = DATA / "ssebop_region.npy"
-    if cache.exists():
-        arr = np.load(cache)
-        if arr.shape == (years.size, region.nrow, region.ncol):
-            return arr
+    cache = DATA / "ssebop_region.npz"
+    hit = _load_cache(cache, region, (years.size, region.nrow, region.ncol))
+    if hit is not None:
+        return hit
     arr = np.stack([_read_window(DATA / "ssebop" / f"ssebop_{y}.tif", region)
                     for y in years])
-    np.save(cache, arr)
+    _save_cache(cache, region, arr)
     return arr
 
 
@@ -325,12 +347,11 @@ def irrigated_fraction(region: Region) -> np.ndarray:
     MIrAD-US publishes 2002, 2007, 2012 and 2017. Irrigated extent changes slowly, so
     the intervening years are interpolated linearly and the ends are held.
     """
-    cache = DATA / "mirad_region.npy"
+    cache = DATA / "mirad_region.npz"
     years = np.arange(YEAR0, YEAR1 + 1)
-    if cache.exists():
-        arr = np.load(cache)
-        if arr.shape == (years.size, region.nrow, region.ncol):
-            return arr
+    hit = _load_cache(cache, region, (years.size, region.nrow, region.ncol))
+    if hit is not None:
+        return hit
     ep = sorted(MIRAD_EPOCHS)
     maps = np.stack([_mirad_epoch(MIRAD_EPOCHS[y], region) for y in ep])
     out = np.empty((years.size, region.nrow, region.ncol))
@@ -340,7 +361,7 @@ def irrigated_fraction(region: Region) -> np.ndarray:
         k = min(k, len(ep) - 2)
         w = (yc - ep[k]) / (ep[k + 1] - ep[k])
         out[i] = (1 - w) * maps[k] + w * maps[k + 1]
-    np.save(cache, out)
+    _save_cache(cache, region, out)
     return out
 
 
