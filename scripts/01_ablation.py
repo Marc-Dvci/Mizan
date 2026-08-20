@@ -248,8 +248,10 @@ def main():
               f"MAPE {sc['mape_pct']:5.1f}%  cover90 {sc['cover_90']:.2f}  "
               f"({time.time()-t:.0f}s)")
 
+    res["_meta"] = {"seed": args.seed, "ne": args.ne, "na": args.na,
+                    "truth": args.truth, "rtps": args.rtps}
     out_path.write_text(json.dumps(res, indent=2))
-    print("\nwrote results/ablation.json")
+    print(f"\nwrote results/{args.out}")
     print(f"{'row':4s} {'observations':40s} {'MAE':>9s} {'MAPE':>7s} {'bias':>9s} "
           f"{'cov90':>6s} {'CRPS':>7s}")
     for k, v in res.items():

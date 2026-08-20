@@ -72,24 +72,33 @@ def fig_ablation(ab):
     col = [FG.ACCENT if k in ("H", "SAT") else FG.GREEN if k.startswith("HM") or k == "M"
            else FG.SAND if k.startswith("HS") else FG.MUTED for k in rows]
 
-    fig, ax = plt.subplots(figsize=(8.2, 4.1))
+    fig, ax = plt.subplots(figsize=(8.2, 4.4))
     b = ax.bar(range(len(rows)), mae, color=col, width=0.68)
     ax.axhline(base, color=FG.WARM, lw=1.6,
                label=f"published open loop, fixed 0.80 ({base:.1f})")
     ax.axhline(oracle, color=FG.WARM, lw=1.2, ls="--",
                label=f"open loop, efficiency fitted to the answer ({oracle:.1f})")
+    swatch = [
+        (FG.MUTED, "one or two legs"),
+        (FG.ACCENT, "the closure, and the closure without wells"),
+        (FG.SAND, "the closure on a sparse well network"),
+        (FG.GREEN, "metering, alone or added to the closure"),
+    ]
+    handles = [plt.matplotlib.patches.Patch(facecolor=c, label=t) for c, t in swatch]
     for r, v in zip(b, mae):
         ax.text(r.get_x() + r.get_width() / 2, v * 1.04, f"{v:.1f}", ha="center",
                 va="bottom", fontsize=8)
     ax.set_yscale("log")
-    ax.set_ylim(4, 260)
+    ax.set_ylim(4, 1500)
     ax.set_yticks([5, 10, 20, 50, 100, 200])
     ax.get_yaxis().set_major_formatter(plt.matplotlib.ticker.ScalarFormatter())
     ax.set_xticks(range(len(rows)))
     ax.set_xticklabels([SHORT[k] for k in rows], rotation=32, ha="right")
     ax.set_ylabel("district-annual abstraction MAE, Mm$^3$/yr (log)")
     ax.set_title("What each observation is worth, against withheld truth")
-    ax.legend(loc="upper right", fontsize=8)
+    lines = ax.get_legend_handles_labels()[0]
+    ax.legend(handles=lines + handles, loc="upper left", fontsize=7.6, ncol=2,
+              columnspacing=1.4, handlelength=1.8)
     FG.despine(ax)
     return FG.save(fig, FIG / "fig2_ablation.png")
 
@@ -114,9 +123,27 @@ def fig_calibration(ab):
     w = [ab[k]["width90_mcm"] for k in rows]
     m = [ab[k]["mae_mcm"] for k in rows]
     ax[1].scatter(w, m, color=[FG.ACCENT if k == "H" else FG.MUTED for k in rows], s=34)
+    # Log axes, because the single-leg rows sit an order of magnitude away from the
+    # closure rows and a linear frame collapses the cluster that matters into one blob.
+    ax[1].set_xscale("log")
+    ax[1].set_yscale("log")
+    # Label the rows the argument turns on. The remaining rows sit inside the same
+    # cluster and are left unlabelled rather than stacked on top of each other.
+    off = {"H": (7, -3), "SAT": (7, 2), "ET": (-6, 7), "D": (7, -9),
+           "G": (7, 2), "M": (7, -3), "A": (7, 2), "B": (-10, 8), "C": (-46, 5)}
     for k, x, y in zip(rows, w, m):
-        ax[1].annotate(SHORT[k], (x, y), fontsize=7, xytext=(3, 3),
-                       textcoords="offset points")
+        if k not in off:
+            continue
+        ax[1].annotate(SHORT[k], (x, y), fontsize=7.0,
+                       color=FG.ACCENT if k == "H" else FG.MUTED,
+                       xytext=off[k], textcoords="offset points")
+    ax[1].set_ylim(min(m) * 0.72, max(m) * 1.9)
+    ax[1].set_xlim(min(w) * 0.80, max(w) * 1.5)
+    ax[1].set_xticks([60, 100, 200, 400])
+    ax[1].set_yticks([5, 10, 20, 50, 100, 200])
+    for a in (ax[1].get_xaxis(), ax[1].get_yaxis()):
+        a.set_major_formatter(plt.matplotlib.ticker.ScalarFormatter())
+        a.set_minor_formatter(plt.matplotlib.ticker.NullFormatter())
     ax[1].set_xlabel("mean 90% interval width, Mm$^3$/yr")
     ax[1].set_ylabel("MAE, Mm$^3$/yr")
     ax[1].set_title("Sharpness against accuracy")
@@ -287,25 +314,51 @@ def fig_voi():
     ax[1].imshow(mask, origin="lower", extent=[0, C.DOMAIN_KM, 0, C.DOMAIN_KM],
                  cmap="Greens", vmin=0, vmax=2.6)
     third = C.DOMAIN_KM / 3.0
-    order_m = [k for k in v["fc_q_last5"]["greedy_order"] if k.startswith("meter")]
-    rank = {int(k.split("_d")[1]): i + 1 for i, k in enumerate(order_m)}
-    for dd, r in rank.items():
-        i, j = divmod(dd, 3)
-        ax[1].text((j + 0.5) * third, (i + 0.72) * third, f"meter {r}",
-                   ha="center", va="center", fontsize=8.5, color=FG.WARM, weight="bold")
     for k in (1, 2):
         ax[1].axhline(k * third, color=FG.INK, lw=0.6, alpha=0.5)
         ax[1].axvline(k * third, color=FG.INK, lw=0.6, alpha=0.5)
 
+    # Geodetic sites can rank close together in space. Nudge any marker that would sit
+    # on top of one already drawn, so the rank stays readable.
     geo = [k for k in v["fc_perm_loss"]["greedy_order"] if not k.startswith("meter")]
+    placed = []
     for r, n in enumerate(geo[:8]):
         kind, j = n.rsplit("_", 1)
         rr, cl = cc[int(j)]
         x = (cl + 0.5) * C.EST.delr_m / 1000.0
         y = (rr + 0.5) * C.EST.delr_m / 1000.0
-        ax[1].scatter([x], [y], s=150, marker="o" if kind == "piezo" else "^",
+        for _ in range(24):
+            if all((x - px) ** 2 + (y - py) ** 2 > 7.0 ** 2 for px, py in placed):
+                break
+            x, y = x + 2.4, y + 2.4
+        placed.append((x, y))
+        ax[1].scatter([x], [y], s=170, marker="o" if kind == "piezo" else "^",
                       facecolor="white", edgecolor=FG.ACCENT, lw=1.5, zorder=3)
-        ax[1].text(x, y, str(r + 1), fontsize=7, ha="center", va="center", zorder=4)
+        ax[1].text(x, y, str(r + 1), fontsize=7.5, ha="center", va="center", zorder=4)
+
+    # The district's meter rank goes in whichever corner is farthest from a station.
+    order_m = [k for k in v["fc_q_last5"]["greedy_order"] if k.startswith("meter")]
+    rank = {int(k.split("_d")[1]): i + 1 for i, k in enumerate(order_m)}
+    for dd, r in rank.items():
+        i, j = divmod(dd, 3)
+        corners = [(j * third + 1.6, (i + 1) * third - 1.8, "left", "top"),
+                   ((j + 1) * third - 1.6, (i + 1) * third - 1.8, "right", "top"),
+                   (j * third + 1.6, i * third + 1.8, "left", "bottom"),
+                   ((j + 1) * third - 1.6, i * third + 1.8, "right", "bottom")]
+        cx, cy, ha, va = max(
+            corners,
+            key=lambda c: min([(c[0] - px) ** 2 + (c[1] - py) ** 2
+                               for px, py in placed] or [1e9]))
+        ax[1].text(cx, cy, f"meter {r}", ha=ha, va=va, fontsize=8.5,
+                   color=FG.WARM, weight="bold")
+
+    ax[1].scatter([], [], s=110, marker="o", facecolor="white", edgecolor=FG.ACCENT,
+                  lw=1.5, label="piezometer")
+    ax[1].scatter([], [], s=110, marker="^", facecolor="white", edgecolor=FG.ACCENT,
+                  lw=1.5, label="geodetic station")
+    ax[1].legend(loc="lower right", fontsize=7.5, framealpha=0.9, frameon=True)
+    ax[1].set_xlim(0, C.DOMAIN_KM)
+    ax[1].set_ylim(0, C.DOMAIN_KM)
     ax[1].set_title("Where the next instrument goes: meter rank for\n"
                     "abstraction, geodesy for capacity")
     ax[1].set_xlabel("km")
@@ -315,11 +368,130 @@ def fig_voi():
     return FG.save(fig, FIG / "fig8_voi.png")
 
 
+def fig_identity():
+    """The accounting identity, assembling, with the residual named.
+
+    Slide 5 of the deck. Every other figure reports a number; this one states the
+    mechanism, because the mechanism is what is being claimed.
+    """
+    import matplotlib.patches as mp
+
+    fig, ax = plt.subplots(figsize=(9.6, 4.6))
+    ax.set_xlim(0, 10)
+    ax.set_ylim(0, 5)
+    ax.axis("off")
+
+    legs = [
+        ("satellite\nevapotranspiration", "what left the surface", FG.GREEN),
+        ("basin\ngravimetry", "what left the basin", FG.ACCENT),
+        ("interferometric\ndisplacement", "how the skeleton reacted", FG.SAND),
+        ("heads at wells,\nwhere they exist", "local drawdown in time", FG.MUTED),
+    ]
+    for i, (name, sub, col) in enumerate(legs):
+        y = 4.58 - i * 0.94
+        ax.add_patch(mp.FancyBboxPatch((0.15, y - 0.36), 2.5, 0.74,
+                                       boxstyle="round,pad=0.04,rounding_size=0.08",
+                                       facecolor="white", edgecolor=col, lw=1.6))
+        ax.text(1.40, y + 0.08, name, ha="center", va="center", fontsize=8.6,
+                color=FG.INK, weight="bold")
+        ax.text(1.40, y - 0.24, sub, ha="center", va="center", fontsize=7.2,
+                color=FG.MUTED)
+        ax.annotate("", xy=(4.05, 2.5), xytext=(2.72, y),
+                    arrowprops=dict(arrowstyle="-|>", color=col, lw=1.5,
+                                    connectionstyle="arc3,rad=0.06"))
+
+    ax.add_patch(mp.FancyBboxPatch((4.10, 1.30), 2.55, 2.40,
+                                   boxstyle="round,pad=0.05,rounding_size=0.10",
+                                   facecolor="#f4f6f8", edgecolor=FG.INK, lw=1.8))
+    ax.text(5.38, 3.42, "one aquifer", ha="center", fontsize=8.6, weight="bold")
+    ax.text(5.38, 2.86, "MODFLOW 6 + CSUB", ha="center", fontsize=8.2, color=FG.ACCENT)
+    ax.text(5.38, 2.44, "mass balance", ha="center", fontsize=8.0)
+    ax.text(5.38, 2.10, "stress-strain law", ha="center", fontsize=8.0)
+    ax.text(5.38, 1.62, "every leg must agree\nwith every other", ha="center",
+            fontsize=7.4, color=FG.MUTED)
+
+    ax.annotate("", xy=(7.35, 2.5), xytext=(6.70, 2.5),
+                arrowprops=dict(arrowstyle="-|>", color=FG.INK, lw=1.8))
+    ax.add_patch(mp.FancyBboxPatch((7.40, 1.70), 2.45, 1.60,
+                                   boxstyle="round,pad=0.05,rounding_size=0.10",
+                                   facecolor="white", edgecolor=FG.WARM, lw=2.2))
+    ax.text(8.62, 2.92, "the one term nobody", ha="center", fontsize=8.0)
+    ax.text(8.62, 2.62, "measures", ha="center", fontsize=8.0)
+    ax.text(8.62, 2.16, "abstraction", ha="center", fontsize=11.5, weight="bold",
+            color=FG.WARM)
+    ax.text(8.62, 1.88, "per district, per year, with an interval", ha="center",
+            fontsize=6.8, color=FG.MUTED)
+
+    ax.text(5.0, 0.78,
+            "storage change from gravimetry and compaction, consumptive use from "
+            "evapotranspiration,\nand drawdown from heads are three different functions "
+            "of the same abstraction field.",
+            ha="center", va="center", fontsize=8.2, color=FG.INK)
+    ax.text(5.0, 0.22,
+            "Forcing them to agree leaves the abstraction field and the consumptive "
+            "fraction identified together.",
+            ha="center", va="center", fontsize=8.2, color=FG.WARM, weight="bold")
+    return FG.save(fig, FIG / "fig5b_identity.png")
+
+
+def fig_context():
+    """The national account the entry opens with, in the Kingdom's own published figures."""
+    fig, ax = plt.subplots(1, 2, figsize=(9.4, 3.5))
+
+    # GASTAT, Water Accounts Publication 2023, released 5 January 2025.
+    years = [2022, 2023]
+    nonren = [10849 / 0.94, 10849.0]
+    agri = [9356 / 0.93, 9356.0]
+    x = np.arange(len(years))
+    ax[0].bar(x - 0.18, nonren, width=0.34, color=FG.MUTED,
+              label="non-renewable groundwater extracted")
+    ax[0].bar(x + 0.18, agri, width=0.34, color=FG.ACCENT,
+              label="of which agricultural")
+    for xi, v in zip(x - 0.18, nonren):
+        ax[0].text(xi, v * 1.02, f"{v:,.0f}", ha="center", fontsize=7.5)
+    for xi, v in zip(x + 0.18, agri):
+        ax[0].text(xi, v * 1.02, f"{v:,.0f}", ha="center", fontsize=7.5)
+    ax[0].set_xticks(x)
+    ax[0].set_xticklabels([str(y) for y in years])
+    ax[0].set_ylabel("Mm$^3$/yr")
+    ax[0].set_ylim(0, 14000)
+    ax[0].set_title("Saudi non-renewable groundwater, down 6% and 7%")
+    ax[0].legend(fontsize=7.5, loc="upper right")
+    FG.despine(ax[0])
+    ax[0].set_xlabel("GASTAT, Water Accounts Publication 2023. The 2022 bars are\n"
+                     "the reported 2023 figures raised by the reported decreases.",
+                     fontsize=6.9, color=FG.MUTED)
+
+    # MEWA, National Water Strategy: irrigation efficiency today against best practice,
+    # and the constant the published open-loop method assumes instead.
+    names = ["MEWA:\nirrigation efficiency\ntoday",
+             "published method:\nassumed\nefficiency",
+             "MEWA:\nbest practice"]
+    vals = [50, 80, 75]
+    cols = [FG.WARM, FG.MUTED, FG.GREEN]
+    ax[1].bar(range(3), vals, color=cols, width=0.6)
+    for i, v in enumerate(vals):
+        ax[1].text(i, v + 1.5, f"{v}%", ha="center", fontsize=9, weight="bold")
+    ax[1].set_xticks(range(3))
+    ax[1].set_xticklabels(names, fontsize=7.4)
+    ax[1].set_ylim(0, 95)
+    ax[1].set_ylabel("per cent")
+    ax[1].set_title("The constant nobody measures")
+    FG.despine(ax[1])
+    ax[1].set_xlabel("MEWA National Water Strategy; López Valencia et al. 2020. The\n"
+                     "two definitions are not identical, which is the point: the number\n"
+                     "an abstraction estimate divides by is assumed, never measured.",
+                     fontsize=6.9, color=FG.MUTED)
+
+    fig.tight_layout()
+    return FG.save(fig, FIG / "fig0_context.png")
+
+
 def main():
     tr = np.load(RES / "truth.npz")
     ab = json.loads((RES / "ablation.json").read_text())
-    made = [fig_basin(tr), fig_ablation(ab), fig_calibration(ab), fig_scatter(tr),
-            fig_closure(tr), fig_nullspace()]
+    made = [fig_context(), fig_basin(tr), fig_ablation(ab), fig_calibration(ab),
+            fig_scatter(tr), fig_closure(tr), fig_identity(), fig_nullspace()]
     if (RES / "allocation.json").exists():
         made.append(fig_allocation())
     if (RES / "voi.json").exists():

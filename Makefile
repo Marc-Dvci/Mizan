@@ -3,7 +3,7 @@ PY ?= .venv/Scripts/python.exe
 NE ?= 250
 NA ?= 8
 
-.PHONY: all setup truth ablation allocation voi detection figures report test clean
+.PHONY: all setup truth ablation allocation voi detection figures report test clean         robustness kansas-data kansas
 
 all: truth ablation allocation voi detection figures report
 
@@ -39,6 +39,15 @@ report:
 
 test:
 	$(PY) -m pytest tests -q
+
+robustness:
+	sh scripts/robustness.sh
+
+kansas-data:
+	$(PY) scripts/10_kansas_fetch.py --workers 4
+
+kansas:
+	$(PY) scripts/11_kansas_run.py --ne 200 --na 6 --workers 6
 
 clean:
 	rm -rf runs/ens runs/alloc runs/jac

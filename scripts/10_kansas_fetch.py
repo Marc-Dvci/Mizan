@@ -22,7 +22,7 @@ DATA = ROOT / "data" / "kansas"
 
 def main() -> None:
     ap = argparse.ArgumentParser()
-    ap.add_argument("--what", type=str, default="wizard,ssebop,wimas")
+    ap.add_argument("--what", type=str, default="wizard,ssebop,mirad,wimas")
     ap.add_argument("--workers", type=int, default=4)
     ap.add_argument("--y0", type=int, default=2000)
     ap.add_argument("--y1", type=int, default=2025)
@@ -40,6 +40,10 @@ def main() -> None:
             p = K.ssebop_year(y, DATA / "ssebop")
             print("  {} {:.1f} MB {:.0f}s".format(
                 y, p.stat().st_size / 1e6, time.time() - t))
+
+    if "mirad" in what:
+        print("MIrAD-US irrigated agriculture, 250 m")
+        K.fetch_mirad(DATA)
 
     if "wimas" in what:
         print("WIMAS metered annual pumping, GMD 4 counties")

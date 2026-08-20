@@ -175,6 +175,10 @@ def wimas_use(sess: Session, pdiv_id: int) -> dict:
               if m else [])
     uses = re.findall(r'<select[^>]*name="lstUse"[^>]*>(.*?)</select>', page, flags=re.S)
     use_codes = re.findall(r'<option[^>]*value=\s*"?([A-Z]+)"?', uses[0]) if uses else ["IRR"]
+    # The page posts back to itself, so every list it carries has to come with the
+    # request. The year only drives the detail panel; the history table is complete.
+    yrs = re.findall(r'<select[^>]*name="lstWuYrs"[^>]*>(.*?)</select>', page, flags=re.S)
+    year = (re.findall(r'value=\s*"?(\d{4})"?', yrs[0]) or ["2025"])[0] if yrs else "2025"
 
     out = {}
     for wr_id, wr_label in rights:
@@ -182,6 +186,7 @@ def wimas_use(sess: Session, pdiv_id: int) -> dict:
         for use in use_codes:
             html = sess.post(WIMAS + "pd_list.cfm", [
                 ("pdiv_id", str(pdiv_id)), ("lstWRs", wr_id), ("lstUse", use),
+                ("lstWuYrs", year),
                 ("btnGraph", "Graph Water Use History")])
             wr, series = _parse_history(html)
             if series:
@@ -207,13 +212,17 @@ def fetch_county(county: str, out_dir: Path, workers: int = 4, log=print) -> dic
 
     def job(item):
         wr, p = item
-        s = Session()
-        try:
-            s.accept_wimas()
-            _select_county(s, county)
-            return wr, wimas_use(s, p["pdiv_id"])
-        except Exception as exc:                      # network, not logic
-            return wr, {"_error": repr(exc)[:200]}
+        last = ""
+        for attempt in range(3):
+            s = Session()
+            try:
+                s.accept_wimas()
+                _select_county(s, county)
+                return wr, wimas_use(s, p["pdiv_id"])
+            except Exception as exc:                  # network, not logic
+                last = repr(exc)[:200]
+                time.sleep(2.0 * (attempt + 1))
+        return wr, {"_error": last}
 
     use = {}
     items = list(by_wr.items())
@@ -350,6 +359,35 @@ def fetch_wizard(out_dir: Path, counties=None, workers: int = 4, log=print) -> d
     dest.write_text(json.dumps(rec))
     log("  wizard: wrote {}".format(dest.name))
     return rec
+
+
+MIRAD = ("https://www.sciencebase.gov/catalog/item/"
+         "5db08e84e4b0b0c58b56e04f?format=json")
+
+
+def fetch_mirad(out_dir: Path, log=print) -> None:
+    """The 250 m MIrAD-US irrigated-agriculture maps, 2002, 2007, 2012 and 2017.
+
+    Irrigated extent is what makes a 1 km evapotranspiration pixel unmixable. It is
+    licence-and-imagery derived, and carries no water-use information.
+    """
+    dest = out_dir / "mirad"
+    dest.mkdir(parents=True, exist_ok=True)
+    if list(dest.rglob("mirad250_17v4.tif")):
+        log("  mirad: cached")
+        return
+    meta = json.loads(urllib.request.urlopen(
+        urllib.request.Request(MIRAD, headers={"User-Agent": UA}), timeout=120).read())
+    for f in meta["files"]:
+        name = f["name"]
+        if not name.startswith("mirad250m_") or "(All)" in name:
+            continue
+        raw = urllib.request.urlopen(
+            urllib.request.Request(f["url"], headers={"User-Agent": UA}),
+            timeout=900).read()
+        with zipfile.ZipFile(io.BytesIO(raw)) as z:
+            z.extractall(dest)
+        log("  mirad: {} {:.1f} MB".format(name, len(raw) / 1e6))
 
 
 def ssebop_year(year: int, cache: Path) -> Path:

@@ -12,3 +12,5 @@ results/voi.npz
 data/kansas/ssebop/
 data/kansas/wimas_*.json
 data/kansas/wizard_levels.json
+data/kansas/mirad/
+data/kansas/*.npy
