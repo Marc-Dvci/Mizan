@@ -101,7 +101,20 @@ def make_context(region: K.Region, wl: dict, weight: np.ndarray = None) -> Conte
     lat = np.array([w["lat"] for w in wells])
     head = np.array([w["head"] for w in wells])          # (nwell, NYEAR)
 
-    first = np.array([w["head"][np.isfinite(w["head"])][0] for w in wells])
+    # The water table at the start of the record. Wells enter the network in different
+    # years, so taking each well's first measurement would put a 2015 water level on the
+    # map as though it were a 2000 one. Each record is extrapolated back along its own
+    # linear trend, which is what a declining unconfined aquifer follows at this scale.
+    yy = np.arange(NYEAR, dtype=float)
+    first = np.empty(len(wells))
+    for i, w in enumerate(wells):
+        h = np.asarray(w["head"], dtype=float)
+        ok = np.isfinite(h)
+        if ok.sum() >= 3:
+            b, a = np.polyfit(yy[ok], h[ok], 1)
+            first[i] = a
+        else:
+            first[i] = h[ok][0]
     h0 = interpolate(region, lon, lat, first)
     row = np.array([w["row"] for w in wells])
     col = np.array([w["col"] for w in wells])
@@ -132,8 +145,8 @@ def prior(region: K.Region, irr_area: np.ndarray) -> Prior:
     q0 = np.log10(np.maximum(irr_area.mean(axis=1) * PRIOR_DEPTH_M, 1.0e6))
     mean[LAYOUT["logq"]] = np.repeat(q0, NYEAR)
     sd[LAYOUT["logq"]] = 0.30
-    lo[LAYOUT["logq"]] = np.repeat(q0, NYEAR) - 1.2
-    hi[LAYOUT["logq"]] = np.repeat(q0, NYEAR) + 1.2
+    lo[LAYOUT["logq"]] = np.repeat(q0, NYEAR) - 0.9
+    hi[LAYOUT["logq"]] = np.repeat(q0, NYEAR) + 0.9
     names += [f"logq_{K.COUNTIES[d]}_{K.YEAR0 + y}" for d in range(NDIST)
               for y in range(NYEAR)]
 
@@ -160,7 +173,9 @@ def prior(region: K.Region, irr_area: np.ndarray) -> Prior:
         names.append(label)
 
     scalar("log_sy", np.log10(0.15), 0.16, np.log10(0.04), np.log10(0.32), "log_sy")
-    scalar("log_bsat", np.log10(40.0), 0.22, np.log10(12.0), np.log10(140.0), "log_bsat")
+    # Saturated thickness. The floor keeps a heavily pumped member from dewatering the
+    # layer outright, which is a numerical failure rather than a hypothesis about Kansas.
+    scalar("log_bsat", np.log10(45.0), 0.20, np.log10(20.0), np.log10(140.0), "log_bsat")
     # Recharge under cropland on the Kansas High Plains is reported between about 5 and
     # 35 mm/yr. The bound at 60 keeps the mass balance from being closed by recharge
     # alone, which is the degeneracy this leg has.
@@ -310,6 +325,10 @@ def forward(x: np.ndarray, ws: Path, ctx: Context) -> dict:
     heads = np.array([hds.get_data(kstpkper=k)[0] for k in hds.get_kstpkper()])
     hds.close()
     heads = heads[1:]                                     # drop the steady state
+    # A member that dewaters a cell carrying an observation has not produced a head
+    # there. It is reported as a failure rather than assimilated as a large number.
+    if not np.isfinite(heads[:, ctx.well_row, ctx.well_col]).all() or             heads[:, ctx.well_row, ctx.well_col].min() < -1.0e5:
+        raise RuntimeError("dry cell at an observation well")
     return observe(x, heads, ctx)
 
 

@@ -38,8 +38,8 @@ def assemble() -> dict:
 
 def main() -> None:
     ap = argparse.ArgumentParser()
-    ap.add_argument("--ne", type=int, default=200)
-    ap.add_argument("--na", type=int, default=6)
+    ap.add_argument("--ne", type=int, default=250)
+    ap.add_argument("--na", type=int, default=8)
     ap.add_argument("--workers", type=int, default=6)
     ap.add_argument("--seed", type=int, default=5)
     ap.add_argument("--rtps", type=float, default=0.7)

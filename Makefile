@@ -47,7 +47,7 @@ kansas-data:
 	$(PY) scripts/10_kansas_fetch.py --workers 4
 
 kansas:
-	$(PY) scripts/11_kansas_run.py --ne 200 --na 6 --workers 6
+	$(PY) scripts/11_kansas_run.py --ne $(NE) --na $(NA) --workers 6
 
 clean:
 	rm -rf runs/ens runs/alloc runs/jac

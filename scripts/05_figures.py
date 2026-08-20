@@ -505,7 +505,8 @@ def fig_detection():
     ax[0].set_xticklabels([f"D{i}" for i in range(ratio.size)])
     ax[0].set_ylabel("closure estimate / what consumptive use explains")
     ax[0].set_title(f"District {d} is {v['z_score']:.1f} standard deviations clear")
-    ax[0].legend(fontsize=7.5, loc="upper left")
+    ax[0].set_ylim(0, ratio.max() * 1.22)
+    ax[0].legend(fontsize=7.5, loc="upper right")
     FG.despine(ax[0])
 
     names = ["open-loop account", "Mizan closure"]
