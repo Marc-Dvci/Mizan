@@ -41,11 +41,12 @@ NPILOT = NPP * NPP
 NYEAR = K.YEAR1 - K.YEAR0 + 1
 NDIST = len(K.COUNTIES)
 
-# Prior applied-irrigation depth over the mapped irrigated area, m/yr. Kansas averages
-# close to one acre-foot per acre in the USDA irrigation survey, which is 0.31 m. The
-# prior is set at 0.35 with a factor of two either way, and no part of it comes from the
-# water-use reports the run is scored against.
-PRIOR_DEPTH_M = 0.35
+# Prior applied-irrigation depth over the mapped irrigated area, m/yr. One acre-foot per
+# acre is the round figure the USDA irrigation survey reports for Kansas, and one
+# acre-foot per acre is 0.3048 m. That published number is taken as the prior mean, with
+# a factor of two either way. No part of it comes from the water-use reports the run is
+# scored against.
+PRIOR_DEPTH_M = 0.3048
 RETURN_FRAC = 0.30            # share of the non-consumed water returning as percolation
 
 HEAD_SIGMA_M = 0.5
