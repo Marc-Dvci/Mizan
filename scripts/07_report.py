@@ -119,15 +119,21 @@ def main():
                   f"fitted against the answer by a factor of **{ro:.1f}**.")
 
         section("What the observation set could not resolve")
-        print("| Observations | directions resolved to 90% | unresolved | effective dimension |")
-        print("|---|---:|---:|---:|")
+        print("| Observations | directions resolved to 90% | unresolved | "
+              "widened | directions constrained |")
+        print("|---|---:|---:|---:|---:|")
         for k in ORDER:
-            if k in ab and "n_resolved_90" in ab[k]:
-                v = ab[k]
-                print(f"| {LABEL[k]} | {v['n_resolved_90']} | {v['n_unresolved']} | "
-                      f"{v['effective_dim']:.1f} |")
+            p = RES / f"posterior_{k}.npz"
+            if k not in ab or not p.exists():
+                continue
+            ratio = np.load(p)["variance_ratio"]
+            print(f"| {LABEL[k]} | {int((ratio < 0.10).sum())} | "
+                  f"{int((ratio > 0.90).sum())} | {int((ratio > 1.0).sum())} | "
+                  f"{np.clip(1.0 - ratio, 0.0, None).sum():.1f} |")
         print(f"\nOut of {C.NDIST * C.NYEAR} directions of the district-year abstraction "
-              f"vector.")
+              f"vector. A direction whose posterior variance exceeds its prior variance "
+              f"has learned nothing and is counted as widened rather than as negative "
+              f"information.")
 
         section("Recovery of the quantities the open-loop method assumes")
         print("| Observations | consumptive fraction MAE | pre-canopy share MAE | "

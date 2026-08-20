@@ -95,7 +95,12 @@ def main() -> None:
     ol = a["et_obs"] / 0.80
     res["BASELINE"] = {"label": "open loop, efficiency fixed at 0.80",
                        **MT.point_scores(ol, q_true)}
-    e_star = float((a["et_obs"] * q_true).sum() / (q_true ** 2).sum())
+    # The same oracle definition as L0: the single constant that minimises absolute
+    # error against the answer. No practitioner has it; it exists so the comparison is
+    # against the best the open-loop form can do rather than against its constant.
+    grid = np.linspace(0.20, 1.60, 1401)
+    err = np.array([np.abs(a["et_obs"] / g - q_true).mean() for g in grid])
+    e_star = float(grid[int(err.argmin())])
     res["BASELINE_ORACLE"] = {
         "label": f"open loop, efficiency fitted to the meters at {e_star:.3f}",
         **MT.point_scores(a["et_obs"] / e_star, q_true)}

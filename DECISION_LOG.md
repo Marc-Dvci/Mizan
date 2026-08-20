@@ -274,3 +274,25 @@ through a bounded efficiency and pre-canopy share, so a withdrawal this large ca
 fully absorbed by those parameters. Detection is unambiguous; full recovery of the hidden
 volume is not, and would need a per-district non-agricultural abstraction term that this
 version does not carry.
+
+### Resolution metric, first version: a signed sum over directions
+
+The share of prior variance surviving in each direction of the 180-dimensional
+district-year abstraction vector is the right diagnostic, and it is reported. The
+summary built on top of it was not. Summing `1 - ratio` over all directions gave
+`gravity only` an "effective dimension" of **-64.7** and `deformation only` **-256.5**,
+which is not a dimension.
+
+The cause is real and worth reporting rather than hiding. Relaxation to prior spread,
+and the localised analysis, leave some directions with more posterior variance than
+prior variance. A direction that widened has learned nothing from the data; it has not
+learned a negative amount. The summary is now `sum of max(0, 1 - ratio)`, the number of
+directions the data actually constrained, and the count of widened directions is
+published alongside it.
+
+The reading changes with it. The coupled closure constrains **135.4** of 180 directions
+and widens 20. Gravity alone constrains **37.1** and widens 101, which is the same
+statement the ablation makes in Mm³/yr, arriving from the covariance instead.
+
+Reported by `scripts/07_report.py` from `results/posterior_*.npz`, so the number comes
+from the saved posterior rather than from a field written at run time.

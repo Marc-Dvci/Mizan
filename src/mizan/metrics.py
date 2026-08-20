@@ -102,5 +102,10 @@ def resolved_directions(ens: np.ndarray, prior_ens: np.ndarray) -> dict:
         "n_resolved_90": int((ratio < 0.10).sum()),
         "n_resolved_50": int((ratio < 0.50).sum()),
         "n_unresolved": int((ratio > 0.90).sum()),
-        "effective_dim": float((1.0 - ratio).sum()),
+        # The number of directions the data actually constrained. A direction whose
+        # posterior variance exceeds its prior variance has learned nothing, so it
+        # contributes zero rather than a negative amount. Summing the signed values
+        # gives a quantity that can fall below zero and is not a dimension.
+        "effective_dim": float(np.clip(1.0 - ratio, 0.0, None).sum()),
+        "n_widened": int((ratio > 1.0).sum()),
     }
