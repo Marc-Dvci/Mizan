@@ -487,6 +487,134 @@ def fig_context():
     return FG.save(fig, FIG / "fig0_context.png")
 
 
+def fig_detection():
+    """A district whose books do not balance, and how far clear of the rest it stands."""
+    v = json.loads((RES / "detection.json").read_text())
+    ratio = np.load(RES / "detection.npz")["ratio"]
+    d = int(v["hidden_district"])
+    other = np.delete(ratio, d)
+
+    fig, ax = plt.subplots(1, 2, figsize=(9.4, 3.6))
+    col = [FG.WARM if i == d else FG.MUTED for i in range(ratio.size)]
+    ax[0].bar(range(ratio.size), ratio, color=col, width=0.66)
+    ax[0].axhspan(other.min(), other.max(), color=FG.MUTED, alpha=0.16,
+                  label=f"the other eight, {other.min():.2f} to {other.max():.2f}")
+    ax[0].text(d, ratio[d] + 0.05, f"{ratio[d]:.2f}", ha="center", fontsize=9,
+               weight="bold", color=FG.WARM)
+    ax[0].set_xticks(range(ratio.size))
+    ax[0].set_xticklabels([f"D{i}" for i in range(ratio.size)])
+    ax[0].set_ylabel("closure estimate / what consumptive use explains")
+    ax[0].set_title(f"District {d} is {v['z_score']:.1f} standard deviations clear")
+    ax[0].legend(fontsize=7.5, loc="upper left")
+    FG.despine(ax[0])
+
+    names = ["open-loop account", "Mizan closure"]
+    vals = [v["open_loop_recovery_pct"], v["closure_recovery_pct"]]
+    ax[1].bar(range(2), vals, color=[FG.MUTED, FG.ACCENT], width=0.5)
+    for i, val in enumerate(vals):
+        ax[1].text(i, val + 2, f"{val:.0f}%", ha="center", fontsize=11, weight="bold")
+    ax[1].set_xticks(range(2))
+    ax[1].set_xticklabels(names)
+    ax[1].set_ylim(0, 108)
+    ax[1].set_ylabel("share of that district's true abstraction attributed")
+    ax[1].set_title(f"{v['hidden_mcm_per_year']:.0f} Mm$^3$/yr planted with no canopy, "
+                    f"{100*v['hidden_share_of_district']:.0f}% of the district")
+    FG.despine(ax[1])
+    fig.tight_layout()
+    return FG.save(fig, FIG / "fig9_detection.png")
+
+
+def fig_kansas():
+    """L2: the same closure on real observations, against per-well metered pumping."""
+    from mizan import ks_data as K
+
+    v = json.loads((RES / "kansas.json").read_text())
+    d = np.load(RES / "kansas_posterior_ETH.npz")
+    q_true = d["q_true"] / 1e6
+    ens = d["ens"] / 1e6
+    hat = ens.mean(axis=0)
+    lo = np.quantile(ens, 0.05, axis=0)
+    hi = np.quantile(ens, 0.95, axis=0)
+    ol = d["et_obs"] / 0.80 / 1e6
+    years = np.arange(K.YEAR0, K.YEAR1 + 1)
+
+    fig = plt.figure(figsize=(10.6, 6.6))
+    gs = fig.add_gridspec(2, 3, height_ratios=[1.0, 1.15], hspace=0.42, wspace=0.30)
+
+    # the block, and where the irrigation is
+    ax = fig.add_subplot(gs[0, 0])
+    frac = d["frac"].mean(axis=0)
+    county = d["county"]
+    ax.imshow(np.where(county >= 0, frac, np.nan), origin="lower", cmap="Greens",
+              vmin=0, vmax=0.5)
+    ax.contour(county, levels=np.arange(-0.5, 6, 1), colors=FG.INK, linewidths=0.6)
+    for i, c in enumerate(K.COUNTIES):
+        rr, cc = np.nonzero(county == i)
+        ax.text(cc.mean(), rr.mean(), K.COUNTY_NAME[c][:4], ha="center", va="center",
+                fontsize=7.5, color=FG.INK)
+    ax.set_xticks([]); ax.set_yticks([]); ax.grid(False)
+    ax.set_title(f"Northwest Kansas, {v['_meta']['irrigated_km2']:,.0f} km$^2$ irrigated")
+
+    # the estimate against the meters
+    ax = fig.add_subplot(gs[0, 1:])
+    lim = [0, max(q_true.max(), hat.max(), ol.max()) * 1.05]
+    ax.plot(lim, lim, color=FG.INK, ls=":", lw=1.0)
+    ax.scatter(q_true.ravel(), ol.ravel(), s=13, color=FG.WARM, alpha=0.55,
+               label=f"open loop at 0.80 ({v['BASELINE']['mae_mcm']:.1f})")
+    ax.errorbar(q_true.ravel(), hat.ravel(),
+                yerr=np.vstack([(hat - lo).ravel(), (hi - hat).ravel()]),
+                fmt="o", ms=3.0, lw=0.5, color=FG.ACCENT, alpha=0.8,
+                label=f"Mizan closure, 90% ({v['ETH']['mae_mcm']:.1f})")
+    ax.set_xlim(lim); ax.set_ylim(lim)
+    ax.set_xlabel("metered county-annual pumping, Mm$^3$/yr")
+    ax.set_ylabel("estimated, Mm$^3$/yr")
+    ax.set_title("Against the withheld meters, 2000 to 2024")
+    ax.legend(fontsize=7.5, loc="upper left")
+    FG.despine(ax)
+
+    axes = [fig.add_subplot(gs[1, j]) for j in range(3)]
+    ax = axes[0]
+    ax.plot(years, q_true.sum(axis=0), color=FG.INK, lw=2.0, label="metered total")
+    ax.fill_between(years, lo.sum(axis=0), hi.sum(axis=0), color=FG.ACCENT, alpha=0.20)
+    ax.plot(years, hat.sum(axis=0), color=FG.ACCENT, lw=2.0, label="Mizan closure")
+    ax.plot(years, ol.sum(axis=0), color=FG.WARM, lw=1.3, ls="--", label="open loop")
+    ax.set_ylabel("Mm$^3$/yr")
+    ax.set_title("Six-county total")
+    ax.legend(fontsize=7)
+    FG.despine(ax)
+
+    ax = axes[1]
+    err = np.abs(hat - q_true).mean(axis=1)
+    errb = np.abs(ol - q_true).mean(axis=1)
+    w = 0.38
+    x = np.arange(len(K.COUNTIES))
+    ax.bar(x - w / 2, errb, width=w, color=FG.WARM, label="open loop")
+    ax.bar(x + w / 2, err, width=w, color=FG.ACCENT, label="closure")
+    ax.set_xticks(x)
+    ax.set_xticklabels([K.COUNTY_NAME[c][:4] for c in K.COUNTIES], fontsize=7.5)
+    ax.set_ylabel("mean absolute error, Mm$^3$/yr")
+    ax.set_title("Per county")
+    ax.legend(fontsize=7)
+    FG.despine(ax)
+
+    ax = axes[2]
+    rows = [k for k in ("BASELINE", "BASELINE_ORACLE", "ET", "H", "ETH") if k in v]
+    lab = {"BASELINE": "open loop\n0.80", "BASELINE_ORACLE": "open loop\nfitted",
+           "ET": "ET only", "H": "heads only", "ETH": "closure"}
+    val = [v[k]["mae_mcm"] for k in rows]
+    col = [FG.WARM, FG.WARM, FG.MUTED, FG.MUTED, FG.ACCENT][:len(rows)]
+    ax.bar(range(len(rows)), val, color=col, width=0.62)
+    for i, y in enumerate(val):
+        ax.text(i, y * 1.02, f"{y:.1f}", ha="center", va="bottom", fontsize=8)
+    ax.set_xticks(range(len(rows)))
+    ax.set_xticklabels([lab[k] for k in rows], fontsize=7.5)
+    ax.set_ylabel("MAE, Mm$^3$/yr")
+    ax.set_title("What each leg is worth, on real data")
+    FG.despine(ax)
+
+    return FG.save(fig, FIG / "fig10_kansas.png")
+
+
 def main():
     tr = np.load(RES / "truth.npz")
     ab = json.loads((RES / "ablation.json").read_text())
@@ -496,6 +624,10 @@ def main():
         made.append(fig_allocation())
     if (RES / "voi.json").exists():
         made.append(fig_voi())
+    if (RES / "detection.json").exists():
+        made.append(fig_detection())
+    if (RES / "kansas.json").exists():
+        made.append(fig_kansas())
     for p in made:
         print("wrote", p.relative_to(ROOT))
 

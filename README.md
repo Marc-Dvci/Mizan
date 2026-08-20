@@ -34,6 +34,9 @@ the closure constraint, the inversion target, and what is done with the posterio
 make setup          # environment and MODFLOW 6 binaries
 make all            # truth, ablation grid, allocation, data worth, every figure
 make test           # guards, each paired with a corruption that must break it
+make robustness     # repeat the headline rows across prior ensembles and truths
+make kansas-data    # retrieve the public Kansas records, no account needed
+make kansas         # the L2 rung, scored against metered pumping
 ```
 
 `make all` writes every number and every figure that appears in the submission into
@@ -74,10 +77,44 @@ src/mizan/inversion.py     ES-MDA, localisation, and the total error budget
 src/mizan/allocation.py    response-matrix surrogate and the CVaR allocation
 src/mizan/voi.py           Schur-complement data worth
 src/mizan/metrics.py       scoring, including interval calibration and resolution
+src/mizan/ks_fetch.py      retrieval of the public Kansas records
+src/mizan/ks_data.py       the Kansas region, its observations and its withheld truth
+src/mizan/ks_run.py        the Kansas forward model, prior, operators and localisation
 scripts/                   one script per workstream, in order
 tests/                     guards, each with its paired corruption
 DECISION_LOG.md            what was tried, what failed, and what replaced it
 ```
+
+## The rungs
+
+| Rung | What it tests | Where |
+|---|---|---|
+| **L0** | Whether the inverse problem is identifiable at all, against a truth the estimator never sees | `scripts/00_truth.py` to `scripts/07_report.py` |
+| **L0 robustness** | Whether the result survives an independent prior ensemble, and whether it survives removing the planted spread in the consumptive fraction | `make robustness` |
+| **L2 Kansas** | Whether it recovers **real metered abstraction**, in six counties of the Northwest Kansas groundwater management district over the Ogallala, 2000 to 2024 | `make kansas-data && make kansas` |
+
+L2 is scored against per-water-right metered annual pumping published by the Kansas
+Department of Agriculture through WIMAS. The meters are read once, at the end, to score.
+Nothing upstream of the scoring touches them. The observations the estimator is allowed
+to see are SSEBop actual evapotranspiration unmixed against the MIrAD-US irrigation map,
+and WIZARD annual water levels. Two of the four legs are absent there and are declared
+rather than approximated: the block is smaller than one gravimetric mascon, and the
+Ogallala is unconsolidated and unconfined, so there is no preconsolidation threshold to
+cross.
+
+## Data
+
+Every source is a public record and none needs an account.
+
+| Source | What it provides | Held by |
+|---|---|---|
+| **WIMAS** | Per-water-right metered annual pumping, the withheld truth for L2 | Kansas Department of Agriculture, Division of Water Resources, served by the Kansas Geological Survey |
+| **WIZARD** | Annual winter water levels at 449 wells | Kansas Geological Survey |
+| **SSEBop** | Annual actual evapotranspiration, CONUS, 1 km | USGS EROS |
+| **MIrAD-US** | Irrigated agriculture, CONUS, 250 m, 2002 to 2017 | USGS EROS |
+
+The retrieved files land in `data/kansas/` and are excluded from version control, so a
+clone reproduces them rather than carrying them.
 
 ## Licence
 
