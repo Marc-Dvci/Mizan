@@ -374,8 +374,10 @@ def irrigation_et(et: np.ndarray, frac: np.ndarray, region: Region) -> tuple:
             good = np.isfinite(y) & np.isfinite(x)
             x, y = x[good], y[good]
             n = x.size
+            if n < 20:
+                continue
             sxx = ((x - x.mean()) ** 2).sum()
-            if n < 20 or sxx <= 0:
+            if sxx <= 0:
                 continue
             b = ((x - x.mean()) * (y - y.mean())).sum() / sxx
             a = y.mean() - b * x.mean()

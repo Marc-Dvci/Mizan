@@ -183,3 +183,74 @@ def test_prior_does_not_use_the_evapotranspiration_data():
     dmap = C.EST.district_map()
     area = np.array([(mask_e & (dmap == d)).sum() * C.EST.delr_m ** 2 for d in range(C.NDIST)])
     assert np.allclose(10.0 ** q0[:, 0], area * 1.0)     # exactly 1.0 m/yr of depth
+
+
+# ----------------------------------------------------------------- L2 Kansas guards
+def test_unmixing_recovers_a_planted_irrigation_excess():
+    """The evapotranspiration leg in Kansas is an unmixing, not a threshold.
+
+    A 1 km pixel over a quarter-section pivot landscape is a mixture, so the estimator
+    regresses pixel evapotranspiration on the irrigated fraction of the pixel and reads
+    the slope. Plant a known excess and it has to come back. Destroy the pairing between
+    the fraction and the pixel and it must not.
+    """
+    from mizan import ks_data as K
+
+    rng = np.random.default_rng(4)
+    nrow, ncol = 20, 30
+    region = K.Region(lon0=-102.0, lat0=39.2, nrow=nrow, ncol=ncol, delr_m=2000.0,
+                      county=np.zeros((nrow, ncol), dtype=int))
+    frac = rng.random((1, nrow, ncol)) ** 2
+    dry, excess = 420.0, 300.0
+    et = dry + excess * frac + rng.normal(0.0, 12.0, frac.shape)
+
+    vol, se = K.irrigation_et(et, frac, region)
+    area = K.irrigated_area(frac, region)
+    assert abs(float(vol[0, 0]) / float(area[0, 0]) * 1e3 - excess) < 15.0
+    assert float(se[0, 0]) < 0.10 * float(vol[0, 0])
+
+    shuffled = frac.copy()
+    rng.shuffle(shuffled[0].reshape(-1))
+    bad, _ = K.irrigation_et(et, shuffled[:, ::-1, ::-1], region)
+    assert abs(float(bad[0, 0])) < 0.35 * abs(float(vol[0, 0]))
+
+
+def test_kansas_head_operator_returns_anomalies():
+    """Heads are assimilated as anomalies against each well's own record, because the
+    casing elevation of a farm well is not a measurement. A level would carry the datum
+    error straight into the abstraction estimate."""
+    from mizan import ks_run as R
+
+    rng = np.random.default_rng(11)
+    nwell, nyear = 7, R.NYEAR
+    seen = np.ones((nwell, nyear), dtype=bool)
+    seen[3, :4] = False
+    heads = rng.normal(900.0, 3.0, (nyear, 5, 5))
+    ctx = R.Context(region=None, weight=None, h0=None,
+                    well_row=rng.integers(0, 5, nwell),
+                    well_col=rng.integers(0, 5, nwell),
+                    well_seen=seen, active=None)
+    x = np.zeros(R.NPAR)
+    out = R.observe(x, heads, ctx)
+
+    flat = np.full((nwell, nyear), np.nan)
+    flat[seen] = out["head"]
+    per_well = np.nanmean(flat, axis=1)
+    assert np.allclose(per_well, 0.0, atol=1e-8)
+    assert not np.allclose(heads.mean(), 0.0)
+
+
+def test_kansas_meters_do_not_reach_the_estimator():
+    """The scored quantity is the one thing the run may not look at before scoring."""
+    import inspect
+    from mizan import ks_run as R
+
+    src = inspect.getsource(R)
+    assert "metered_annual" not in src
+    assert "wimas_" not in src.replace("ks_fetch", "")
+
+    driver = (Path(__file__).resolve().parents[1] / "scripts" / "11_kansas_run.py"
+              ).read_text(encoding="utf-8")
+    before, after = driver.split("q_true, meta = K.metered_annual()")
+    assert "q_true" not in before
+    assert "K.metered_annual" not in after
