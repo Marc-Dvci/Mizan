@@ -245,11 +245,19 @@ def build(ws: Path, x: np.ndarray, ctx: Context) -> None:
 
     sim = flopy.mf6.MFSimulation(sim_name="ks", sim_ws=str(ws), exe_name=str(BIN),
                                  version="mf6", memory_print_option="none")
-    perioddata = [(1.0, 1, 1.0)] + [(365.25, 1, 1.0)] * NYEAR
+    # Four time steps a year. One annual step is enough for the mass balance but not
+    # always for the Newton solve: a member drawn at the top of the abstraction prior
+    # moves the water table far enough in one step that the linearisation fails.
+    perioddata = [(1.0, 1, 1.0)] + [(365.25, 4, 1.0)] * NYEAR
     flopy.mf6.ModflowTdis(sim, nper=NYEAR + 1, time_units="days", perioddata=perioddata)
-    flopy.mf6.ModflowIms(sim, complexity="moderate", outer_maximum=80,
-                         inner_maximum=250, outer_dvclose=1e-3, inner_dvclose=1e-4,
-                         linear_acceleration="bicgstab", print_option="none")
+    flopy.mf6.ModflowIms(sim, complexity="complex", outer_maximum=200,
+                         inner_maximum=500, outer_dvclose=1e-3, inner_dvclose=1e-4,
+                         linear_acceleration="bicgstab",
+                         under_relaxation="dbd", under_relaxation_theta=0.9,
+                         under_relaxation_kappa=1e-4, under_relaxation_gamma=0.0,
+                         backtracking_number=20, backtracking_tolerance=1.05,
+                         backtracking_reduction_factor=0.2,
+                         backtracking_residual_limit=1.0, print_option="none")
     gwf = flopy.mf6.ModflowGwf(sim, modelname="ks", save_flows=False,
                                newtonoptions="NEWTON UNDER_RELAXATION")
 
