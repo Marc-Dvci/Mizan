@@ -1,0 +1,22 @@
+[project]
+name = "mizan"
+version = "0.1.0"
+description = "Satellite-constrained abstraction accounting and risk-bounded allocation for unmetered aquifers"
+requires-python = ">=3.12"
+dependencies = [
+  "numpy>=2.0",
+  "scipy>=1.14",
+  "pandas>=2.2",
+  "matplotlib>=3.9",
+  "flopy>=3.9",
+  "pyemu>=1.3",
+  "cvxpy>=1.5",
+  "tqdm",
+  "pyyaml",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
