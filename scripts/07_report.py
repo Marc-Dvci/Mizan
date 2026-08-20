@@ -235,8 +235,79 @@ def main():
         print(f"- Basin-wide error: closure {de['closure']['mae_mcm']:.2f} Mm3/yr against "
               f"{de['open_loop']['mae_mcm']:.2f} for the open-loop account.")
 
+    seeds = {s: load(f"ablation_seed{s}.json") for s in (6, 7)}
+    seeds = {s: v for s, v in seeds.items() if v}
+    eu = load("ablation_etauniform.json")
+    if seeds or eu:
+        section("Robustness")
+
+    if seeds:
+        print("The rows that carry the argument, repeated on independent prior "
+              "ensembles and independent ES-MDA perturbations. One seed is not "
+              "evidence; the spread is what the difference between two rows has to "
+              "beat.\n")
+        rows = [k for k in ("H", "G", "SAT", "ET") if k in ab]
+        print("| observations | " + " | ".join(f"seed {s}" for s in [5] + list(seeds))
+              + " | mean | spread |")
+        print("|---|" + "---:|" * (len(seeds) + 3))
+        for k in rows:
+            vals = [ab[k]["mae_mcm"]] + [seeds[s][k]["mae_mcm"] for s in seeds
+                                         if k in seeds[s]]
+            a = np.array(vals)
+            print(f"| {LABEL[k]} | " + " | ".join(f"{v:.2f}" for v in vals)
+                  + f" | **{a.mean():.2f}** | {a.max()-a.min():.2f} |")
+        print("\nDifferences smaller than the spread in this table are not claimed.")
+
+    if eu:
+        print("\n**A truth with no district spread in the consumptive fraction.** Every "
+              "district given the same fraction, 0.79, which is the case most favourable "
+              "to the open-loop form.\n")
+        print("| truth | open loop at 0.80 | open loop, constant fitted | closure |")
+        print("|---|---:|---:|---:|")
+        print(f"| districts differ, 0.69 to 0.88 | {ab['BASELINE']['mae_mcm']:.2f} | "
+              f"{ab['BASELINE_ORACLE']['mae_mcm']:.2f} | "
+              f"**{ab['H']['mae_mcm']:.2f}** |")
+        print(f"| every district identical | {eu['BASELINE']['mae_mcm']:.2f} | "
+              f"{eu['BASELINE_ORACLE']['mae_mcm']:.2f} | "
+              f"**{eu['H']['mae_mcm']:.2f}** |")
+
+    ks = load("kansas.json")
+    if ks:
+        m = ks["_meta"]
+        section("L2 Kansas: against real metered abstraction")
+        print(f"Six counties of the Northwest Kansas groundwater management district "
+              f"over the Ogallala, {m['years'][0]} to {m['years'][1]}, "
+              f"{m['irrigated_km2']:,.0f} km2 irrigated. The scored quantity is "
+              f"county-annual abstraction against **per-water-right metered pumping** "
+              f"published by the Kansas Department of Agriculture: "
+              f"{m['n_rights']:,} water rights, of which {m['n_missing']} could not be "
+              f"read.\n")
+        print(f"The estimator sees {m['n_obs_head']:,} well-year head anomalies from "
+              f"{m['n_wells']} wells and {6 * (m['years'][1]-m['years'][0]+1)} "
+              f"county-year evapotranspiration volumes. It never sees the meters.\n")
+        print("| observations available to the estimator | MAE, Mm3/yr | MAPE | "
+              "90% coverage |")
+        print("|---|---:|---:|---:|")
+        for k in ("PRIOR", "BASELINE", "BASELINE_ORACLE", "ET", "H", "ETH"):
+            if k not in ks:
+                continue
+            v = ks[k]
+            cov = f"{v['cover_90']*100:.0f}%" if "cover_90" in v else "none produced"
+            star = "**" if k == "ETH" else ""
+            print(f"| {star}{v['label']}{star} | {star}{v['mae_mcm']:.2f}{star} | "
+                  f"{star}{v['mape_pct']:.1f}%{star} | {cov} |")
+        if "ETH" in ks:
+            e = ks["ETH"]
+            print(f"\nPosterior nuisances: specific yield {e['sy_hat']:.3f}, saturated "
+                  f"thickness {e['bsat_hat']:.0f} m, recharge {e['rch_hat']:.0f} mm/yr, "
+                  f"consumptive fraction by county " +
+                  ", ".join(f"{c} {v:.2f}" for c, v in
+                            zip(m["counties"], e["eta_hat"])) + ".")
+
     print("\n---\n")
-    print("Reproduce with `make all` from a fresh clone. `make test` runs the guards.")
+    print("Reproduce with `make all` from a fresh clone. `make test` runs the guards, "
+          "`make robustness` the seed and uniform-efficiency repeats, and "
+          "`make kansas-data && make kansas` the Kansas rung.")
 
 
 if __name__ == "__main__":

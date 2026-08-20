@@ -4,7 +4,7 @@
 
 A fossil aquifer under irrigation is operated almost blind. Meters cover a fraction of
 the wells; where they exist at all they are read annually and often not at all. Every
-management instrument in use — a quota, a licence, a well moratorium — is written in
+management instrument in use, a quota, a licence, a well moratorium, is written in
 units of abstraction, and abstraction is the one term in the basin's water balance that
 nobody measures.
 
