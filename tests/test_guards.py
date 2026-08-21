@@ -565,3 +565,125 @@ def test_the_external_trend_prior_reaches_the_estimator_and_binds():
     # The corruption: at the shipped width the data has to bind the trend, or the
     # comparison above is between two priors and says nothing about the estimator.
     assert ship.std() < 1.0, ship.std()
+
+
+def _lock_pins() -> dict:
+    """Every exact pin in the lockfile, keyed by normalised distribution name."""
+    pins = {}
+    for line in (ROOT / "requirements.lock.txt").read_text(
+            encoding="utf-8").splitlines():
+        line = line.strip()
+        if not line or line.startswith("#"):
+            continue
+        name, _, version = line.partition("==")
+        pins[name.strip().lower().replace("_", "-")] = version.strip()
+    return pins
+
+
+def test_the_environment_the_results_were_produced_in_is_pinned():
+    """The documents claim a pinned environment, so there has to be one.
+
+    Version floors in `pyproject.toml` are not a pin: two clones a month apart resolve
+    to different builds and the numbers are no longer reproducible from the repository
+    alone. `requirements.lock.txt` carries the exact version of every distribution the
+    published results were produced with, and this guard holds three properties of it:
+    every line is an exact pin, every dependency the project declares is covered, and
+    the pinned versions are the ones actually installed here.
+
+    The corruption is a name that is not a dependency. If the coverage check accepted
+    it, the check would be passing on a lookup that never fails.
+    """
+    import re as _re
+    from importlib.metadata import PackageNotFoundError, version as installed_version
+
+    lock = ROOT / "requirements.lock.txt"
+    assert lock.exists(), "the environment is described as pinned, so the lock is part " \
+                          "of the repository"
+    pins = _lock_pins()
+    assert len(pins) > 20, len(pins)
+
+    for line in lock.read_text(encoding="utf-8").splitlines():
+        line = line.strip()
+        if line and not line.startswith("#"):
+            assert _re.fullmatch(r"[A-Za-z0-9._-]+==[A-Za-z0-9._+!-]+", line), line
+
+    head = lock.read_text(encoding="utf-8")[:600]
+    assert "python" in head and "MODFLOW 6" in head, "the interpreter and the solver " \
+                                                     "build belong in the header"
+
+    declared = set()
+    pyproject = (ROOT / "pyproject.toml").read_text(encoding="utf-8")
+    for m in _re.finditer(r'"([A-Za-z0-9._-]+)\s*(?:[><=!~]=?[^"]*)?"', pyproject):
+        token = m.group(1).lower().replace("_", "-")
+        if token in ("mizan",) or "." in token and token.count(".") > 1:
+            continue
+        declared.add(token)
+    declared &= {"numpy", "scipy", "pandas", "matplotlib", "flopy", "pyemu", "cvxpy",
+                 "tqdm", "pyyaml", "pytest", "earthengine-api"}
+    assert len(declared) >= 8, sorted(declared)
+    missing = sorted(d for d in declared if d not in pins)
+    assert not missing, f"declared but not pinned: {missing}"
+
+    # The corruption: the same lookup has to reject something that is not there.
+    assert "mizan-not-a-real-dependency" not in pins
+
+    for name in sorted(declared):
+        try:
+            here = installed_version(name)
+        except PackageNotFoundError:
+            continue
+        assert here == pins[name], (name, here, pins[name])
+
+
+def test_the_licence_audit_covers_the_environment_it_claims_to():
+    """An audit that lists a subset of the environment is not an audit.
+
+    The table and the lockfile are written by the same run of `make env`, so they have
+    to name the same distributions. The corruption is the reverse direction: a name in
+    the audit that is not in the lock has to be caught too, so the comparison is not a
+    one-sided containment that an empty table would satisfy.
+    """
+    import re as _re
+
+    audit = (ROOT / "docs" / "LICENCES.md").read_text(encoding="utf-8")
+    rows = {m.group(1).strip().lower().replace("_", "-"): m.group(2).strip()
+            for m in _re.finditer(r"^\|\s*([A-Za-z0-9._-]+)\s*\|\s*([^|]+)\|",
+                                  audit, _re.M)}
+    rows.pop("distribution", None)
+    rows = {k: v for k, v in rows.items() if set(k) != {"-"}}
+    pins = _lock_pins()
+    assert len(rows) > 20, len(rows)
+    assert not sorted(set(pins) - set(rows)), sorted(set(pins) - set(rows))[:5]
+    assert not sorted(set(rows) - set(pins)), sorted(set(rows) - set(pins))[:5]
+
+    # Nothing may be left without a licence, and no strong copyleft may appear, because
+    # the repository ships under MIT and the proposal says so.
+    # The licence column itself, rather than the prose around it: the verdict
+    # sentence names the licences it rules out, so scanning the whole file would
+    # match its own conclusion.
+    strong = _re.compile(r"\b(GPL-[23]|AGPL|LGPL|GNU General Public)", _re.I)
+    for name, cell in rows.items():
+        assert cell and "not declared" not in cell, (name, cell)
+        assert not strong.search(cell), (name, cell)
+    # The corruption: the same pattern has to fire on a licence that is copyleft.
+    assert strong.search("GPL-3.0-or-later")
+
+
+def test_the_results_table_is_written_inside_the_repository():
+    """The documents send a reader to `RESULTS.md`, so `make report` has to write it.
+
+    The target used to redirect above the repository root, which put the file the
+    submission cites outside the clone a reader gets. The corruption is the redirect
+    itself: a target that writes anywhere above the root fails this.
+    """
+    makefile = (ROOT / "Makefile").read_text(encoding="utf-8")
+    body = makefile[makefile.index("\nreport:"):]
+    body = body[:body.index("\n\n")]
+    assert "07_report.py > RESULTS.md" in body, body
+    assert "../" not in body, body
+
+    out = ROOT / "RESULTS.md"
+    assert out.exists(), "make report"
+    text = out.read_text(encoding="utf-8")
+    assert text.startswith("# Results")
+    assert "make all" in text and "Mm" in text
