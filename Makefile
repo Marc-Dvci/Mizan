@@ -2,8 +2,13 @@
 PY ?= .venv/Scripts/python.exe
 NE ?= 250
 NA ?= 8
+# The uncertainty the mascon product publishes over the Saq box, measured by
+# scripts/24_saq_gain.py. The twin generates its gravity leg quieter than this, so the
+# four-leg row is repeated at the measured error.
+SAQ_SIGMA ?= 20.4
+EE_PROJECT ?= $(EARTHENGINE_PROJECT)
 
-.PHONY: all setup truth ablation allocation voi detection figures report test clean         robustness null kansas-data kansas kansas-score aljawf verify referee
+.PHONY: all setup truth ablation allocation voi detection figures report test clean         robustness null kansas-data kansas kansas-score aljawf verify referee gain saq-gain drift
 
 all: truth ablation allocation voi detection null figures report
 
@@ -91,3 +96,32 @@ verify:
 
 referee:
 	$(PY) scripts/17_referee.py --ne 100 --na 3 --workers 6 --tag $(KTAG)
+
+# Is the mascon gain identifiable, and what does its uncertainty cost the absolute
+# scale? Five runs of the four-leg row differing only in the width of the gain prior,
+# plus the configuration the decision log records as rejected.
+gain:
+	$(PY) scripts/01_ablation.py --ne $(NE) --na $(NA) --rows H --alpha-sd 0.001 --out gain_fixed.json --tag _gfix
+	$(PY) scripts/01_ablation.py --ne $(NE) --na $(NA) --rows H --alpha-sd 0.02  --out gain_tight.json --tag _gtight
+	$(PY) scripts/01_ablation.py --ne $(NE) --na $(NA) --rows H --alpha-sd 0.04  --out gain_pub.json   --tag _gpub
+	$(PY) scripts/01_ablation.py --ne $(NE) --na $(NA) --rows H --alpha-sd 0.08  --out gain_loose.json --tag _gloose
+	$(PY) scripts/01_ablation.py --ne $(NE) --na $(NA) --rows H --alpha-sd 0.5 --drift-free --out gain_free.json --tag _gfree
+	$(PY) scripts/01_ablation.py --ne $(NE) --na $(NA) --rows H --grace-sigma $(SAQ_SIGMA) --out gain_sigma.json --tag _gsig
+	$(PY) scripts/23_gain.py
+
+# The other half of the degenerate pair. The external mass trend is constrained to plus
+# or minus 1.0 mm/yr, and the L3 controls over unirrigated desert measure several times
+# that, so the constraint is put on its own axis rather than argued. The third run is the
+# fourth cell of the two-by-two: the gain released with the trend held, which is the
+# cell `make gain` does not produce.
+drift:
+	$(PY) scripts/01_ablation.py --ne $(NE) --na $(NA) --rows H --drift-sd 4.0  --out drift_wide.json    --tag _dwide
+	$(PY) scripts/01_ablation.py --ne $(NE) --na $(NA) --rows H --drift-sd 10.0 --out drift_control.json --tag _dctl
+	$(PY) scripts/01_ablation.py --ne $(NE) --na $(NA) --rows H --alpha-sd 0.5 --drift-sd 1.0 --out gain_alphafree.json --tag _gafree
+	$(PY) scripts/25_drift.py
+
+# What the gain is on the target basin, from the mascon geometry the product itself
+# carries. Reads live from Earth Engine, so it needs an authenticated project. Pass
+# --reuse to redraw the figure from the cached reads instead of querying again.
+saq-gain:
+	$(PY) scripts/24_saq_gain.py --project $(EE_PROJECT)

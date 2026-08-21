@@ -161,6 +161,17 @@ absorb the absolute scale of the answer while leaving the fit untouched.
 mm/yr. The justification is physical: in a hyper-arid basin with no surface water and no
 snow, the trend in total water storage is the trend in groundwater.
 
+**Addendum, 21 August 2026: the 23 per cent is history and is not reproducible.** It was
+measured on the first version of the estimator, before the R-localised analysis, the
+step cap and the relaxation to prior spread, and no results file was kept. `make gain`
+now runs the release deliberately, at a wider prior than this entry ever shipped (gain sd
+0.5 across the box, external trend sd 3.0), and it does not reproduce the figure: the
+scale moves 3.8 points rather than 23, mean absolute error rises 47 per cent, and the
+gain itself comes back within 0.005 of the twin's true 0.78 while the external trend
+takes up the error instead. The mechanism the entry describes is confirmed and the
+magnitude is not, so 23 per cent is retired from the judge-facing documents and replaced
+by the measured numbers in section 5.5 of the technical note.
+
 **What this established, and it is the finding the entry is built on:** the satellites
 determine the *pattern* of abstraction in space and time; the *absolute scale* rests on
 the gravity leg alone. That is why the value-of-information layer exists and why the

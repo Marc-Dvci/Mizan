@@ -590,7 +590,7 @@ def main():
         # TerraClimate is reported apart from the retrievals. It is a water-balance model
         # with no irrigation term, so it does not disagree about the agriculture, it
         # cannot see it, and folding it into a spread would hide that.
-        ab = {k: v for k, v in al["abstraction_mcm"].items()
+        al_abs = {k: v for k, v in al["abstraction_mcm"].items()
               if not k.startswith("TerraClimate")}
         tc = al["et_mm_yr"]["TerraClimate water balance, 4 km"][yr]
         def _spread(y):
@@ -613,7 +613,7 @@ def main():
               f"{tc / al['reference_et_mm_yr'][yr] * 100:.0f} per cent of the reference, "
               f"because it carries no irrigation term, so it does not disagree about the "
               f"agriculture, it cannot see it. At an efficiency of 0.80 the {yr} spread "
-              f"is {min(ab.values()):,.0f} to {max(ab.values()):,.0f} Mm3/yr against a "
+              f"is {min(al_abs.values()):,.0f} to {max(al_abs.values()):,.0f} Mm3/yr against a "
               f"published {pub['abstraction_mcm']:,.0f}.")
 
         g = al["grace"]
@@ -637,11 +637,173 @@ def main():
               f"to {g['kc_consumptive_mcm_yr']/vlo:.0f}. Neither leg can settle it alone, "
               f"which is what the closure is for.")
 
+    # ------------------------------------------------------- the mascon gain
+    gn = load("gain.json")
+    if gn and gn.get("identifiability"):
+        section("The mascon gain: identifiability, propagation, and the Saq")
+        print("The gravity operator reads `G(t) = alpha * dS(t) / A + external(t) + eps`,")
+        print("and `alpha` multiplies the quantity that leg exists to supply. Two")
+        print("questions the ablation grid cannot answer, because it varies which legs")
+        print("are assimilated and never the gain. Reproduce with `make gain`.\n")
+        print("**Is the gain identifiable?** Share of its prior variance the posterior")
+        print("removes, by observing set.\n")
+        print("| observations | posterior gain | prior variance removed | gravity leg |")
+        print("|---|---:|---:|---|")
+        for r in gn["identifiability"]:
+            print(f"| {r['label']} | {r['alpha_hat']:.3f} | "
+                  f"{100 * r['var_removed']:.0f}% | "
+                  f"{'yes' if r['has_gravity_leg'] else 'no'} |")
+        iv = gn["_identifiability_verdict"]
+        print(f"\nEvery set without a gravity leg removes at most "
+              f"{100 * iv['max_var_removed_without_gravity']:.0f} per cent, and the "
+              f"four-way closure removes "
+              f"{100 * iv['var_removed_by_full_closure']:.0f}. The gain is constrained "
+              f"only by the leg it multiplies, so the absolute scale is a prior and this "
+              f"is the number that says so.")
+        if gn.get("sweep"):
+            print("\n**What does that prior cost?** The four-leg row at a sequence of")
+            print("gain prior widths, nothing else changed.\n")
+            print("| gain prior | residual gain error | MAE, Mm3/yr | "
+                  "basin abstraction bias | district 90% interval, Mm3/yr |")
+            print("|---|---:|---:|---:|---:|")
+            for r in gn["sweep"]:
+                sd = ("free across the box" if r["free"]
+                      else f"plus or minus {r['alpha_prior_sd']:.3f}")
+                w = "-" if not r.get("width90_mcm") else f"{r['width90_mcm']:.1f}"
+                print(f"| {r['label']}, {sd} | {r.get('alpha_err', float('nan')):+.3f} | "
+                      f"{r['mae_mcm']:.2f} | {r['basin_bias_pct']:+.1f}% | {w} |")
+            pg = gn.get("_propagation", {})
+            wt = gn.get("_withheld_truth", {})
+            pt = gn.get("_partition", {})
+            if pg.get("cost_of_the_published_assumption_pts") is not None:
+                print(f"\nThe twin's true gain is {wt.get('alpha', float('nan')):.2f} "
+                      f"against a shipped prior of {gn['_prior_shipped']['mean']:.2f} "
+                      f"plus or minus {gn['_prior_shipped']['sd']:.2f}, wrong by "
+                      f"{wt.get('prior_offset_in_prior_sd', float('nan')):.2f} of its "
+                      f"own standard deviations by construction, so the sweep measures "
+                      f"what a wrongly computed gain costs. Believing it exactly puts "
+                      f"**{pg['cost_of_the_published_assumption_pts']:.1f} percentage "
+                      f"points** into the basin scale that the published width buys "
+                      f"back, at the price of a district interval "
+                      f"{pg.get('interval_widening_pct', float('nan')):.0f} per cent "
+                      f"wider. Releasing the gain and the external mass trend together "
+                      f"moves the scale by **{pg['free_vs_published_pts']:.1f}** points "
+                      f"and raises the error by "
+                      f"{100 * (pg.get('mae_free_over_published', 1.0) - 1.0):.0f} per "
+                      f"cent, while the gain itself comes back within "
+                      f"{abs(pt.get('alpha_err_with_both_free', float('nan'))):.3f} of "
+                      f"truth and the external trend takes up the discrepancy instead. "
+                      f"A well-recovered gain is not evidence that the gravity leg has "
+                      f"been read correctly.")
+
+    sq = load("saq_gain.json")
+    if sq:
+        st, al_, sv = sq["_tessellation"], sq["_mascon_aligned_footprint"], \
+            sq["_sensitivity_verdict"]
+        print(f"\n**The gain on the target basin, computed rather than assumed.** The "
+              f"mascon polygons are recovered from the published product, which is "
+              f"piecewise constant on them: {st['mascons_in_window']} mascons over the "
+              f"window, median area {st['median_area_km2']:,.0f} km2 against the "
+              f"{st['equal_area_3deg_km2']:,.0f} km2 of the three-degree equal-area "
+              f"design. The source is the {sq['_source']['irrigated_km2']:,.0f} km2 above "
+              f"NDVI {sq['_source']['ndvi_threshold']:.2f} in every one of "
+              f"{', '.join(str(y) for y in sq['_source']['years'])}. Reproduce with "
+              f"`make saq-gain`.\n")
+        sp = [r["spread_km"] for r in sq["gain_by_spread"]]
+        print("| reporting footprint | area, km2 | "
+              + " | ".join(f"gain, source spread {r:.0f} km" for r in sp) + " |")
+        print("|---|---:|" + "---:|" * len(sp))
+        for name in sq["_footprint_area_km2"]:
+            gains = " | ".join(f"{r['gain'][name]:.3f}" for r in sq["gain_by_spread"])
+            print(f"| {name} | {sq['_footprint_area_km2'][name]:,.0f} | {gains} |")
+        print(f"\nOver whole mascons the averaging returns every unit of mass that is "
+              f"there, for any source geometry inside it: that footprint is "
+              f"{al_['mascons']} mascons and {al_['area_km2']:,.0f} km2. Under a "
+              f"persistent delineation the threshold moves the gain over the Saq box by "
+              f"{sv['persistent_delineation']['gain_sd']['0.0']:.3f}; delineating from a "
+              f"single year moves it by "
+              f"{sv['one_year_delineation']['gain_sd']['0.0']:.3f}. The uncertainty the "
+              f"product publishes over that box is "
+              f"{sq['_mascon_uncertainty_mm']:.1f} mm against the "
+              f"{sq['_l0_grace_sigma_mm']:.0f} mm the L0 twin generates at.")
+        sg = load("gain_sigma.json")
+        if sg and "H" in sg:
+            a, b = ab["H"], sg["H"]
+            print(f"\nRepeating the four-leg row with the gravity leg degraded to "
+                  f"{sg['_meta']['grace_sigma_mm']:.1f} mm and the estimator told about "
+                  f"it: MAE {a['mae_mcm']:.2f} to {b['mae_mcm']:.2f} Mm3/yr, basin scale "
+                  f"{a['basin_bias_pct']:+.1f} to {b['basin_bias_pct']:+.1f} per cent, "
+                  f"90 per cent coverage {a['cover_90']:.2f} to {b['cover_90']:.2f}.")
+
+    # ------------------------------------------------- the external mass trend
+    dr = load("drift.json")
+    if dr and dr.get("sweep"):
+        section("The external mass trend: the other nuisance in the gravity operator")
+        ctl = dr["_l3_controls_mm_yr"]
+        print("The entry constrains the linear part of the external mass term to plus "
+              "or minus {:.1f} mm/yr. The L3 control boxes, unirrigated desert over the "
+              "Arabian shield and the Rub' al Khali, carry {} mm/yr in magnitude, "
+              "against {:.1f} over the Saq itself, so the target basin does not support "
+              "a prior that tight. Reproduce with `make drift`."
+              .format(dr["_shipped_prior_mm_yr"],
+                      ", ".join("{:.1f}".format(v) for v in ctl.values()),
+                      dr["_l3_saq_trend_mm_yr"]))
+        print()
+        print("| external trend prior, mm/yr | posterior trend | MAE, Mm3/yr | "
+              "basin abstraction bias | district 90% interval, Mm3/yr | 90% coverage |")
+        print("|---|---:|---:|---:|---:|---:|")
+        for r in dr["sweep"]:
+            print("| {}, plus or minus {:.0f} | {:+.2f} | {:.2f} | {:+.1f}% | {:.1f} | "
+                  "{:.2f} |".format(r["label"], r["drift_trend_prior_sd"],
+                                    r.get("drift_trend_hat", float("nan")),
+                                    r["mae_mcm"], r["basin_bias_pct"],
+                                    r.get("width90_mcm", float("nan")),
+                                    r.get("cover_90", float("nan"))))
+        v = dr["_verdict"]
+        print("\nWidening the prior {:.0f}-fold costs {:.0f} per cent of the error, "
+              "{:.2f} to {:.2f} Mm3/yr, moves the basin scale {:+.1f} to {:+.1f} per "
+              "cent and leaves the coverage at {:.2f}. The constraint the target basin's "
+              "controls do not support is not the one the answer rests on."
+              .format(v["prior_width_ratio"], 100 * (v["mae_ratio"] - 1.0),
+                      v["mae_shipped_mcm"], v["mae_widest_mcm"],
+                      v["bias_shipped_pct"], v["bias_widest_pct"],
+                      v["cover_90_widest"]))
+        cells = dr.get("_factorial", {}).get("cells", [])
+        if cells:
+            print("\n**The two nuisances as a two-by-two.** Each held at the prior the "
+                  "entry ships, or released.\n")
+            print("| mascon gain | external mass trend | MAE, Mm3/yr | "
+                  "basin abstraction bias |")
+            print("|---|---|---:|---:|")
+            for c in cells:
+                g = ("released, sd {:.2f}".format(c["alpha_prior_sd"])
+                     if c["gain_free"] else "held at the shipped prior")
+                t = ("released, sd {:.0f} mm/yr".format(c["drift_trend_prior_sd"])
+                     if c["trend_free"] else "held at the shipped prior")
+                print("| {} | {} | {:.2f} | {:+.1f}% |".format(
+                    g, t, c["mae_mcm"], c["basin_bias_pct"]))
+            if len(cells) == 4:
+                f = dr["_factorial"]
+                print("\nThe pair is not symmetric. Released on its own the external "
+                      "trend raises the district error by {:.1f} per cent; released on "
+                      "its own, with the trend still held, the gain raises it by {:.0f}; "
+                      "released together, {:.0f}. The gain carries the absolute scale "
+                      "and the trend does not, so the gain is the constraint that has to "
+                      "be defended, and it is the one that is computable on the target "
+                      "basin. In both released-gain rows the posterior gain lands within "
+                      "{:.3f} of the withheld truth while the estimate is a third worse."
+                      .format(100 * (f["mae_ratio_trend_only"] - 1.0),
+                              100 * (f["mae_ratio_gain_only"] - 1.0),
+                              100 * (f["mae_ratio_both"] - 1.0),
+                              max(abs(c["alpha_err"]) for c in cells
+                                  if c["gain_free"])))
+
     print("\n---\n")
     print("Reproduce with `make all` from a fresh clone. `make test` runs the guards, "
           "`make robustness` the seed and uniform-efficiency repeats, "
-          "`make kansas-data && make kansas && make kansas-score` the Kansas rung, and "
-          "`make aljawf` the Al Jawf rung.")
+          "`make kansas-data && make kansas && make kansas-score` the Kansas rung, "
+          "`make aljawf` the Al Jawf rung, and `make gain`, `make saq-gain` and "
+          "`make drift` the three sensitivity studies on the gravity leg.")
 
 
 if __name__ == "__main__":

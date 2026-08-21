@@ -39,9 +39,12 @@ make kansas-data    # retrieve the public Kansas records, no account needed
 make kansas         # the L2 rung, scored against metered pumping
 make kansas-score   # the anomaly, resolution and amplitude scoring on top of it
 make aljawf         # the L3 rung, read live from Earth Engine
+make gain           # what the mascon gain assumption costs, on an axis
+make saq-gain       # what the mascon gain is on the target basin, from its geometry
+make drift          # what the external mass trend prior costs, against the L3 controls
 ```
 
-`make aljawf` is the only target that needs an account. Run `earthengine authenticate`
+`make aljawf` and `make saq-gain` are the only targets that need an account. Run `earthengine authenticate`
 once and set `EARTHENGINE_PROJECT` to your own cloud project; registration is free and
 every asset the rung reads is public.
 
@@ -99,6 +102,9 @@ DECISION_LOG.md            what was tried, what failed, and what replaced it
 | **L0 robustness** | Whether the result survives three independent prior ensembles, and whether it survives removing the planted spread in the consumptive fraction | `make robustness` |
 | **L2 Kansas** | Whether it recovers **real metered abstraction**, in six counties of the Northwest Kansas groundwater management district over the Ogallala, 2000 to 2024 | `make kansas-data && make kansas && make kansas-score` |
 | **L3 Al Jawf** | How far apart the published instruments are over the target basin, from public data. Nothing here is fitted and nothing is scored | `make aljawf` |
+| **The mascon gain** | Whether the gravity leg's gain is identifiable at all, and what its prior costs the absolute scale of the account | `make gain` |
+| **The gain on the Saq** | What that gain is on the target basin, computed from the mascon polygons recovered from the published product rather than assumed | `make saq-gain` |
+| **The external mass trend** | What the other nuisance in the gravity operator costs when its prior is widened to the scale the L3 control boxes measure | `make drift` |
 
 L2 is scored against per-water-right metered annual pumping published by the Kansas
 Department of Agriculture through WIMAS. The meters are read once, at the end, to score.
