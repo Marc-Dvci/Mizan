@@ -23,7 +23,7 @@ PCS_OFFSET = 12.0       # prior mean 18.0
 RECHARGE = 0.6          # prior mean 1.0
 GHB_COND = 5.0e-3       # prior mean 3.0e-3
 
-GRACE_ALPHA = 0.78      # prior mean 0.88
+GRACE_ALPHA = 0.78      # prior mean 0.85, so the shipped prior is wrong by 1.75 sd
 GRACE_DRIFT = np.array([-0.8, 3.5, -2.2])      # mm/yr, mm, mm
 INSAR_RAMP = np.array([0.0022, 0.0016, -0.0011])   # m/yr, m/yr per 100 km, per 100 km
 

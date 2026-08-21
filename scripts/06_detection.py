@@ -73,6 +73,7 @@ def main():
     X0 = E.sample_prior(pr, args.ne)
     root = ROOT / "runs" / "det"
 
+    obs_full = np.concatenate([tr["obs_" + k] for k in I.LEGS])
     sd_full = np.concatenate([tr["sig_" + k] for k in I.LEGS])
     t0 = time.time()
     D0, ok0 = I.run_ensemble(X0, root, C.EST, mask_e, geom, workers=args.workers)
@@ -80,7 +81,8 @@ def main():
 
     legs = tuple(k for k in I.LEGS if k != "meter")
     X, ok, hist, _ = AB.run_row(legs, X0, D0, ok0, tr, mask_e, geom, args.na,
-                                args.workers, root, pr, sd_full, rtps=args.rtps)
+                                args.workers, root, pr, obs_full, sd_full,
+                                rtps=args.rtps)
     ens = np.array([E.q_annual(X[:, i]) for i in np.nonzero(ok)[0]])
     q_hat = ens.mean(axis=0)
 

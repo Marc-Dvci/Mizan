@@ -97,8 +97,8 @@ def head_subset(tr, nwell):
     return np.concatenate(keep) if keep else np.zeros(0, dtype=int)
 
 
-def run_row(legs, X0, D0, ok0, tr, mask_e, geom, na, workers, root, pr, sd_full,
-            meters=None, wells=None, rtps=0.7, seed=5):
+def run_row(legs, X0, D0, ok0, tr, mask_e, geom, na, workers, root, pr,
+            obs_full, sd_full, meters=None, wells=None, rtps=0.7, seed=5):
     """One ES-MDA inversion restricted to `legs`. The prior ensemble is shared.
 
     `meters` restricts the metering leg to a list of districts, which is how the grid
@@ -123,7 +123,6 @@ def run_row(legs, X0, D0, ok0, tr, mask_e, geom, na, workers, root, pr, sd_full,
             sub_local.append(off_local + np.arange(n))
         off_local += idx[k].stop - idx[k].start
     take = np.concatenate(parts)
-    obs_full = np.concatenate([tr["obs_" + k] for k in I.LEGS])
     sel_obs = obs_full[take]
     sel_sd = sd_full[take]
     rho = I.taper(geom, C.EST, legs=legs)
@@ -153,6 +152,34 @@ def score(X, ok, q_true):
     return out, ens
 
 
+def gain_posterior(X, ok, pr):
+    """What the data did to the mascon gain, and what the gain does to the answer.
+
+    Two numbers a juror asks for and the ablation grid never reported. The first is
+    whether the observations identify the gain at all, read as the share of its prior
+    variance the posterior removes. The second is how much of the absolute scale rides on
+    it, read as the covariance between the gain and the basin total across the ensemble.
+    That second one is a posterior sensitivity rather than a controlled sweep, because
+    every other parameter is free to move along the gain axis, so it is reported under a
+    name that says so.
+    """
+    ia = E.LAYOUT["grace_alpha"]
+    a = np.asarray(X[ia][:, ok]).ravel()
+    sd0 = float(np.asarray(pr.sd[ia]).ravel()[0])
+    Q = (10.0 ** X[E.LAYOUT["logq"]][:, ok]).sum(axis=0).ravel() / 1e6
+    out = {"alpha_hat": float(a.mean()), "alpha_sd_post": float(a.std()),
+           "alpha_prior_sd": sd0,
+           "alpha_var_removed": float(1.0 - (a.std() / sd0) ** 2) if sd0 > 0 else 0.0,
+           "basin_total_mcm": float(Q.mean())}
+    if a.std() > 1e-9 and Q.std() > 0:
+        slope = float(np.polyfit(a, Q, 1)[0])
+        out["dQ_dalpha_mcm"] = slope
+        out["alpha_Q_corr"] = float(np.corrcoef(a, Q)[0, 1])
+        out["scale_sensitivity_pct_per_prior_sd"] = float(
+            100.0 * slope * sd0 / max(Q.mean(), 1e-9))
+    return out
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--ne", type=int, default=250)
@@ -168,6 +195,36 @@ def main():
     ap.add_argument("--out", type=str, default="ablation.json")
     ap.add_argument("--tag", type=str, default="",
                     help="suffix for posterior_*.npz files and the scratch run root")
+    # The mascon gain multiplies the gravity leg, and basin storage falls close to
+    # linearly, so the gain and a free external trend absorb the absolute scale of the
+    # answer between them. The entry treats the gain as computed rather than fitted,
+    # which is a prior. These two arguments are how that choice is put on an axis and
+    # scored, instead of being asserted.
+    ap.add_argument("--alpha-sd", type=float, default=None,
+                    help="override the mascon gain prior standard deviation; the shipped "
+                         "configuration is 0.04")
+    ap.add_argument("--alpha-mean", type=float, default=None,
+                    help="override the mascon gain prior mean; the shipped value is 0.85")
+    # The L0 twin generates its gravity leg at C.GRACE_SIGMA_MM. The uncertainty the
+    # mascon product publishes over the Saq is larger than that, and script 24 measures
+    # it, so the row can be repeated with the leg degraded to the published figure.
+    ap.add_argument("--grace-sigma", type=float, default=None,
+                    help="degrade the gravity leg to this instrument error in mm, "
+                         "adding the variance difference to the observation and telling "
+                         "the estimator about it; the twin generates at "
+                         f"{C.GRACE_SIGMA_MM:.0f}")
+    # The external mass trend is constrained to plus or minus 1.0 mm/yr on the physical
+    # argument that in a hyper-arid basin the trend in total water storage is the trend
+    # in groundwater. On the target basin the L3 controls measure the regional trend over
+    # unirrigated desert at several times that, so the width of this prior is an axis in
+    # its own right and is scored rather than argued.
+    ap.add_argument("--drift-sd", type=float, default=None,
+                    help="override the external mass trend prior standard deviation in "
+                         "mm/yr; the shipped configuration is 1.0")
+    ap.add_argument("--drift-free", action="store_true",
+                    help="release the external mass trend from its plus or minus 1.0 "
+                         "mm/yr constraint, which is the configuration the decision log "
+                         "records as rejected")
     args = ap.parse_args()
 
     if args.meters:
@@ -177,6 +234,20 @@ def main():
     tr, mask_t, mask_e, geom = load_setup(args.truth)
     q_true = tr["q_annual"]
     pr = E.prior(mask_e, C.EST)
+    ia = E.LAYOUT["grace_alpha"]
+    if args.alpha_mean is not None:
+        pr.mean[ia] = args.alpha_mean
+    if args.alpha_sd is not None:
+        pr.sd[ia] = args.alpha_sd
+    if args.drift_free:
+        pr.sd[E.LAYOUT["grace_drift"]] = np.array([3.0, 4.0, 4.0])
+    if args.drift_sd is not None:
+        pr.sd[E.LAYOUT["grace_drift"]] = np.array([args.drift_sd, 4.0, 4.0])
+    gain_cfg = {"alpha_mean": float(np.asarray(pr.mean[ia]).ravel()[0]),
+                "alpha_sd": float(np.asarray(pr.sd[ia]).ravel()[0]),
+                "drift_trend_sd": float(np.asarray(pr.sd[E.LAYOUT["grace_drift"]]).ravel()[0]),
+                "grace_sigma_mm": float(args.grace_sigma if args.grace_sigma is not None
+                                        else C.GRACE_SIGMA_MM)}
     X0 = E.sample_prior(pr, args.ne, seed=args.seed)
     root = ROOT / "runs" / ("ens" + args.tag)
 
@@ -191,8 +262,25 @@ def main():
     # full-information row and reported alongside; on every leg it comes out below the
     # instrument error, so no inflation is applied. See DECISION_LOG.md for the two
     # earlier weightings that did not survive.
-    obs_full = np.concatenate([tr["obs_" + k] for k in I.LEGS])
-    sd_full = np.concatenate([tr["sig_" + k] for k in I.LEGS])
+    obs = {k: np.array(tr["obs_" + k], float) for k in I.LEGS}
+    sig = {k: np.array(tr["sig_" + k], float) for k in I.LEGS}
+    if args.grace_sigma is not None:
+        # The leg is already carrying the twin's own noise, so only the variance
+        # difference is added. Degrading an observation the estimator still trusts at the
+        # old error would be a different and dishonest experiment, so the reported error
+        # moves with it.
+        s0 = float(C.GRACE_SIGMA_MM)
+        extra = float(args.grace_sigma) ** 2 - s0 ** 2
+        if extra < 0:
+            raise SystemExit(f"--grace-sigma below the twin's own {s0:.1f} mm cannot be "
+                             "reached by adding noise; regenerate the truth instead")
+        rng = np.random.default_rng(args.seed + 9001)
+        obs["grace"] = obs["grace"] + np.sqrt(extra) * rng.standard_normal(
+            obs["grace"].shape)
+        sig["grace"] = np.full(sig["grace"].shape, float(args.grace_sigma))
+        print(f"gravity leg degraded from {s0:.1f} to {args.grace_sigma:.1f} mm")
+    obs_full = np.concatenate([obs[k] for k in I.LEGS])
+    sd_full = np.concatenate([sig[k] for k in I.LEGS])
     budget = None
 
     out_path = ROOT / "results" / args.out
@@ -212,7 +300,8 @@ def main():
         legs = ROWS[key]
         t = time.time()
         X, ok, hist, Drow = run_row(legs, X0, D0, ok0, tr, mask_e, geom,
-                                    args.na, args.workers, root, pr, sd_full,
+                                    args.na, args.workers, root, pr,
+                                    obs_full, sd_full,
                                     meters=ROW_METERS.get(key),
                                     wells=ROW_WELLS.get(key), rtps=args.rtps,
                                     seed=args.seed)
@@ -241,6 +330,7 @@ def main():
             "n_resolved_90": rd["n_resolved_90"], "n_unresolved": rd["n_unresolved"],
             "effective_dim": rd["effective_dim"],
             "seconds": time.time() - t,
+            **gain_posterior(X, ok, pr),
         }
         np.savez_compressed(ROOT / "results" / f"posterior_{key}{args.tag}.npz",
                             X=X, ok=ok, ens=ens, variance_ratio=rd["variance_ratio"])
@@ -249,7 +339,7 @@ def main():
               f"({time.time()-t:.0f}s)")
 
     res["_meta"] = {"seed": args.seed, "ne": args.ne, "na": args.na,
-                    "truth": args.truth, "rtps": args.rtps}
+                    "truth": args.truth, "rtps": args.rtps, **gain_cfg}
     out_path.write_text(json.dumps(res, indent=2))
     print(f"\nwrote results/{args.out}")
     print(f"{'row':4s} {'observations':40s} {'MAE':>9s} {'MAPE':>7s} {'bias':>9s} "
