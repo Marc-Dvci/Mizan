@@ -394,3 +394,174 @@ def test_the_direction_of_a_declared_change_is_not_reported_as_a_test():
     balanced = np.array([-12.0, 8.0, -19.0, 3.0, -21.0, 14.0])
     assert max((falling < 0).mean(), (falling > 0).mean()) > 0.8
     assert max((balanced < 0).mean(), (balanced > 0).mean()) == 0.5
+
+
+def test_the_mascon_gain_is_only_constrained_by_the_leg_it_multiplies():
+    """The gain enters as a prior, and the entry has to be able to say by how much.
+
+    Two things this guards. The gain prior must be overridable from the driver, or the
+    sensitivity study cannot be run at all and the assumption stays an assertion. And an
+    observing set that carries no gravity leg must return the gain prior untouched, which
+    is the statement that the gain is not independently identifiable.
+
+    The corruption is the paired row: a configuration that does carry the gravity leg has
+    to move the gain. A test where nothing moves the gain would pass for the wrong reason.
+    """
+    import numpy as np
+    from mizan import estimator as EST
+
+    src = (ROOT / "scripts" / "01_ablation.py").read_text(encoding="utf-8")
+    assert "--alpha-sd" in src and "--alpha-mean" in src
+    assert "gain_posterior" in src, "the posterior gain has to be recorded per row"
+
+    ia = EST.LAYOUT["grace_alpha"]
+    prior_sd = 0.04
+
+    # The twin's gain is offset from the prior on purpose: a sweep run against a truth
+    # that agrees with its own prior would measure nothing, because there would be no
+    # error for the width of the prior to buy back.
+    from mizan import truth as TR
+    pr = EST.prior(fields.upscale_mask(F.pivot_mask(C.TRUTH), 2), C.EST)
+    mean = float(np.asarray(pr.mean[ia]).ravel()[0])
+    assert abs(mean - TR.GRACE_ALPHA) > 1.0 * prior_sd, (
+        "the truth gain and the prior mean must differ by more than one prior sd, or "
+        "the gain sweep is scoring a prior that was already right")
+
+    def spread(row):
+        p = ROOT / "results" / f"posterior_{row}.npz"
+        if not p.exists():
+            return None
+        z = np.load(p)
+        ok = z["ok"] if "ok" in z.files else np.ones(z["X"].shape[1], dtype=bool)
+        return float(np.asarray(z["X"][ia][:, ok]).ravel().std())
+
+    without = [s for s in (spread(r) for r in ("A", "D", "F")) if s is not None]
+    withg = [s for s in (spread(r) for r in ("B", "E", "H")) if s is not None]
+    if not without or not withg:
+        pytest.skip("ablation posteriors not built")
+
+    # No gravity leg: the posterior is the prior, to within ensemble sampling noise.
+    for s in without:
+        assert 1.0 - (s / prior_sd) ** 2 < 0.10, (
+            "a leg that does not multiply the gain must not constrain it")
+    # The corruption: with the gravity leg the gain has to move, or the guard above is
+    # passing because nothing in the pipeline touches the gain at all.
+    assert max(1.0 - (s / prior_sd) ** 2 for s in withg) > 0.20, (
+        "the gravity leg must constrain the gain, or this test proves nothing")
+
+
+def test_a_degraded_observation_reaches_the_assimilation():
+    """An observation the driver alters has to be the observation the row assimilates.
+
+    `run_row` used to rebuild the observation vector from the truth file, so a leg
+    degraded on the way in changed the error the estimator was told about and never
+    changed the numbers it saw. That is the failure mode where an instrument-noise
+    experiment reports an effect it never applied, so the vector is now passed in and
+    this guard holds it there.
+
+    The corruption is the arithmetic itself: degrading a leg that already carries its own
+    noise means adding the variance difference, not the difference of the standard
+    deviations, and a draw checks that the result really lands at the requested error.
+    """
+    import inspect
+    import numpy as np
+
+    sys.path.insert(0, str(ROOT / "scripts"))
+    src = (ROOT / "scripts" / "01_ablation.py").read_text(encoding="utf-8")
+    body = src[src.index("def run_row("):src.index("def main(")]
+    assert "obs_full," in src[src.index("def run_row("):src.index('"""', src.index(
+        "def run_row("))], "the observation vector must be an argument of run_row"
+    assert 'obs_full = np.concatenate' not in body, (
+        "run_row must assimilate the vector it is handed, not rebuild it from the truth")
+    assert "--grace-sigma" in src
+
+    # The paired numerical check. A leg generated at s0 and degraded to s carries the
+    # variance difference, and the total has to come out at s.
+    s0, s = 14.0, 20.4
+    rng = np.random.default_rng(0)
+    x = s0 * rng.standard_normal(400_000)
+    x = x + np.sqrt(s ** 2 - s0 ** 2) * rng.standard_normal(x.shape)
+    assert abs(x.std() - s) < 0.1, x.std()
+    # And the corruption: adding the difference of the standard deviations does not.
+    y = s0 * rng.standard_normal(400_000)
+    y = y + (s - s0) * rng.standard_normal(y.shape)
+    assert abs(y.std() - s) > 0.5
+
+
+def test_the_saq_mascon_gain_is_computed_and_not_assumed():
+    """The gain the target basin needs is geometry, and geometry can be checked.
+
+    Three limits of the forward model are analytic. A spatially uniform source has to
+    return a gain of one over any footprint, because a uniform field survives averaging.
+    A footprint made of whole mascons has to return one for any source inside it, which
+    is the design rule the entry proposes for the Saq. And the recovered tessellation has
+    to look like the published three-degree equal-area design, or the polygons the whole
+    calculation rests on are not the product's.
+
+    The corruption is a footprint tighter than one mascon. If that also returned one, the
+    forward model would be averaging nothing and every number here would be vacuous.
+    """
+    import json
+
+    p = ROOT / "results" / "saq_gain.json"
+    if not p.exists():
+        pytest.skip("saq_gain.json not built")
+    d = json.loads(p.read_text(encoding="utf-8"))
+
+    for name, g in d["_checks"]["uniform_source_gain_is_one"].items():
+        assert abs(g - 1.0) < 1e-9, (name, g)
+    assert abs(d["_checks"]["aligned_footprint_gain_is_one"] - 1.0) < 1e-9
+    whole, carrying = d["_checks"]["carrying_mascons_are_whole"]
+    assert whole == carrying, "a clipped mascon carries the wrong area and the wrong gain"
+
+    t = d["_tessellation"]
+    assert abs(t["median_area_km2"] / t["equal_area_3deg_km2"] - 1.0) < 0.05, t
+
+    tight = d["gain_by_spread"][0]["gain"]["the Al Jawf pivot box"]
+    assert tight < 0.5, (
+        "a box far smaller than a mascon has to lose most of the signal, or the "
+        "averaging in this forward model is not happening at all")
+
+
+def test_the_external_trend_prior_reaches_the_estimator_and_binds():
+    """The other half of the degenerate pair has to be an axis, not a fixed belief.
+
+    Two things this guards. The width of the external mass trend prior must be
+    overridable from the driver, or the constraint the entry defends in words cannot be
+    scored at all. And a run at a wider prior must actually carry a wider posterior
+    trend, which is the check that the override reached the ensemble rather than only
+    the metadata.
+
+    The corruption is the paired direction: at the shipped width the posterior trend
+    spread has to sit below its own prior. If it did not, the leg would be carrying no
+    information about the trend and a widening test would be measuring the prior alone.
+    """
+    import json
+
+    import numpy as np
+    from mizan import estimator as EST
+
+    src = (ROOT / "scripts" / "01_ablation.py").read_text(encoding="utf-8")
+    assert "--drift-sd" in src, "the external trend prior has to be overridable"
+
+    def post(tag):
+        p = ROOT / "results" / f"posterior_H{tag}.npz"
+        if not p.exists():
+            return None
+        z = np.load(p)
+        ok = z["ok"] if "ok" in z.files else np.ones(z["X"].shape[1], dtype=bool)
+        return np.asarray(z["X"][EST.LAYOUT["grace_drift"]][:, ok])[0]
+
+    ship, wide = post("_gpub"), post("_dctl")
+    if ship is None or wide is None:
+        pytest.skip("the drift rows are not built")
+
+    meta = json.loads((ROOT / "results" / "drift_control.json").read_text(
+        encoding="utf-8"))["_meta"]
+    assert meta["drift_trend_sd"] > 1.0, meta
+
+    # The override reached the ensemble: a wider prior leaves a wider posterior.
+    assert wide.std() > 1.5 * ship.std(), (ship.std(), wide.std())
+    # The corruption: at the shipped width the data has to bind the trend, or the
+    # comparison above is between two priors and says nothing about the estimator.
+    assert ship.std() < 1.0, ship.std()
