@@ -43,6 +43,10 @@ def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--tag", type=str, default="_v4")
     ap.add_argument("--out", type=str, default="fig12_verify.png")
+    ap.add_argument("--layout", choices=("banner", "grid"), default="banner",
+                    help="banner is one row of four, for a page-width figure in the "
+                         "documents; grid is two by two, which fills a 16:9 slide and "
+                         "doubles the size of every panel")
     args = ap.parse_args()
 
     drv = importlib.import_module("11_kansas_run")
@@ -77,7 +81,12 @@ def main() -> None:
             marks.append((ec[-1], ew[-1], named[(i, j)]))
     ec, ew = np.array(ec), np.array(ew)
 
-    fig, ax = plt.subplots(1, 4, figsize=(16.4, 4.0))
+    if args.layout == "grid":
+        fig, axg = plt.subplots(2, 2, figsize=(12.6, 8.0))
+        ax = axg.ravel()
+        fig.subplots_adjust(hspace=0.34, wspace=0.26)
+    else:
+        fig, ax = plt.subplots(1, 4, figsize=(16.4, 4.0))
 
     # ---------------------------------------------------------------- left
     a0 = ax[0]
