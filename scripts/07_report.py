@@ -500,12 +500,15 @@ def main():
                    and not k.startswith("TerraClimate")}
             return len(fin), max(fin.values()) / min(fin.values())
 
+        WORD = {1: "one", 2: "two", 3: "three", 4: "four", 5: "five"}
         sp = {y: _spread(y) for y in yrs}
         n_yr, s_yr = sp[yr]
         lo = min(v for _, v in sp.values())
         hi = max(v for _, v in sp.values())
-        print(f"\nThe {n_yr} retrievals that publish a value for {yr} span a factor of "
-              f"**{s_yr:.1f}**, and across the {len(yrs)} years measured the spread runs "
+        print(f"\nThe {WORD.get(n_yr, n_yr)} retrievals that publish a value for {yr} "
+              f"span a factor of "
+              f"**{s_yr:.1f}**, and across the {WORD.get(len(yrs), len(yrs))} years "
+              f"measured the spread runs "
               f"{lo:.1f} to {hi:.1f}. TerraClimate is left out of that range on purpose: "
               f"at {tc:,.0f} mm/yr it is "
               f"{tc / al['reference_et_mm_yr'][yr] * 100:.0f} per cent of the reference, "
