@@ -494,14 +494,25 @@ def main():
         ab = {k: v for k, v in al["abstraction_mcm"].items()
               if not k.startswith("TerraClimate")}
         tc = al["et_mm_yr"]["TerraClimate water balance, 4 km"][yr]
-        print(f"\nOver the same pixels the retrievals span a factor of "
-              f"**{al['et_spread_factor']:.1f}**, which at an efficiency of 0.80 is "
-              f"{min(ab.values()):,.0f} to {max(ab.values()):,.0f} Mm3/yr against a "
-              f"published {pub['abstraction_mcm']:,.0f}. The global water-balance model "
-              f"is reported apart from that range: at {tc:,.0f} mm/yr it is "
+        def _spread(y):
+            fin = {k: r[y] for k, r in al["et_mm_yr"].items()
+                   if r.get(y) is not None and r[y] == r[y]
+                   and not k.startswith("TerraClimate")}
+            return len(fin), max(fin.values()) / min(fin.values())
+
+        sp = {y: _spread(y) for y in yrs}
+        n_yr, s_yr = sp[yr]
+        lo = min(v for _, v in sp.values())
+        hi = max(v for _, v in sp.values())
+        print(f"\nThe {n_yr} retrievals that publish a value for {yr} span a factor of "
+              f"**{s_yr:.1f}**, and across the {len(yrs)} years measured the spread runs "
+              f"{lo:.1f} to {hi:.1f}. TerraClimate is left out of that range on purpose: "
+              f"at {tc:,.0f} mm/yr it is "
               f"{tc / al['reference_et_mm_yr'][yr] * 100:.0f} per cent of the reference, "
-              f"because it carries no irrigation term and does not see the agriculture "
-              f"at all.")
+              f"because it carries no irrigation term, so it does not disagree about the "
+              f"agriculture, it cannot see it. At an efficiency of 0.80 the {yr} spread "
+              f"is {min(ab.values()):,.0f} to {max(ab.values()):,.0f} Mm3/yr against a "
+              f"published {pub['abstraction_mcm']:,.0f}.")
 
         g = al["grace"]
         print(f"\n**The gravimetric leg needs a control and has never had one.** The Saq "
