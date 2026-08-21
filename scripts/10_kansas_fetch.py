@@ -1,7 +1,8 @@
 """L2 Kansas: retrieve the public records the rung is scored against.
 
 Nothing here needs an account. WIMAS and WIZARD are served by the Kansas Geological
-Survey for the Kansas Department of Agriculture; SSEBop is served by USGS EROS.
+Survey for the Kansas Department of Agriculture; SSEBop is served by USGS EROS; county
+precipitation comes from NOAA nClimDiv through Climate at a Glance.
 
 Usage:  python scripts/10_kansas_fetch.py [--what wimas,wizard,ssebop] [--workers 4]
 """
@@ -23,7 +24,7 @@ DATA = ROOT / "data" / "kansas"
 def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--what", type=str,
-                    default="wizard,ssebop,mirad,hpsat,wimas")
+                    default="wizard,ssebop,mirad,hpsat,precip,wimas")
     ap.add_argument("--workers", type=int, default=4)
     ap.add_argument("--y0", type=int, default=2000)
     ap.add_argument("--y1", type=int, default=2025)
@@ -49,6 +50,10 @@ def main() -> None:
     if "hpsat" in what:
         print("USGS High Plains saturated thickness, 2009, 500 m")
         K.fetch_hpsat(DATA)
+
+    if "precip" in what:
+        print("NOAA nClimDiv annual county precipitation, the recharge forcing")
+        K.fetch_precipitation(DATA, y0=args.y0, y1=min(args.y1, 2024))
 
     if "wimas" in what:
         print("WIMAS metered annual pumping, GMD 4 counties")

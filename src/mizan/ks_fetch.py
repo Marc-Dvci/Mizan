@@ -425,3 +425,37 @@ def ssebop_year(year: int, cache: Path) -> Path:
         name = [n for n in z.namelist() if n.lower().endswith(".tif")][0]
         tif.write_bytes(z.read(name))
     return tif
+
+
+# --------------------------------------------------------------------------- nClimDiv
+NCEI = ("https://www.ncei.noaa.gov/access/monitoring/climate-at-a-glance/county/"
+        "time-series/KS-{fips}/pcp/12/12/{y0}-{y1}/data.json")
+
+# Kansas county FIPS codes for the six counties of GMD4 modelled here.
+COUNTY_FIPS = {"CN": "023", "RA": "153", "DC": "039",
+               "SH": "181", "TH": "193", "SD": "179"}
+
+
+def fetch_precipitation(out_dir: Path, y0: int = 2000, y1: int = 2024, log=print) -> None:
+    """Annual county precipitation from NOAA nClimDiv, via Climate at a Glance.
+
+    The forward model needs an observed driver for recharge. Precipitation over these
+    six counties runs from 291 to 674 mm across the record, so a recharge held constant
+    in time is falsified by the record before any water-use report is opened. nClimDiv
+    is the authoritative United States county series, it carries no water-use term, and
+    it needs no credential.
+    """
+    dest = out_dir / "precip_annual.json"
+    if dest.exists():
+        log("  precipitation: cached")
+        return
+    out = {}
+    for c, fips in COUNTY_FIPS.items():
+        url = NCEI.format(fips=fips, y0=y0, y1=y1)
+        raw = urllib.request.urlopen(
+            urllib.request.Request(url, headers={"User-Agent": UA}), timeout=180).read()
+        d = json.loads(raw)["data"]
+        out[c] = {str(y): d["{}12".format(y)]["value"] * 25.4 for y in range(y0, y1 + 1)}
+        log("  precipitation {}: {} years".format(c, len(out[c])))
+        time.sleep(0.2)
+    dest.write_text(json.dumps(out, indent=1))

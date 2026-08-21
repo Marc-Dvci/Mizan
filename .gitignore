@@ -12,6 +12,7 @@ results/voi.npz
 data/kansas/ssebop/
 data/kansas/wimas_*.json
 data/kansas/wizard_levels.json
+data/kansas/precip_annual.json
 data/kansas/mirad/
 data/kansas/*.npy
 data/kansas/*_region.npz
@@ -23,3 +24,6 @@ data/kansas/hpsat/
 # Exploratory runs kept on disk and out of the history: they are referenced by nothing.
 results/*_spec1*
 results/*smoke*
+
+# Driver logs.
+*.log

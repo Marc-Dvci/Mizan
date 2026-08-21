@@ -89,6 +89,7 @@ class Context:
     well_seen: np.ndarray         # (nwell, NYEAR) bool, where a level exists
     active: np.ndarray            # (nrow, ncol) bool
     bsat: np.ndarray              # (nrow, ncol) published saturated thickness, m
+    rmul: np.ndarray              # (NDIST, NYEAR) observed recharge multiplier, mean 1
 
 
 def interpolate(region: K.Region, lon, lat, val, power: float = 2.0,
@@ -130,7 +131,8 @@ def make_context(region: K.Region, wl: dict, weight: np.ndarray = None) -> Conte
                    h0=h0,
                    well_row=row, well_col=col, well_seen=np.isfinite(head),
                    active=region.county >= 0,
-                   bsat=K.saturated_thickness(region))
+                   bsat=K.saturated_thickness(region),
+                   rmul=K.recharge_weight())
 
 
 # --------------------------------------------------------------------------- prior
@@ -285,7 +287,17 @@ def build(ws: Path, x: np.ndarray, ctx: Context) -> None:
                             steady_state={0: True},
                             transient={i + 1: True for i in range(NYEAR)})
 
-    flopy.mf6.ModflowGwfrcha(gwf, recharge=p["rch"] / 1000.0 / 365.25)
+    # Recharge. One mean rate is estimated; its time structure is the observed
+    # precipitation and is not free. Stress period 0 is the steady state and takes the
+    # record mean, which is the multiplier's own mean of one.
+    base = p["rch"] / 1000.0 / 365.25
+    rspd = {0: base}
+    for t in range(NYEAR):
+        f = np.ones((nrow, ncol))
+        for i in range(NDIST):
+            f[reg.county == i] = ctx.rmul[i, t]
+        rspd[t + 1] = base * f
+    flopy.mf6.ModflowGwfrcha(gwf, recharge=rspd)
 
     ghb = []
     edge = np.zeros((nrow, ncol), dtype=bool)

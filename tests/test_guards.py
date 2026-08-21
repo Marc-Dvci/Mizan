@@ -229,7 +229,8 @@ def test_kansas_head_operator_returns_anomalies():
     ctx = R.Context(region=None, weight=None, h0=None,
                     well_row=rng.integers(0, 5, nwell),
                     well_col=rng.integers(0, 5, nwell),
-                    well_seen=seen, active=None, bsat=None)
+                    well_seen=seen, active=None, bsat=None,
+                    rmul=np.ones((R.NDIST, R.NYEAR)))
     x = np.zeros(R.NPAR)
     out = R.observe(x, heads, ctx)
 
@@ -337,3 +338,59 @@ def test_the_gravimetric_control_is_reported_as_a_range_not_a_number():
     assert driver.count("[4") >= 3, "fewer than three control boxes"
     assert "local_share_pct_range" in driver
     assert "CONTROL = [" not in driver
+
+
+def test_recharge_is_driven_by_observed_precipitation_and_carries_no_water_use():
+    """The recharge forcing varies in time, averages one, and never sees a meter.
+
+    Three things can silently break this. The multiplier could stop averaging one, which
+    would move the estimated mean recharge off its published prior without saying so. It
+    could stop varying, which is the defect it was written to remove. And it could be
+    computed from something that carries a water-use term.
+
+    The corruption flattens the precipitation record to its own mean. The multiplier must
+    collapse to one everywhere, which is the state the model was in before.
+    """
+    import inspect
+    from mizan import ks_data as KD, ks_run as R
+
+    src = inspect.getsource(KD.recharge_weight) + inspect.getsource(KD.precipitation)
+    for banned in ("wimas", "metered", "water right", "pumping"):
+        assert banned not in src.lower(), banned
+
+    w = KD.recharge_weight()
+    assert w.shape == (len(KD.COUNTIES), KD.YEAR1 - KD.YEAR0 + 1)
+    assert np.allclose(w.mean(axis=1), 1.0), "the multiplier must average one per county"
+    assert w.min() < 0.75 and w.max() > 1.25, "a forcing this flat is the old defect"
+
+    p = KD.precipitation()
+    assert p.max() / p.min() > 1.8, "the precipitation record must carry the range"
+
+    flat = np.full_like(p, p.mean())
+    wf = flat / flat.mean(axis=1, keepdims=True)
+    assert np.allclose(wf, 1.0), "the corruption must collapse the forcing to one"
+    assert not np.allclose(w, 1.0), "the real forcing must not be one"
+
+    # The model has to read it. A per-period recharge dict is the only thing that can
+    # carry a year-to-year forcing; the scalar it replaced could not.
+    body = inspect.getsource(R.build)
+    assert "ctx.rmul" in body and "rspd" in body
+
+
+def test_the_direction_of_a_declared_change_is_not_reported_as_a_test():
+    """Abstraction fell over almost every window pair, so sign is satisfied by a constant.
+
+    The guard is on the driver, not on a number: the verification script must record what
+    an estimator that always says "down" would score, so the vacuous statistic cannot be
+    quoted on its own. The corruption is a record with a balanced sign, on which the same
+    always-down rule scores half and the statistic would have been a test.
+    """
+    src = (ROOT / "scripts" / "19_verify.py").read_text(encoding="utf-8")
+    assert "always_down_scores_on_declared" in src
+    assert "declaration_auc_vs_metered_magnitude" in src
+    assert "sign_is_not_a_test_on_this_record" in src
+
+    falling = np.array([-12.0, -8.0, -19.0, -3.0, -21.0, 4.0])
+    balanced = np.array([-12.0, 8.0, -19.0, 3.0, -21.0, 14.0])
+    assert max((falling < 0).mean(), (falling > 0).mean()) > 0.8
+    assert max((balanced < 0).mean(), (balanced > 0).mean()) == 0.5

@@ -512,3 +512,26 @@ def saturated_thickness(region: Region) -> np.ndarray:
     b[~np.isfinite(b) | (b <= 1.0)] = fill
     _save_cache(cache, region, b)
     return b
+
+
+def precipitation() -> np.ndarray:
+    """Annual county precipitation, mm/yr, shape (6, nyear), from NOAA nClimDiv."""
+    d = json.loads((DATA / "precip_annual.json").read_text())
+    years = np.arange(YEAR0, YEAR1 + 1)
+    return np.array([[d[c][str(y)] for y in years] for c in COUNTIES])
+
+
+def recharge_weight() -> np.ndarray:
+    """Per-county, per-year multiplier on the mean recharge, shape (6, nyear).
+
+    Recharge is the residual of a large precipitation against a large evaporative
+    demand, so it cannot be held constant across a record whose precipitation varies by
+    a factor of 2.3. What is estimated stays one mean rate; its time structure is taken
+    from the observed precipitation and is not free.
+
+    The multiplier is each county's precipitation divided by that county's own mean over
+    the record, so the record mean of the multiplier is one by construction and the
+    estimated mean recharge keeps its published prior. No water-use record enters it.
+    """
+    p = precipitation()
+    return p / p.mean(axis=1, keepdims=True)
