@@ -43,7 +43,9 @@ test:
 robustness:
 	sh scripts/robustness.sh
 
-KTAG ?= _v4
+# The published Kansas configuration. Override to score another one:
+#   make verify KTAG=_v4
+KTAG ?= _v3
 
 kansas-data:
 	$(PY) scripts/10_kansas_fetch.py --workers 4
@@ -65,9 +67,9 @@ kansas:
 	$(PY) scripts/16_kansas_convergence.py --ne 80 --workers 6
 
 kansas-score: null
-	$(PY) scripts/12_kansas_anomaly.py --tag _v3
-	$(PY) scripts/14_kansas_resolution.py --tag _v3 --out kansas_resolution_v3.json
-	$(PY) scripts/15_kansas_shrink.py --tag _v3
+	$(PY) scripts/12_kansas_anomaly.py --tag $(KTAG)
+	$(PY) scripts/14_kansas_resolution.py --tag $(KTAG) --out kansas_resolution$(KTAG).json
+	$(PY) scripts/15_kansas_shrink.py --tag $(KTAG)
 
 # L3. Everything is read live from Earth Engine, so this target needs an authenticated
 # project and nothing else: `earthengine authenticate`, then set EARTHENGINE_PROJECT to
