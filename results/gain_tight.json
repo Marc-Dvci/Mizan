@@ -1,0 +1,94 @@
+{
+  "PRIOR": {
+    "legs": [],
+    "label": "prior, no data",
+    "mae_mcm": 170.46743865463952,
+    "bias_mcm": 160.60557521490819,
+    "rmse_mcm": 199.30879649925188,
+    "mape_pct": 184.6450606480027,
+    "basin_bias_pct": 93.12349967581532,
+    "cover_50": 0.4777777777777778,
+    "cover_80": 0.6,
+    "cover_90": 0.7055555555555556,
+    "width90_mcm": 717.7234448219175,
+    "crps_mcm": 94.52440768281805
+  },
+  "BASELINE": {
+    "legs": [
+      "et"
+    ],
+    "label": "open loop, efficiency fixed at 0.80",
+    "mae_mcm": 16.660556799559625,
+    "bias_mcm": -13.569338728332834,
+    "rmse_mcm": 18.949843283653518,
+    "mape_pct": 13.63534571742644,
+    "basin_bias_pct": -7.867873260178292
+  },
+  "BASELINE_ORACLE": {
+    "legs": [
+      "et"
+    ],
+    "label": "open loop, efficiency fitted to truth at 0.756",
+    "mae_mcm": 14.334427433143633,
+    "bias_mcm": -4.227070220372603,
+    "rmse_mcm": 16.780323242090258,
+    "mape_pct": 11.243489719694919,
+    "basin_bias_pct": -2.4509707821150233
+  },
+  "H": {
+    "legs": [
+      "et",
+      "grace",
+      "insar",
+      "head"
+    ],
+    "label": "all four, coupled closure",
+    "mae_mcm": 9.908913458372462,
+    "bias_mcm": -9.427878836975257,
+    "rmse_mcm": 11.537622074237898,
+    "mape_pct": 7.326449107785711,
+    "basin_bias_pct": -5.466541685392229,
+    "cover_50": 0.5777777777777777,
+    "cover_80": 0.9277777777777778,
+    "cover_90": 0.9833333333333333,
+    "width90_mcm": 65.52111629052995,
+    "crps_mcm": 7.650370128055068,
+    "phi_history": [
+      13446.237808216432,
+      515.6057693748774,
+      150.52230336756926,
+      55.1057485613939,
+      18.084455003220413,
+      11.174647731184038,
+      7.771690584987312,
+      6.039762398419499,
+      4.729820281409734
+    ],
+    "eta_mae": 0.026995614638448143,
+    "preplant_mae": 0.02895625295491871,
+    "pcs_offset_hat": 11.994803160650756,
+    "pcs_offset_err": -0.005196839349244087,
+    "n_resolved_90": 99,
+    "n_unresolved": 22,
+    "effective_dim": 134.2098389370351,
+    "seconds": 1435.3698153495789,
+    "alpha_hat": 0.8350364471665185,
+    "alpha_sd_post": 0.018630967499958368,
+    "alpha_prior_sd": 0.02,
+    "alpha_var_removed": 0.13221762503873757,
+    "basin_total_mcm": 29346.7072270129,
+    "dQ_dalpha_mcm": -44654.70156803379,
+    "alpha_Q_corr": -0.6679213385649447,
+    "scale_sensitivity_pct_per_prior_sd": -3.043251239234791
+  },
+  "_meta": {
+    "seed": 5,
+    "ne": 250,
+    "na": 8,
+    "truth": "truth.npz",
+    "rtps": 0.7,
+    "alpha_mean": 0.85,
+    "alpha_sd": 0.02,
+    "drift_trend_sd": 1.0
+  }
+}
