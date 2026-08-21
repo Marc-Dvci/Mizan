@@ -1,0 +1,336 @@
+{
+  "_meta": {
+    "tag": "_v3",
+    "ne_converged": 249,
+    "counties": [
+      "CN",
+      "RA",
+      "DC",
+      "SH",
+      "TH",
+      "SD"
+    ],
+    "years": [
+      2000,
+      2001,
+      2002,
+      2003,
+      2004,
+      2005,
+      2006,
+      2007,
+      2008,
+      2009,
+      2010,
+      2011,
+      2012,
+      2013,
+      2014,
+      2015,
+      2016,
+      2017,
+      2018,
+      2019,
+      2020,
+      2021,
+      2022,
+      2023,
+      2024
+    ],
+    "n_rights": 3545,
+    "n_missing": 0
+  },
+  "SD6": {
+    "why": "the Sheridan-6 LEMA period against its own stated baseline",
+    "baseline_years": [
+      2005,
+      2012
+    ],
+    "period_years": [
+      2013,
+      2017
+    ],
+    "metered_pct": -7.431472215844059,
+    "CLOSURE": {
+      "pct": -9.43460500837558,
+      "sd": 9.63557384477805,
+      "ci90": [
+        -25.35620957937089,
+        6.738505112184403
+      ],
+      "contains_truth": true,
+      "excludes_zero": false,
+      "abs_error_pts": 2.003132792531521
+    },
+    "FLAT": {
+      "pct": -5.137061028910983,
+      "interval": null,
+      "abs_error_pts": 2.2944111869330763,
+      "label": "mapped irrigated area x one acre-foot per acre"
+    },
+    "WATERBAL": {
+      "pct": -9.44564203585353,
+      "interval": null,
+      "abs_error_pts": 2.01416982000947,
+      "label": "the same, plus half the year's precipitation deficit"
+    },
+    "OPENLOOP": {
+      "pct": -13.646619700758677,
+      "interval": null,
+      "abs_error_pts": 6.215147484914618,
+      "label": "unmixed evapotranspiration over a fixed efficiency of 0.80"
+    }
+  },
+  "GMD4": {
+    "why": "the district-wide GMD4 LEMA period against the five years before it",
+    "baseline_years": [
+      2013,
+      2017
+    ],
+    "period_years": [
+      2018,
+      2022
+    ],
+    "metered_pct": -6.1800669268056385,
+    "CLOSURE": {
+      "pct": -15.520416534451057,
+      "sd": 9.404727291980363,
+      "ci90": [
+        -30.73277195630552,
+        0.16481098654143234
+      ],
+      "contains_truth": true,
+      "excludes_zero": false,
+      "abs_error_pts": 9.340349607645418
+    },
+    "FLAT": {
+      "pct": -1.4907201739793097,
+      "interval": null,
+      "abs_error_pts": 4.689346752826329,
+      "label": "mapped irrigated area x one acre-foot per acre"
+    },
+    "WATERBAL": {
+      "pct": 12.18020823588548,
+      "interval": null,
+      "abs_error_pts": 18.360275162691117,
+      "label": "the same, plus half the year's precipitation deficit"
+    },
+    "OPENLOOP": {
+      "pct": -12.245855197589893,
+      "interval": null,
+      "abs_error_pts": 6.065788270784255,
+      "label": "unmixed evapotranspiration over a fixed efficiency of 0.80"
+    }
+  },
+  "LONG": {
+    "why": "the last seven years of the record against the first eight",
+    "baseline_years": [
+      2000,
+      2007
+    ],
+    "period_years": [
+      2018,
+      2024
+    ],
+    "metered_pct": -22.865881542307854,
+    "CLOSURE": {
+      "pct": -27.180263404894482,
+      "sd": 7.639633770752169,
+      "ci90": [
+        -39.7133278798163,
+        -14.069212189024539
+      ],
+      "contains_truth": true,
+      "excludes_zero": true,
+      "abs_error_pts": 4.314381862586629
+    },
+    "FLAT": {
+      "pct": -2.0480772562926686,
+      "interval": null,
+      "abs_error_pts": 20.817804286015186,
+      "label": "mapped irrigated area x one acre-foot per acre"
+    },
+    "WATERBAL": {
+      "pct": -3.883914276567524,
+      "interval": null,
+      "abs_error_pts": 18.98196726574033,
+      "label": "the same, plus half the year's precipitation deficit"
+    },
+    "OPENLOOP": {
+      "pct": -35.365799732700374,
+      "interval": null,
+      "abs_error_pts": 12.49991819039252,
+      "label": "unmixed evapotranspiration over a fixed efficiency of 0.80"
+    }
+  },
+  "_summary": {
+    "mean_abs_error_pts": {
+      "FLAT": 9.26718740859153,
+      "WATERBAL": 13.11880408281364,
+      "OPENLOOP": 8.260284648697132,
+      "CLOSURE": 5.219288087587856
+    },
+    "only_account_with_an_interval": "CLOSURE"
+  },
+  "_window_curve": {
+    "by_window_years": {
+      "2": {
+        "n_pairs": 253,
+        "mean_abs_error_pts": {
+          "FLAT": 20.388469864966364,
+          "WATERBAL": 12.093648234053207,
+          "OPENLOOP": 17.271054643983344,
+          "CLOSURE": 13.99048261395367
+        },
+        "coverage_90": 0.8814229249011858,
+        "n_declared_change": 64,
+        "n_declared_change_sign_correct": 60
+      },
+      "3": {
+        "n_pairs": 210,
+        "mean_abs_error_pts": {
+          "FLAT": 19.22324564158226,
+          "WATERBAL": 11.346182541362062,
+          "OPENLOOP": 13.456314893755739,
+          "CLOSURE": 12.965510227220204
+        },
+        "coverage_90": 0.8142857142857143,
+        "n_declared_change": 81,
+        "n_declared_change_sign_correct": 76
+      },
+      "4": {
+        "n_pairs": 171,
+        "mean_abs_error_pts": {
+          "FLAT": 17.00852405562928,
+          "WATERBAL": 11.212067408158417,
+          "OPENLOOP": 10.966882521326436,
+          "CLOSURE": 10.875914091858988
+        },
+        "coverage_90": 0.8362573099415205,
+        "n_declared_change": 90,
+        "n_declared_change_sign_correct": 83
+      },
+      "5": {
+        "n_pairs": 136,
+        "mean_abs_error_pts": {
+          "FLAT": 15.022780178352363,
+          "WATERBAL": 11.396073998339158,
+          "OPENLOOP": 9.929010737003226,
+          "CLOSURE": 8.678085083596356
+        },
+        "coverage_90": 0.8897058823529411,
+        "n_declared_change": 79,
+        "n_declared_change_sign_correct": 76
+      },
+      "6": {
+        "n_pairs": 105,
+        "mean_abs_error_pts": {
+          "FLAT": 13.605998983689853,
+          "WATERBAL": 11.02372723297027,
+          "OPENLOOP": 9.24468649494519,
+          "CLOSURE": 6.373766976881075
+        },
+        "coverage_90": 0.9523809523809523,
+        "n_declared_change": 69,
+        "n_declared_change_sign_correct": 69
+      },
+      "7": {
+        "n_pairs": 78,
+        "mean_abs_error_pts": {
+          "FLAT": 12.946391794577682,
+          "WATERBAL": 10.499868664440392,
+          "OPENLOOP": 9.055162800023961,
+          "CLOSURE": 5.199652652625107
+        },
+        "coverage_90": 0.9743589743589743,
+        "n_declared_change": 54,
+        "n_declared_change_sign_correct": 54
+      },
+      "8": {
+        "n_pairs": 55,
+        "mean_abs_error_pts": {
+          "FLAT": 12.440165545345549,
+          "WATERBAL": 10.212852737724322,
+          "OPENLOOP": 9.08348593734708,
+          "CLOSURE": 4.539049372696827
+        },
+        "coverage_90": 1.0,
+        "n_declared_change": 42,
+        "n_declared_change_sign_correct": 42
+      }
+    },
+    "strongest_meter_free_bar_by_window": {
+      "2": "WATERBAL",
+      "3": "WATERBAL",
+      "4": "OPENLOOP",
+      "5": "OPENLOOP",
+      "6": "OPENLOOP",
+      "7": "OPENLOOP",
+      "8": "OPENLOOP"
+    },
+    "crossover_window_years": 4,
+    "note": "shortest window at which the closure beats every meter-free bar; below it a weather model is the better instrument"
+  },
+  "_sweep": {
+    "window_years": 5,
+    "n_pairs": 136,
+    "mean_abs_error_pts": {
+      "FLAT": 15.022780178352363,
+      "WATERBAL": 11.396073998339158,
+      "OPENLOOP": 9.929010737003226,
+      "CLOSURE": 8.678085083596356
+    },
+    "median_abs_error_pts": {
+      "FLAT": 14.582560111683302,
+      "WATERBAL": 11.849683849795968,
+      "OPENLOOP": 8.36122213424846,
+      "CLOSURE": 7.419801281583821
+    },
+    "closure_beats_pct": {
+      "FLAT": 72.05882352941177,
+      "WATERBAL": 63.970588235294116,
+      "OPENLOOP": 58.82352941176471
+    },
+    "coverage_90": 0.8897058823529411,
+    "n_declared_change": 79,
+    "n_declared_change_sign_correct": 76,
+    "n_metered_change_negative": 119,
+    "always_down_scores_on_declared": 0.9620253164556962,
+    "sign_is_not_a_test_on_this_record": true,
+    "declaration_auc_vs_metered_magnitude": 0.7661558960692871,
+    "declaration_auc_permutation_p": 0.0,
+    "metered_pct_where_declared": 19.670859341497465,
+    "metered_pct_where_not_declared": 11.2320766101351,
+    "change_r": 0.5475425629350514,
+    "amplitude_slope": 0.6998733248018526
+  },
+  "_resolution": {
+    "posterior_sd_pts": 9.404727291980363,
+    "one_sided_90pct_detectable_pct": 12.053098497402035,
+    "two_sided_90pct_detectable_pct": 15.469835922578499,
+    "note": "smallest basin-wide five-year change this observing system separates from no change, at the stated confidence"
+  },
+  "_sd6_county_did": {
+    "why": "the SD-6 LEMA is 256 km2 inside a 2,331 km2 county; this is the resolution limit of the instrument, and it is a negative result",
+    "treated": "SD",
+    "control": [
+      "CN",
+      "RA",
+      "SH",
+      "TH"
+    ],
+    "control_excludes": [
+      "DC"
+    ],
+    "metered_treated_pct": -9.991115300663278,
+    "metered_control_pct": -1.255514001455893,
+    "metered_did_pts": -8.735601299207385,
+    "closure_did_pts": 13.44420460701433,
+    "closure_did_sd": 17.984367897225265,
+    "closure_did_ci90": [
+      -15.083283825663644,
+      41.9447857274002
+    ],
+    "sign_agrees": false
+  }
+}

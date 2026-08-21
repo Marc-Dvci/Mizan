@@ -3,7 +3,7 @@ PY ?= .venv/Scripts/python.exe
 NE ?= 250
 NA ?= 8
 
-.PHONY: all setup truth ablation allocation voi detection figures report test clean         robustness null kansas-data kansas kansas-score aljawf
+.PHONY: all setup truth ablation allocation voi detection figures report test clean         robustness null kansas-data kansas kansas-score aljawf verify referee
 
 all: truth ablation allocation voi detection null figures report
 
@@ -43,6 +43,8 @@ test:
 robustness:
 	sh scripts/robustness.sh
 
+KTAG ?= _v4
+
 kansas-data:
 	$(PY) scripts/10_kansas_fetch.py --workers 4
 
@@ -78,3 +80,12 @@ aljawf:
 
 clean:
 	rm -rf runs/ens runs/alloc runs/jac
+
+# The verification rung: what a reduction target actually asks, scored on the meters.
+verify:
+	$(PY) scripts/18_ladder.py --tag $(KTAG)
+	$(PY) scripts/19_verify.py --tag $(KTAG)
+	$(PY) scripts/22_verify_figure.py --tag $(KTAG)
+
+referee:
+	$(PY) scripts/17_referee.py --ne 100 --na 3 --workers 6 --tag $(KTAG)

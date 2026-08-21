@@ -461,6 +461,105 @@ def main():
                       f"layer reached from the other direction: a few metered counties "
                       f"calibrate the amplitude for the rest.")
 
+    lad = load(f"ladder{KTAG}.json")
+    ver = load(f"verify{KTAG}.json")
+    if lad and ver:
+        section("What a reduction target actually asks, and who can answer it")
+        print("A water account is usually judged on its level. A regulator with a "
+              "reduction target is not asking for a level. Saudi Arabia has published a "
+              "90 per cent reduction target for non-renewable groundwater, and Kansas "
+              "writes its Local Enhanced Management Areas as a percentage cut against a "
+              "stated baseline period. Both are questions about a change between two "
+              "multi-year periods, with an interval on it.\n")
+        print("Every meter-free account that can be written down from the same public "
+              "data, scored against the same withheld meters, on both quantities.\n")
+        print("| account | level, Mm3/yr | change over 5-year periods, points | "
+              "weather share of its own variance |")
+        print("|---|---:|---:|---:|")
+        sweep = ver["_sweep"]["mean_abs_error_pts"]
+        key = {"FLAT": "FLAT", "WATERBAL50": "WATERBAL",
+               "OPENLOOP": "OPENLOOP", "CLOSURE": "CLOSURE"}
+        for k in ("FLAT", "WATERBAL50", "OPENLOOP", "CLOSURE"):
+            if k not in lad:
+                continue
+            v = lad[k]
+            w = lad["_variance_decomposition"][k]["weather_share_pct"]
+            star = "**" if k == "CLOSURE" else ""
+            print(f"| {star}{v['label']}{star} | {v['mae_mcm']:.2f} | "
+                  f"{star}{sweep[key[k]]:.1f}{star} | "
+                  + ("n/a" if w is None else f"{w:.0f}%") + " |")
+
+        dec = lad["_variance_decomposition"]
+        md, fl, wb = dec["METERED"], dec["FLAT"], dec["WATERBAL50"]
+        print(f"\nThe metered record itself carries {md['weather_share_pct']:.0f} per "
+              f"cent of its interannual variance from precipitation, and after weather "
+              f"is removed it still falls by "
+              f"{abs(md['trend_after_weather_mcm_per_sd_year']):.1f} Mm3 per "
+              f"standard-deviation year. The two arithmetic bars are "
+              f"{fl['weather_share_pct']:.0f} and {wb['weather_share_pct']:.0f} per cent "
+              f"weather and keep "
+              f"{abs(fl['trend_after_weather_mcm_per_sd_year']):.1f} and "
+              f"{abs(wb['trend_after_weather_mcm_per_sd_year']):.1f} of that trend. They "
+              f"carry the half of the signal the weather causes and they are blind to "
+              f"the half a policy changes.\n")
+
+        sw = ver["_sweep"]
+        print(f"The change is scored over every pair of non-overlapping "
+              f"{sw['window_years']}-year windows the record admits, {sw['n_pairs']} of "
+              f"them, rather than over a chosen contrast. The closure's 90 per cent "
+              f"interval contains the metered change in {sw['coverage_90']*100:.0f} per "
+              f"cent of pairs. Where it declares a change the metered change averages "
+              f"{sw['metered_pct_where_declared']:.1f} per cent against "
+              f"{sw['metered_pct_where_not_declared']:.1f} per cent where it declares "
+              f"none, an area under the curve of "
+              f"{sw['declaration_auc_vs_metered_magnitude']:.3f} with a permutation p "
+              f"below {max(sw['declaration_auc_permutation_p'], 1e-4):.4f}.\n")
+        print(f"**The direction of the change is not a test on this record and is not "
+              f"reported as one.** Abstraction fell over "
+              f"{sw['n_metered_change_negative']} of the {sw['n_pairs']} pairs, so an "
+              f"estimator that says down every time scores "
+              f"{sw['always_down_scores_on_declared']*100:.0f} per cent, which is what "
+              f"the closure scores. The magnitude above is the test.\n")
+
+        cur = ver["_window_curve"]
+        print("The length of the window is not a free choice. A weather model carries "
+              "the high-frequency half of the signal and saturates; the aquifer "
+              "integrates storage and keeps improving.\n")
+        print("| averaging window | pairs | closure | best meter-free bar | "
+              "closure interval covers |")
+        print("|---:|---:|---:|---:|---:|")
+        for w in sorted(cur["by_window_years"], key=int):
+            r = cur["by_window_years"][w]
+            m = r["mean_abs_error_pts"]
+            best = min(m[k] for k in m if k != "CLOSURE")
+            cs = "**" if m["CLOSURE"] < best else ""
+            print(f"| {w} years | {r['n_pairs']} | {cs}{m['CLOSURE']:.1f}{cs} | "
+                  f"{best:.1f} | {r['coverage_90']*100:.0f}% |")
+        print(f"\n**The closure beats every meter-free bar from a "
+              f"{cur['crossover_window_years']}-year window upward, and the gap widens "
+              f"with every year added.** Below that the best of them is a weather model "
+              f"and it is the better instrument. That crossover is a design rule for a "
+              f"monitoring programme and it is measured against real meters.\n")
+
+        rs = ver["_resolution"]
+        print(f"The posterior spread on a basin-wide five-year-against-five-year "
+              f"contrast is {rs['posterior_sd_pts']:.1f} percentage points, so this "
+              f"observing system separates a real reduction from no change at "
+              f"{rs['one_sided_90pct_detectable_pct']:.1f} per cent, at 90 per cent "
+              f"one-sided confidence.\n")
+
+        z = ver["_sd6_county_did"]
+        print(f"**Where it runs out.** The Sheridan-6 Local Enhanced Management Area "
+              f"covers 256 km2 inside a 2,331 km2 county. Against the four clean "
+              f"neighbouring counties the meters give a difference in differences of "
+              f"{z['metered_did_pts']:+.1f} points; the closure gives "
+              f"{z['closure_did_pts']:+.1f} plus or minus {z['closure_did_sd']:.1f}, "
+              f"with the wrong sign and a 90 per cent interval of "
+              f"[{z['closure_did_ci90'][0]:+.1f}, {z['closure_did_ci90'][1]:+.1f}]. A "
+              f"policy on a tenth of a county is below what this observing system "
+              f"resolves, and the resolution analysis said so before the meters were "
+              f"opened.\n")
+
     al = load("aljawf.json")
     if al:
         section("L3 Al Jawf: how far apart the published instruments are on the Saq")
