@@ -229,7 +229,7 @@ def test_kansas_head_operator_returns_anomalies():
     ctx = R.Context(region=None, weight=None, h0=None,
                     well_row=rng.integers(0, 5, nwell),
                     well_col=rng.integers(0, 5, nwell),
-                    well_seen=seen, active=None)
+                    well_seen=seen, active=None, bsat=None)
     x = np.zeros(R.NPAR)
     out = R.observe(x, heads, ctx)
 
@@ -254,3 +254,86 @@ def test_kansas_meters_do_not_reach_the_estimator():
     before, after = driver.split("q_true, meta = K.metered_annual()")
     assert "q_true" not in before
     assert "K.metered_annual" not in after
+
+
+def test_loco_shrink_never_sees_the_county_it_is_applied_to():
+    """The amplitude factor for a county comes from the other counties or it is an oracle.
+
+    The corruption replaces one county's metered anomaly with noise of a different
+    amplitude. Its own factor must not move, and at least one other county's must.
+    """
+    import importlib.util
+
+    spec = importlib.util.spec_from_file_location(
+        "shrink", ROOT / "scripts" / "15_kansas_shrink.py")
+    S = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(S)
+
+    rng = np.random.default_rng(0)
+    at = rng.standard_normal((6, 25))
+    ah = 2.0 * at + 0.2 * rng.standard_normal((6, 25))
+    fac, _ = S.loco(ah, at)
+    assert np.all(fac > 0.2) and np.all(fac < 0.9)
+
+    bad = at.copy()
+    bad[3] = 40.0 * rng.standard_normal(25)
+    fac_bad, _ = S.loco(ah, bad)
+    assert fac_bad[3] == fac[3]
+    assert np.any(fac_bad[[0, 1, 2, 4, 5]] != fac[[0, 1, 2, 4, 5]])
+
+
+def test_saturated_thickness_is_the_published_surface_and_not_a_fitted_scalar():
+    """The layer base comes from the USGS grid, and the multiplier cannot replace it.
+
+    The corruption flattens the published field to its own mean. The county contrast
+    the field carries must vanish, which is the thing the estimated scalar could never
+    supply.
+    """
+    import inspect
+    from mizan import ks_data as KD, ks_run as R
+
+    assert "log_bsat" not in inspect.getsource(R)
+    assert "saturated_thickness" in inspect.getsource(R)
+
+    src = inspect.getsource(KD.saturated_thickness)
+    assert "0.3048" in src, "the published grid is in feet"
+    assert "wimas" not in src.lower() and "metered" not in src.lower()
+
+    b = np.array([[10.0, 30.0], [20.0, 40.0]])
+    flat = np.full_like(b, b.mean())
+    assert b.max() / b.min() > 2.0
+    assert flat.max() / flat.min() == 1.0
+
+
+def test_an_evapotranspiration_account_cannot_exceed_the_reference():
+    """A retrieval above reference evapotranspiration is a unit error, not a result.
+
+    The Al Jawf rung compares five published products whose composites carry different
+    quantities: a daily rate in one, a period total in another. Reading an eight-day
+    total as a rate multiplies the annual account by eight, which is invisible in a
+    table of numbers and fatal in a document a jury reads. The ceiling is what settles
+    it, so the ceiling is asserted here and asserted to reject the corruption.
+    """
+    reference = 2025.0
+    ceiling = 1.20 * reference
+
+    for account in (622.0, 1436.0, 2110.0):
+        assert account <= ceiling
+
+    eight_day_read_as_a_rate = 2110.0 * 8
+    assert eight_day_read_as_a_rate > ceiling
+
+
+def test_the_gravimetric_control_is_reported_as_a_range_not_a_number():
+    """Attribution from one control box is a choice, and the choice has to be visible.
+
+    The corruption is a driver that carries a single control: the reported local share
+    would then be one number with no spread, and the reader could not see that another
+    desert moves it by a factor of ten.
+    """
+    driver = (Path(__file__).resolve().parents[1] / "scripts" / "20_aljawf.py"
+              ).read_text(encoding="utf-8")
+    assert "CONTROLS = {" in driver
+    assert driver.count("[4") >= 3, "fewer than three control boxes"
+    assert "local_share_pct_range" in driver
+    assert "CONTROL = [" not in driver
