@@ -419,3 +419,94 @@ above it. Null-corrected, the L0 closure constrains +77.1 and gravity alone come
 closure sits at +28.8, and the evapotranspiration leg alone at -3.9 is also below the
 null: a 1 km retrieval over a block that is 14 per cent irrigated carries a structural
 error large enough to cancel it.
+
+### Recharge held constant in time, falsified against the precipitation record
+
+The Kansas forward model carried one scalar recharge, uniform in space and constant
+across all twenty-five years. Annual precipitation over these six counties runs from 291
+to 674 mm, a factor of 2.31, so a recharge constant in time is falsified by the
+precipitation record before any water-use report is opened. This is the same class of
+defect as the saturated thickness: an independently published observation the model was
+already wrong against.
+
+The consequence is measurable and was measured before the fix was run. With recharge
+constant, every year of head variation that weather caused is forced onto pumping. The
+v3 closure's county-year error correlates with the precipitation anomaly at **+0.50**,
+and the basin precipitation index explains only **7 per cent** of the closure's
+interannual variance against **56 per cent** of the metered record's.
+
+**Replaced by:** `ks_data.recharge_weight()`. One mean recharge rate is still estimated
+and keeps its published prior; its time structure is each county's own precipitation
+divided by that county's record mean, so the multiplier averages one by construction.
+The parameter count is unchanged, which keeps the comparison against v3 clean. The
+driver is NOAA nClimDiv county precipitation, which carries no water-use term.
+
+**Prediction recorded before the rerun finished**, so that the result sizes it rather
+than the mechanism: the weather share of the closure's interannual variance should rise
+from 7 per cent towards the metered 56 per cent, the level error should fall, and the
+recovery of the multi-year contrasts should survive. If the level error does not fall,
+the mechanism was right about the model and wrong about what limits the score, and that
+is what the entry will say.
+
+### Scoring a water account on its level, replaced by scoring it on the change
+
+The L2 rung scored every account on county-year level alone, on which a bar a reviewer
+can build in three lines beats the closure: mapped irrigated area times one acre-foot per
+acre scores 14.78 Mm3/yr, the same corrected by half the year's precipitation deficit
+scores 11.48, and the closure scores 16.57.
+
+**Not rejected, and published as it stands.** Both bars are meter-free, both are fair,
+and the entry has to be the document that shows them. What the level metric hides is that
+those bars are weather models. Against the basin precipitation index they carry 11 and 92
+per cent of their own interannual variance from weather, against 56 per cent for the
+metered record, and after weather is removed the metered record still falls by 40.9 Mm3
+per standard-deviation year while the two bars fall by 2.8 and 4.0. They carry the half of
+the signal that the weather causes and are blind to the half a policy changes.
+
+**Added:** `scripts/18_ladder.py` publishes every meter-free bar on level and on change,
+and `scripts/19_verify.py` scores the three multi-year contrasts fixed by the Kansas
+policy record. The contrasts are the quantity a reduction target is written in.
+
+### The aquifer as referee, on annual head anomalies. Rejected
+
+`scripts/17_referee.py` asks whether the water levels alone can rank competing water
+accounts with no meter present: each candidate account is held fixed and only the
+aquifer's own properties are estimated against the head record, so what is reported is the
+misfit the best admissible aquifer can reach. Seven accounts, two of them the flat account
+rescaled by a factor the record cannot support, so the test could be seen to fail.
+
+**Rejected on its first run.** The metered truth ranks last of seven and the flat account
+inflated by half ranks first. The rank correlation between head misfit and metered error is
+**-0.32**: the test anti-ranks.
+
+**Why, and it is not the ensemble size.** Head misfit rank-correlates **+0.54** with an
+account's interannual roughness, measured as the standard deviation of the year-over-year
+change in the basin total. The observations are annual anomalies against each well's own
+mean, so a smooth account is rewarded whatever its level, and the metered record is the
+roughest account of the seven at 93.1 Mm3 against 5.7 for the flat one. The statistic
+measures smoothness, not correctness.
+
+**Not replaced in this pass.** The reformulation that follows from the diagnosis is to
+score the account against the low-frequency component of the head record rather than the
+annual anomaly, which is the timescale over which storage integrates. That is the same
+conclusion the verification sweep reaches by a shorter route, and the sweep already carries
+it: the closure recovers multi-year contrasts better than accounts that never see the
+aquifer. The script and its negative result stay in the repository.
+
+### Sign of the declared change, withdrawn as vacuous
+
+The verification sweep reports that where the closure declares a change, the direction
+agrees with the meters in 76 of 79 window pairs. That statistic was withdrawn before it
+reached any judge-facing document.
+
+**Rejected.** Abstraction fell over 119 of the 136 window pairs, so an estimator that
+says "down" every time scores the same 76 of 79. Of the three declared pairs where the
+meters show an increase, the closure gets none right. The statistic is satisfied by a
+constant and measures nothing.
+
+**Replaced by:** the area under the curve of the declaration against the metered
+magnitude, **0.766** with a permutation p below 0.0001, and the correlation of the
+estimated change with the metered change, r = 0.55 with an amplitude slope of 0.70. Those
+are not satisfied by a constant. `scripts/19_verify.py` now records the negative result
+alongside them, including what always saying "down" would score, so the vacuous statistic
+cannot creep back.
