@@ -1,0 +1,158 @@
+{
+  "_operator": "G(t) = alpha * dS(t) / A + external(t) + eps",
+  "_shipped_prior_mm_yr": 1.0,
+  "_withheld_truth": {
+    "external_trend_mm_yr": -0.8,
+    "alpha": 0.78
+  },
+  "_l3_controls_mm_yr": {
+    "western Rub' al Khali, 45-49E 17-21N": 3.197,
+    "Rub' al Khali, 47-52E 18.5-22.5N": 3.323,
+    "An-Nafud and eastern shield, 42-46E 27-30N": 9.741,
+    "central Arabian shield, 42-46E 22-26N": 10.178
+  },
+  "_l3_control_range_mm_yr": [
+    3.19698836812388,
+    10.178489217364255
+  ],
+  "_l3_saq_trend_mm_yr": 10.934119329239982,
+  "sweep": [
+    {
+      "file": "gain_pub.json",
+      "label": "the shipped constraint",
+      "drift_trend_prior_sd": 1.0,
+      "alpha_prior_sd": 0.04,
+      "mae_mcm": 6.7227301970563795,
+      "mape_pct": 5.434715866687988,
+      "basin_bias_pct": -1.3423382615826203,
+      "cover_90": 0.9944444444444445,
+      "width90_mcm": 70.32995014714487,
+      "crps_mcm": 6.571758459958839,
+      "alpha_hat": 0.8087084113076259,
+      "alpha_err": 0.028708411307625914,
+      "drift_trend_hat": 0.4549090004236801,
+      "drift_trend_sd_post": 0.8911657019227148,
+      "drift_trend_err": 1.2549090004236803
+    },
+    {
+      "file": "drift_wide.json",
+      "label": "widened to the control scale",
+      "drift_trend_prior_sd": 4.0,
+      "alpha_prior_sd": 0.04,
+      "mae_mcm": 6.831171566188016,
+      "mape_pct": 5.314523304661579,
+      "basin_bias_pct": -0.5138635781875337,
+      "cover_90": 0.9944444444444445,
+      "width90_mcm": 71.10979185310235,
+      "crps_mcm": 6.561041628964116,
+      "alpha_hat": 0.8082335988926038,
+      "alpha_err": 0.028233598892603795,
+      "drift_trend_hat": 1.162613892067025,
+      "drift_trend_sd_post": 1.5947376457801135,
+      "drift_trend_err": 1.962613892067025
+    },
+    {
+      "file": "drift_control.json",
+      "label": "widened past the largest control",
+      "drift_trend_prior_sd": 10.0,
+      "alpha_prior_sd": 0.04,
+      "mae_mcm": 6.882694190420193,
+      "mape_pct": 5.242043267321454,
+      "basin_bias_pct": -0.22813812303792003,
+      "cover_90": 0.9944444444444445,
+      "width90_mcm": 71.32835900249707,
+      "crps_mcm": 6.548861773523883,
+      "alpha_hat": 0.8079628934346333,
+      "alpha_err": 0.027962893434633318,
+      "drift_trend_hat": 1.2138939360251462,
+      "drift_trend_sd_post": 1.679377323887028,
+      "drift_trend_err": 2.013893936025146
+    }
+  ],
+  "_verdict": {
+    "prior_width_ratio": 10.0,
+    "bias_shipped_pct": -1.3423382615826203,
+    "bias_widest_pct": -0.22813812303792003,
+    "bias_span_pts": 1.1142001385447002,
+    "mae_shipped_mcm": 6.7227301970563795,
+    "mae_widest_mcm": 6.882694190420193,
+    "mae_ratio": 1.0237944984663903,
+    "width90_ratio": 1.0141960694307803,
+    "trend_err_shipped": 1.2549090004236803,
+    "trend_err_widest": 2.013893936025146,
+    "cover_90_widest": 0.9944444444444445,
+    "note": "the pair is degenerate, not either member of it. With the gain held at its shipped prior, widening the external trend prior tenfold costs a few per cent of accuracy and leaves the coverage unchanged, so the constraint the target basin's controls do not support is not the one the answer rests on. Section 5.5 releases both together and the estimate loses half its accuracy: it takes two free nuisances to lose the scale, and pinning either one is enough"
+  },
+  "_factorial": {
+    "cells": [
+      {
+        "file": "gain_pub.json",
+        "gain_free": false,
+        "trend_free": false,
+        "alpha_prior_sd": 0.04,
+        "drift_trend_prior_sd": 1.0,
+        "mae_mcm": 6.7227301970563795,
+        "basin_bias_pct": -1.3423382615826203,
+        "cover_90": 0.9944444444444445,
+        "width90_mcm": 70.32995014714487,
+        "alpha_hat": 0.8087084113076259,
+        "alpha_err": 0.028708411307625914,
+        "drift_trend_hat": 0.4549090004236801,
+        "drift_trend_sd_post": 0.8911657019227148,
+        "drift_trend_err": 1.2549090004236803
+      },
+      {
+        "file": "drift_control.json",
+        "gain_free": false,
+        "trend_free": true,
+        "alpha_prior_sd": 0.04,
+        "drift_trend_prior_sd": 10.0,
+        "mae_mcm": 6.882694190420193,
+        "basin_bias_pct": -0.22813812303792003,
+        "cover_90": 0.9944444444444445,
+        "width90_mcm": 71.32835900249707,
+        "alpha_hat": 0.8079628934346333,
+        "alpha_err": 0.027962893434633318,
+        "drift_trend_hat": 1.2138939360251462,
+        "drift_trend_sd_post": 1.679377323887028,
+        "drift_trend_err": 2.013893936025146
+      },
+      {
+        "file": "gain_alphafree.json",
+        "gain_free": true,
+        "trend_free": false,
+        "alpha_prior_sd": 0.5,
+        "drift_trend_prior_sd": 1.0,
+        "mae_mcm": 9.133846533541162,
+        "basin_bias_pct": 1.6388269990433615,
+        "cover_90": 0.9944444444444445,
+        "width90_mcm": 72.92334283806208,
+        "alpha_hat": 0.7832987094037318,
+        "alpha_err": 0.003298709403731781,
+        "drift_trend_hat": 0.7106042836674517,
+        "drift_trend_sd_post": 0.8889211324354107,
+        "drift_trend_err": 1.5106042836674516
+      },
+      {
+        "file": "gain_free.json",
+        "gain_free": true,
+        "trend_free": true,
+        "alpha_prior_sd": 0.5,
+        "drift_trend_prior_sd": 3.0,
+        "mae_mcm": 9.888593952740326,
+        "basin_bias_pct": 2.493370148497689,
+        "cover_90": 0.9944444444444445,
+        "width90_mcm": 73.435482284483,
+        "alpha_hat": 0.7853895763862513,
+        "alpha_err": 0.00538957638625126,
+        "drift_trend_hat": 1.3332675863742471,
+        "drift_trend_sd_post": 1.4797151164304476,
+        "drift_trend_err": 2.133267586374247
+      }
+    ],
+    "mae_ratio_trend_only": 1.0237944984663903,
+    "mae_ratio_gain_only": 1.358651361249112,
+    "mae_ratio_both": 1.4709193531327724,
+    "note": "the pair is not symmetric. Released on its own the external trend costs a couple of per cent of the district error; released on its own, with the trend still held, the gain costs a third; released together they cost about half. The gain carries the absolute scale and the trend does not, so the gain is the constraint that has to be defended, and it is the one that is computable on the target basin. In both released-gain cells the posterior gain lands within 0.005 of truth while the error is a third worse, which is a second demonstration that a well-recovered gain is not evidence the leg was read correctly"
+  }
+}
