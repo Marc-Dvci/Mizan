@@ -1,0 +1,192 @@
+{
+  "_meta": {
+    "tag": "_v4",
+    "counties": [
+      "CN",
+      "RA",
+      "DC",
+      "SH",
+      "TH",
+      "SD"
+    ],
+    "years": [
+      2000,
+      2001,
+      2002,
+      2003,
+      2004,
+      2005,
+      2006,
+      2007,
+      2008,
+      2009,
+      2010,
+      2011,
+      2012,
+      2013,
+      2014,
+      2015,
+      2016,
+      2017,
+      2018,
+      2019,
+      2020,
+      2021,
+      2022,
+      2023,
+      2024
+    ],
+    "n_rights": 3545,
+    "n_missing": 0
+  },
+  "ZERO_CHANGE": {
+    "mae_mcm": 12.008955912994097,
+    "bias_mcm": 1.6887982686360676e-15,
+    "rmse_mcm": 18.076657630066535,
+    "mape_pct": 18.51077795828392,
+    "basin_bias_pct": 0.0,
+    "change_mae_mcm": 12.977198917845227,
+    "change_r": 0.0,
+    "change_amplitude_ratio": 0.0,
+    "change_skill_vs_flat": 0.0,
+    "label": "each county held at its own record mean, which needs the meters",
+    "needs_a_meter": true
+  },
+  "FLAT": {
+    "mae_mcm": 14.778559116624594,
+    "bias_mcm": -4.757892873508519,
+    "rmse_mcm": 20.77822320185712,
+    "mape_pct": 21.670322146894677,
+    "basin_bias_pct": -6.4650731596788695,
+    "change_mae_mcm": 13.186167389916333,
+    "change_r": -0.1004132088087539,
+    "change_amplitude_ratio": 0.07350504579481756,
+    "change_skill_vs_flat": -0.016102740922291803,
+    "label": "mapped irrigated area x one acre-foot per acre",
+    "needs_a_meter": false
+  },
+  "WATERBAL25": {
+    "mae_mcm": 12.320470742952972,
+    "bias_mcm": -4.817159201508519,
+    "rmse_mcm": 17.052409025088274,
+    "mape_pct": 18.004533942649424,
+    "basin_bias_pct": -6.545604848098942,
+    "change_mae_mcm": 9.624016740723654,
+    "change_r": 0.7308660001068799,
+    "change_amplitude_ratio": 0.4757847521590521,
+    "change_skill_vs_flat": 0.25839028887124016,
+    "label": "the same, plus a quarter of the year's precipitation deficit",
+    "needs_a_meter": false
+  },
+  "WATERBAL50": {
+    "mae_mcm": 11.479216096699446,
+    "bias_mcm": -4.87642552950852,
+    "rmse_mcm": 15.646422211826744,
+    "mape_pct": 16.766674823802028,
+    "basin_bias_pct": -6.626136536519033,
+    "change_mae_mcm": 9.41112529364593,
+    "change_r": 0.7416218080034188,
+    "change_amplitude_ratio": 0.9477211529805923,
+    "change_skill_vs_flat": 0.27479532731023415,
+    "label": "the same, plus half the year's precipitation deficit",
+    "needs_a_meter": false
+  },
+  "WATERBAL100": {
+    "mae_mcm": 14.807452870560827,
+    "bias_mcm": -4.994958185508524,
+    "rmse_mcm": 20.923422712160562,
+    "mape_pct": 22.386754267767913,
+    "basin_bias_pct": -6.787199913359196,
+    "change_mae_mcm": 17.511406381582006,
+    "change_r": 0.7453508342685438,
+    "change_amplitude_ratio": 1.8958618712914364,
+    "change_skill_vs_flat": -0.34939800895720974,
+    "label": "the same, plus the whole precipitation deficit",
+    "needs_a_meter": false
+  },
+  "OPENLOOP": {
+    "mae_mcm": 22.5172786962633,
+    "bias_mcm": -15.43705583856368,
+    "rmse_mcm": 29.440180544343736,
+    "mape_pct": 42.178178845966045,
+    "basin_bias_pct": -20.976028258653763,
+    "change_mae_mcm": 15.625921924023897,
+    "change_r": 0.661808941608098,
+    "change_amplitude_ratio": 1.474461612369903,
+    "change_skill_vs_flat": -0.20410591090935304,
+    "label": "unmixed evapotranspiration over a fixed efficiency of 0.80",
+    "needs_a_meter": false
+  },
+  "CLOSURE": {
+    "mae_mcm": 16.832858018761534,
+    "bias_mcm": -5.132981363764103,
+    "rmse_mcm": 23.39259633049899,
+    "mape_pct": 27.988350658417684,
+    "basin_bias_pct": -6.974747209794177,
+    "change_mae_mcm": 13.220644052306081,
+    "change_r": 0.5593989676223491,
+    "change_amplitude_ratio": 0.9921571703976685,
+    "change_skill_vs_flat": -0.018759451558231666,
+    "label": "the closure, evapotranspiration and heads",
+    "needs_a_meter": false
+  },
+  "_variance_decomposition": {
+    "METERED": {
+      "weather_share_pct": 55.97025489171492,
+      "trend_after_weather_mcm_per_sd_year": -40.90450003474932
+    },
+    "ZERO_CHANGE": {
+      "weather_share_pct": null,
+      "trend_after_weather_mcm_per_sd_year": 0.0,
+      "note": "constant in time"
+    },
+    "FLAT": {
+      "weather_share_pct": 10.523778965668996,
+      "trend_after_weather_mcm_per_sd_year": -2.8293225986537975
+    },
+    "WATERBAL25": {
+      "weather_share_pct": 75.39986606834607,
+      "trend_after_weather_mcm_per_sd_year": -3.4266026756827643
+    },
+    "WATERBAL50": {
+      "weather_share_pct": 91.73098383635198,
+      "trend_after_weather_mcm_per_sd_year": -4.023882752711706
+    },
+    "WATERBAL100": {
+      "weather_share_pct": 96.65664058022068,
+      "trend_after_weather_mcm_per_sd_year": -5.2184429067696065
+    },
+    "OPENLOOP": {
+      "weather_share_pct": 25.265582034568013,
+      "trend_after_weather_mcm_per_sd_year": -55.08222965193533
+    },
+    "CLOSURE": {
+      "weather_share_pct": 5.7510108110534475,
+      "trend_after_weather_mcm_per_sd_year": -51.72467006768012
+    }
+  },
+  "_closure_error_vs_precipitation": {
+    "r": 0.4753796632140892,
+    "note": "county-year closure error against the county precipitation anomaly; a value away from zero means weather is still leaking into the estimate"
+  },
+  "_ranking": {
+    "by_level": [
+      "WATERBAL50",
+      "ZERO_CHANGE",
+      "WATERBAL25",
+      "FLAT",
+      "WATERBAL100",
+      "CLOSURE",
+      "OPENLOOP"
+    ],
+    "by_change": [
+      "WATERBAL50",
+      "WATERBAL25",
+      "ZERO_CHANGE",
+      "FLAT",
+      "CLOSURE",
+      "OPENLOOP",
+      "WATERBAL100"
+    ]
+  }
+}

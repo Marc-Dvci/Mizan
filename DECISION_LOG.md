@@ -510,3 +510,39 @@ estimated change with the metered change, r = 0.55 with an amplitude slope of 0.
 are not satisfied by a constant. `scripts/19_verify.py` now records the negative result
 alongside them, including what always saying "down" would score, so the vacuous statistic
 cannot creep back.
+
+### The precipitation forcing on recharge, run and rejected
+
+The prediction recorded above was that giving recharge its observed precipitation forcing
+would raise the weather share of the closure's interannual variance from 7 per cent
+towards the metered 56 and lower the level error. **It did neither, and the configuration
+is rejected.**
+
+| | published, constant recharge | precipitation-forced recharge |
+|---|---:|---:|
+| level, Mm3/yr | **16.57** | 16.83 |
+| relative error | **25.4%** | 28.0% |
+| change over five-year periods, points | **8.7** | 9.1 |
+| change over eight-year periods, points | **4.5** | 5.4 |
+| crossover window | **4 years** | 5 years |
+| weather share of its own variance | 7.2% | 5.8% |
+| error against the precipitation anomaly | +0.50 | +0.48 |
+| thickness multiplier on the published surface | 0.90 | 1.05 |
+| head error after the two-stage budget | **2.94 m** | 6.12 m |
+
+**The mechanism was right about the model and wrong about what limits the score.** The
+thickness multiplier moves from 0.90 to 1.05, so the forced model agrees with the
+published USGS surface more closely than the published configuration does. Everything
+that is scored is worse.
+
+**The diagnosis is in the error budget.** The head error the two-stage estimate returns
+doubles, from 2.94 m to 6.12 m. The multiplier is applied per county, so recharge steps by
+up to forty per cent across a county line that has no hydrogeological meaning, and the
+head field cannot carry the discontinuity. The budget then inflates the head error to
+cover it, the head leg is de-weighted, and the head leg is what carries the multi-year
+change. The forcing has to be spatially smooth, interpolated from the county series or
+taken from a gridded product, before this can be retried.
+
+The code stays and is reachable under `KTAG=_v4`; the published rung stays `_v3`. This is
+recorded rather than removed because the prediction was written down before the run
+finished, and a prediction that fails is worth exactly as much as one that does not.
