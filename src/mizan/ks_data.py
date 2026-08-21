@@ -275,7 +275,7 @@ def _cache_key(region: Region) -> np.ndarray:
     """Identity of the grid a cached raster was sampled on.
 
     Shape alone is not the identity: two regions can share it and differ in origin, and
-    a cache hit on the wrong origin would silently move the whole basin.
+    a cache hit on the wrong origin would move the whole basin with nothing raised.
     """
     return np.array([region.lon0, region.lat0, region.nrow, region.ncol,
                      region.delr_m], dtype=float)
@@ -365,7 +365,8 @@ def irrigated_fraction(region: Region) -> np.ndarray:
     return out
 
 
-def irrigation_et(et: np.ndarray, frac: np.ndarray, region: Region) -> tuple:
+def irrigation_et(et: np.ndarray, frac: np.ndarray, region: Region,
+                  pool: bool = True) -> tuple:
     """Irrigation consumptive use per county-year, m3/yr, and its standard error.
 
     A 1 km evapotranspiration pixel over a quarter-section pivot landscape is a mixture
@@ -383,30 +384,73 @@ def irrigation_et(et: np.ndarray, frac: np.ndarray, region: Region) -> tuple:
     The standard error of the slope is returned with it, because a county with almost no
     irrigation has almost no leverage and its estimate has to enter the likelihood at
     the weight it deserves.
+
+    **The slope has to be pooled across the block.** A county-by-county fit is an
+    extrapolation from the irrigated fractions that county happens to contain out to
+    f = 1. Where the map tops out near 0.2 that is a five-fold extrapolation and it
+    returns a fifth of the volume. The endmembers are climatic and are shared across a
+    164 by 96 km block, so the slope is estimated once per year over every cell with a
+    separate intercept per county, which is the within estimator, and each county's own
+    slope is shrunk toward it by its own leverage:
+
+        b_i <- b_block + tau^2 / (tau^2 + se_i^2) * (b_i - b_block),
+
+    with `tau` the between-county spread of the slope in excess of what the regression
+    standard errors already explain. A county with tight leverage keeps its own value; a
+    county with none is carried by the block. No metered volume enters any of this.
+    Pass `pool=False` for the county-by-county fit that this replaces.
     """
     ny = et.shape[0]
-    vol = np.zeros((len(COUNTIES), ny))
-    se = np.zeros((len(COUNTIES), ny))
-    for i in range(len(COUNTIES)):
-        sel = region.county == i
-        for t in range(ny):
+    nc = len(COUNTIES)
+    slope = np.zeros((nc, ny))
+    slope_se = np.zeros((nc, ny))
+    area = np.zeros((nc, ny))
+    ok = np.zeros((nc, ny), dtype=bool)
+    b_blk = np.zeros(ny)
+    se_blk = np.zeros(ny)
+
+    for t in range(ny):
+        xs, ys = [], []
+        for i in range(nc):
+            sel = region.county == i
             x = frac[t][sel]
             y = et[t][sel]
             good = np.isfinite(y) & np.isfinite(x)
             x, y = x[good], y[good]
+            area[i, t] = np.nansum(frac[t][sel]) * region.area_m2
             n = x.size
             if n < 20:
                 continue
-            sxx = ((x - x.mean()) ** 2).sum()
+            xc, yc = x - x.mean(), y - y.mean()
+            sxx = (xc ** 2).sum()
             if sxx <= 0:
                 continue
-            b = ((x - x.mean()) * (y - y.mean())).sum() / sxx
-            a = y.mean() - b * x.mean()
-            resid = y - (a + b * x)
-            s2 = (resid ** 2).sum() / max(n - 2, 1)
-            area = frac[t][sel].sum() * region.area_m2
-            vol[i, t] = b * 1e-3 * area
-            se[i, t] = np.sqrt(s2 / sxx) * 1e-3 * area
+            b = (xc * yc).sum() / sxx
+            s2 = ((yc - b * xc) ** 2).sum() / max(n - 2, 1)
+            slope[i, t] = b
+            slope_se[i, t] = np.sqrt(s2 / sxx)
+            ok[i, t] = True
+            xs.append(xc)
+            ys.append(yc)
+        if not xs:
+            continue
+        xc = np.concatenate(xs)
+        yc = np.concatenate(ys)
+        den = (xc ** 2).sum()
+        b_blk[t] = (xc * yc).sum() / den
+        s2 = ((yc - b_blk[t] * xc) ** 2).sum() / max(xc.size - len(xs) - 1, 1)
+        se_blk[t] = np.sqrt(s2 / den)
+
+    if pool and ok.any():
+        d2 = ((slope - b_blk[None, :])[ok] ** 2).mean()
+        tau2 = max(0.0, float(d2 - (slope_se[ok] ** 2).mean()))
+        w = tau2 / (tau2 + slope_se ** 2) if tau2 > 0 else np.zeros_like(slope_se)
+        slope = np.where(ok, b_blk[None, :] + w * (slope - b_blk[None, :]), 0.0)
+        slope_se = np.where(
+            ok, np.sqrt(w * slope_se ** 2 + (se_blk ** 2)[None, :]), 0.0)
+
+    vol = np.where(ok, slope * 1e-3 * area, 0.0)
+    se = np.where(ok, slope_se * 1e-3 * area, 0.0)
     return vol, se
 
 
@@ -417,3 +461,54 @@ def irrigated_area(frac: np.ndarray, region: Region) -> np.ndarray:
         sel = region.county == i
         out[i] = frac[:, sel].sum(axis=1) * region.area_m2
     return out
+
+
+def saturated_thickness(region: Region) -> np.ndarray:
+    """Published saturated thickness of the High Plains aquifer on the grid, metres.
+
+    USGS `hp_satthk09`, the 2009 saturated-thickness grid of the High Plains aquifer,
+    500 m, EPSG:5070, published in feet. It is an independent observation of the
+    aquifer's geometry: no water-use report enters it, and nothing in the inversion is
+    scored against it, so it can be used to set the base of the layer rather than left
+    to be estimated.
+
+    The grid reports zero outside the mapped aquifer and where the aquifer has been
+    dewatered. A zero cell is filled with the median of the mapped cells in its own
+    county, and a county with none is filled with the block median, because a zero is
+    "not mapped here" and not "no aquifer here" as far as a 2 km cell is concerned.
+    """
+    cache = DATA / "hpsat_region.npz"
+    hit = _load_cache(cache, region, (region.nrow, region.ncol))
+    if hit is not None:
+        return hit
+
+    import rasterio
+    from rasterio.warp import transform as _warp
+
+    src_path = DATA / "hpsat" / "hp_satthk09"
+    LON, LAT = region.centers_lonlat()
+    with rasterio.open(src_path) as src:
+        xs, ys = _warp("EPSG:4326", src.crs, LON.ravel().tolist(), LAT.ravel().tolist())
+        arr = src.read(1).astype(float)
+        nod = src.nodata
+        inv = ~src.transform
+    if nod is not None:
+        arr[arr == nod] = np.nan
+    arr[arr < -1e30] = np.nan
+    cols, rows = inv * (np.asarray(xs), np.asarray(ys))
+    r = np.clip(np.round(rows - 0.5).astype(int), 0, arr.shape[0] - 1)
+    c = np.clip(np.round(cols - 0.5).astype(int), 0, arr.shape[1] - 1)
+    b = (arr[r, c].reshape(LON.shape)) * 0.3048
+
+    # Below a metre the cell is either outside the mapped aquifer or dewatered on the
+    # published surface, and neither is a thickness a 2 km cell can carry.
+    good = np.isfinite(b) & (b > 1.0)
+    fill = float(np.median(b[good])) if good.any() else 20.0
+    for i in range(len(COUNTIES)):
+        sel = region.county == i
+        g = sel & good
+        v = float(np.median(b[g])) if g.any() else fill
+        b[sel & ~good] = v
+    b[~np.isfinite(b) | (b <= 1.0)] = fill
+    _save_cache(cache, region, b)
+    return b

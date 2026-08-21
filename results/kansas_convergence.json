@@ -1,0 +1,20 @@
+{
+  "ne": 80,
+  "n_ok": 53,
+  "n_failed": 27,
+  "block abstraction, Mm3/yr": {
+    "converged": 508.7446560992353,
+    "failed": 503.35762691750864,
+    "gap_sd": -0.07301823597708527
+  },
+  "saturated thickness multiplier": {
+    "converged": 1.080854291116808,
+    "failed": 0.949518158673706,
+    "gap_sd": -0.4575451936649433
+  },
+  "specific yield": {
+    "converged": 0.18707049711833532,
+    "failed": 0.1390654617004119,
+    "gap_sd": -0.7744295363751559
+  }
+}

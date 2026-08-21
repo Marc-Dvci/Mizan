@@ -49,6 +49,11 @@ NDIST = len(K.COUNTIES)
 PRIOR_DEPTH_M = 0.3048
 RETURN_FRAC = 0.30            # share of the non-consumed water returning as percolation
 
+# Numerical floor on the saturated thickness of a cell. The published surface goes to
+# a metre at the margin of the mapped aquifer, which is a thickness a 2 km cell cannot
+# carry through twenty-five years of pumping without the Newton solve failing on it.
+BSAT_FLOOR_M = 8.0
+
 HEAD_SIGMA_M = 0.5
 ET_REL_SIGMA = 0.15
 
@@ -59,7 +64,7 @@ def _layout() -> dict:
         ("logq", NDIST * NYEAR),
         ("eta", NDIST),
         ("logk", NPILOT),
-        ("log_sy", 1), ("log_bsat", 1), ("log_rch", 1), ("log_ghb", 1),
+        ("log_sy", 1), ("log_bmul", 1), ("log_rch", 1), ("log_ghb", 1),
     ]:
         out[name] = slice(idx, idx + n)
         idx += n
@@ -83,6 +88,7 @@ class Context:
     well_col: np.ndarray
     well_seen: np.ndarray         # (nwell, NYEAR) bool, where a level exists
     active: np.ndarray            # (nrow, ncol) bool
+    bsat: np.ndarray              # (nrow, ncol) published saturated thickness, m
 
 
 def interpolate(region: K.Region, lon, lat, val, power: float = 2.0,
@@ -123,7 +129,8 @@ def make_context(region: K.Region, wl: dict, weight: np.ndarray = None) -> Conte
                    weight=K.diversion_weights(region) if weight is None else weight,
                    h0=h0,
                    well_row=row, well_col=col, well_seen=np.isfinite(head),
-                   active=region.county >= 0)
+                   active=region.county >= 0,
+                   bsat=K.saturated_thickness(region))
 
 
 # --------------------------------------------------------------------------- prior
@@ -174,9 +181,12 @@ def prior(region: K.Region, irr_area: np.ndarray) -> Prior:
         names.append(label)
 
     scalar("log_sy", np.log10(0.15), 0.16, np.log10(0.04), np.log10(0.32), "log_sy")
-    # Saturated thickness. The floor keeps a heavily pumped member from dewatering the
-    # layer outright, which is a numerical failure rather than a hypothesis about Kansas.
-    scalar("log_bsat", np.log10(45.0), 0.20, np.log10(20.0), np.log10(140.0), "log_bsat")
+    # Saturated thickness is not estimated. The USGS High Plains saturated-thickness
+    # grid maps it cell by cell over exactly this block, it is an observation of the
+    # aquifer's geometry rather than of its use, and no water-use report enters it. What
+    # is estimated is one multiplier on that field, which carries the difference between
+    # the 2009 surface and the start of the record and the error of the survey itself.
+    scalar("log_bmul", 0.0, 0.12, np.log10(0.6), np.log10(2.0), "log_bmul")
     # Recharge under cropland on the Kansas High Plains is reported between about 5 and
     # 35 mm/yr. The bound at 60 keeps the mass balance from being closed by recharge
     # alone, which is the degeneracy this leg has.
@@ -213,7 +223,7 @@ def decode(x: np.ndarray) -> dict:
                 eta=x[LAYOUT["eta"]],
                 logk=x[LAYOUT["logk"]],
                 sy=10.0 ** float(x[LAYOUT["log_sy"]][0]),
-                bsat=10.0 ** float(x[LAYOUT["log_bsat"]][0]),
+                bmul=10.0 ** float(x[LAYOUT["log_bmul"]][0]),
                 rch=10.0 ** float(x[LAYOUT["log_rch"]][0]),
                 ghb=10.0 ** float(x[LAYOUT["log_ghb"]][0]))
 
@@ -240,7 +250,8 @@ def build(ws: Path, x: np.ndarray, ctx: Context) -> None:
     p = decode(x)
     reg = ctx.region
     nrow, ncol = reg.nrow, reg.ncol
-    botm = ctx.h0 - p["bsat"]
+    bsat = np.maximum(ctx.bsat * p["bmul"], BSAT_FLOOR_M)
+    botm = ctx.h0 - bsat
     top = ctx.h0 + 40.0
 
     sim = flopy.mf6.MFSimulation(sim_name="ks", sim_ws=str(ws), exe_name=str(BIN),
@@ -350,6 +361,82 @@ def observe(x: np.ndarray, heads: np.ndarray, ctx: Context) -> dict:
             "head": anom[ctx.well_seen]}
 
 
+def obs_index(ctx: Context) -> dict:
+    """Which site and which year every observation belongs to.
+
+    The site is what makes two observations dependent: a persistent offset at one well
+    repeats in every year of its record, and a retrieval bias in one county repeats in
+    every year of that county's series.
+    """
+    n_et = NDIST * NYEAR
+    yrs = np.tile(np.arange(NYEAR), (ctx.well_row.size, 1))[ctx.well_seen]
+    wid = np.repeat(np.arange(ctx.well_row.size), NYEAR).reshape(
+        ctx.well_row.size, NYEAR)[ctx.well_seen]
+    return {"n_et": n_et,
+            "site": np.concatenate([np.repeat(np.arange(NDIST), NYEAR), wid + NDIST]),
+            "time": np.concatenate([np.tile(np.arange(NYEAR), NDIST), yrs])}
+
+
+def total_error(sim_mean: np.ndarray, obs: np.ndarray, sd_nom: np.ndarray,
+                ctx: Context, per_site: bool = True) -> tuple[np.ndarray, dict]:
+    """Observation error inflated to cover structural error and dependence.
+
+    This is the same two-stage estimate `inversion.total_error` applies at L0, and it is
+    applied here for the same reason. Two effects are read off the residual of a
+    first-stage inversion, without reference to the scored quantity. Residual root mean
+    square in excess of the nominal error is structural: a 2 km regional cell cannot
+    reproduce the winter level in a farm well, and a 1 km evapotranspiration retrieval
+    unmixed against a 250 m map cannot reproduce a county volume exactly. The residual
+    autocorrelation within a site says how many of those observations are independent.
+    A well measured for twenty-five years is not twenty-five independent measurements of
+    the regional water table, and treating it as though it were is what lets one leg
+    overwhelm the other.
+
+    **The structural term is estimated per site.** One number pooled over every site
+    assumes the model fails equally everywhere, and it does not: the county-level
+    residual of the evapotranspiration retrieval runs from 7 per cent of the volume
+    where the irrigated fraction is high to nearly twice the volume where it is not.
+    Pooling understates the error exactly where the retrieval is worst, and a leg whose
+    error is understated does not merely mislead. It disagrees with the other leg by
+    more than either claims to be uncertain by, and the joint update then lands outside
+    both, with an interval narrow enough to exclude the truth. The per-site term is
+    floored at the pooled value, so no site is trusted more than the pooled estimate
+    would allow and the change can only widen an error, never narrow one. Pass
+    `per_site=False` for the pooled form this replaces.
+    """
+    idx = obs_index(ctx)
+    r = sim_mean - obs
+    sd = sd_nom.copy()
+    report = {}
+    for name, sel in (("et", slice(0, idx["n_et"])),
+                      ("head", slice(idx["n_et"], None))):
+        rs, sds, site = r[sel], sd_nom[sel], idx["site"][sel]
+        rms = float(np.sqrt((rs ** 2).mean()))
+        nom = float(np.sqrt((sds ** 2).mean()))
+        struct = float(np.sqrt(max(rms ** 2 - nom ** 2, 0.0)))
+        r1 = I._lag1(rs, site, idx["time"][sel])
+        infl = float(np.sqrt((1.0 + r1) / (1.0 - r1)))
+
+        st = np.full(rs.size, struct)
+        if per_site:
+            for s in np.unique(site):
+                m = site == s
+                if int(m.sum()) < 5:
+                    continue
+                rms_s = float(np.sqrt((rs[m] ** 2).mean()))
+                nom_s = float(np.sqrt((sds[m] ** 2).mean()))
+                st[m] = max(struct, np.sqrt(max(rms_s ** 2 - nom_s ** 2, 0.0)))
+        sd[sel] = np.sqrt(sds ** 2 + st ** 2) * infl
+        report[name] = {"n": int(np.arange(r.size)[sel].size),
+                        "nominal": nom, "residual_rms": rms, "structural": struct,
+                        "structural_site_max": float(st.max()),
+                        "structural_site_mean": float(st.mean()),
+                        "per_site": bool(per_site),
+                        "lag1": r1, "independence_inflation": infl,
+                        "total": float(np.sqrt((sd[sel] ** 2).mean()))}
+    return sd, report
+
+
 def head_anomaly(wl: dict, ctx: Context) -> np.ndarray:
     """The measured head anomalies, in the same order the operator returns them."""
     h = np.array([w["head"] for w in wl["wells"]])
@@ -412,7 +499,7 @@ def taper(ctx: Context, radius_km: float = 45.0) -> np.ndarray:
             rho[sl.start + k] = v
             k += 1
 
-    for key in ("log_sy", "log_bsat", "log_rch", "log_ghb"):
+    for key in ("log_sy", "log_bmul", "log_rch", "log_ghb"):
         v = np.zeros(nobs, dtype=np.float32)
         v[n_et:] = 1.0
         rho[LAYOUT[key]] = v

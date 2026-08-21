@@ -23,12 +23,12 @@ from mizan import inversion as I, ks_data as K, ks_run as R, metrics as MT
 RES = ROOT / "results"
 
 
-def assemble() -> dict:
+def assemble(pool: bool = True) -> dict:
     pts = K.load_points()
     region = K.build_region(pts)
     et = K.evapotranspiration(region)
     frac = K.irrigated_fraction(region)
-    et_obs, et_se = K.irrigation_et(et, frac, region)
+    et_obs, et_se = K.irrigation_et(et, frac, region, pool=pool)
     irr_area = K.irrigated_area(frac, region)
     wl = K.water_levels(region)
     ctx = R.make_context(region, wl)
@@ -47,9 +47,21 @@ def main() -> None:
                     help="ETH both legs, ET evapotranspiration only, H heads only")
     ap.add_argument("--out", type=str, default="kansas.json")
     ap.add_argument("--tag", type=str, default="")
+    ap.add_argument("--nominal-error", action="store_true",
+                    help="weight every observation at its instrument error, skipping "
+                         "the two-stage total error estimate")
+    ap.add_argument("--pooled-error", action="store_true",
+                    help="one structural term per leg pooled over every site, instead "
+                         "of a per-site term floored at the pooled value")
+    ap.add_argument("--no-pool-unmix", action="store_true",
+                    help="fit the unmixing slope county by county, instead of shrinking "
+                         "each county toward the block-wide endmember contrast")
+    ap.add_argument("--budget-from", type=str, default="",
+                    help="posterior npz of a converged first-stage inversion, whose "
+                         "residual supplies the structural and dependence terms")
     args = ap.parse_args()
 
-    a = assemble()
+    a = assemble(pool=not args.no_pool_unmix)
     region, ctx = a["region"], a["ctx"]
     n_et = R.NDIST * R.NYEAR
     obs = np.concatenate([a["et_obs"].ravel(), R.head_anomaly(a["wl"], ctx)])
@@ -76,6 +88,27 @@ def main() -> None:
     D0, ok0 = R.run_ensemble(X0, root, ctx, workers=args.workers)
     print(f"prior ensemble {time.time()-t0:.0f}s, {int(ok0.sum())}/{args.ne} converged")
 
+    # Two-stage observation error. A short first-stage inversion on both legs supplies
+    # the residual from which the structural and dependence terms are estimated. Nothing
+    # in it touches the scored quantity.
+    # The residual has to come from a converged inversion. Read off a partly converged
+    # one it is dominated by fit error that has not been removed yet, and the structural
+    # term it returns is the distance still to travel rather than the distance that
+    # cannot be travelled.
+    budget = None
+    if not args.nominal_error:
+        assert args.budget_from, "--budget-from or --nominal-error is required"
+        st = np.load(RES / args.budget_from)
+        Ds, oks = R.run_ensemble(st["X"], root, ctx, workers=args.workers)
+        oks = oks & st["ok"]
+        sd, budget = R.total_error(Ds[:, oks].mean(axis=1), obs, sd, ctx,
+                                   per_site=not args.pooled_error)
+        for k, v in budget.items():
+            print(f"  error budget {k:5s} n={v['n']:5d} nominal {v['nominal']:8.3f}  "
+                  f"residual {v['residual_rms']:8.3f}  structural {v['structural']:8.3f}  "
+                  f"lag1 {v['lag1']:.2f}  inflation {v['independence_inflation']:.2f}  "
+                  f"total {v['total']:8.3f}")
+
     q_true, meta = K.metered_annual()
     print(f"withheld truth: {meta['n_rights']} water rights, "
           f"{meta['n_missing']} unreadable, "
@@ -89,7 +122,12 @@ def main() -> None:
     res["_meta"] = {"seed": args.seed, "ne": args.ne, "na": args.na,
                     "irrigated_km2": irr_km2, "n_wells": len(a["wl"]["wells"]),
                     "n_obs_head": int(obs.size - n_et), "counties": K.COUNTIES,
-                    "years": [K.YEAR0, K.YEAR1], **meta}
+                    "years": [K.YEAR0, K.YEAR1],
+                    "nominal_error": bool(args.nominal_error),
+                   "per_site_error": not args.pooled_error,
+                   "pooled_unmixing": not args.no_pool_unmix, **meta}
+    if budget:
+        res["_error_budget"] = budget
 
     # The published open-loop account, on the same evapotranspiration the closure sees.
     ol = a["et_obs"] / 0.80
@@ -104,9 +142,16 @@ def main() -> None:
     res["BASELINE_ORACLE"] = {
         "label": f"open loop, efficiency fitted to the meters at {e_star:.3f}",
         **MT.point_scores(a["et_obs"] / e_star, q_true)}
+    # The bar a reviewer can compute in a spreadsheet: mapped irrigated area times the
+    # one published applied depth, with no aquifer, no satellite and no inversion. It is
+    # a harder bar than the prior ensemble mean, whose log-normal spread inflates it, and
+    # both are reported because the deterministic one is the one that has to be beaten.
+    res["PRIOR_FLAT"] = {
+        "label": "mapped irrigated area times one acre-foot per acre, no data at all",
+        **MT.point_scores(a["irr_area"] * R.PRIOR_DEPTH_M, q_true)}
     ps = MT.point_scores(np.array([R.decode(X0[:, i])["q"]
                                    for i in np.nonzero(ok0)[0]]).mean(axis=0), q_true)
-    res["PRIOR"] = {"label": "prior, no data at all", **ps}
+    res["PRIOR"] = {"label": "the same prior drawn as an ensemble, no data at all", **ps}
 
     for key in args.rows.split(","):
         idx = take[key]
@@ -136,7 +181,9 @@ def main() -> None:
                     **sc, "phi_history": hist,
                     "eta_hat": X[R.LAYOUT["eta"]][:, ok].mean(axis=1).tolist(),
                     "sy_hat": float((10.0 ** X[R.LAYOUT["log_sy"]][:, ok]).mean()),
-                    "bsat_hat": float((10.0 ** X[R.LAYOUT["log_bsat"]][:, ok]).mean()),
+                    "bmul_hat": float((10.0 ** X[R.LAYOUT["log_bmul"]][:, ok]).mean()),
+                    "bsat_hat": float((10.0 ** X[R.LAYOUT["log_bmul"]][:, ok]).mean()
+                                      * ctx.bsat[ctx.active].mean()),
                     "rch_hat": float((10.0 ** X[R.LAYOUT["log_rch"]][:, ok]).mean()),
                     "seconds": time.time() - t}
         np.savez_compressed(RES / f"kansas_posterior_{key}{args.tag}.npz",
@@ -145,6 +192,8 @@ def main() -> None:
                             et_se=a["et_se"], irr_area=a["irr_area"])
         print(f"  {key:4s} MAE {sc['mae_mcm']:7.2f} Mm3/yr  MAPE {sc['mape_pct']:5.1f}%  "
               f"cover90 {sc.get('cover_90', float('nan')):.2f}  ({time.time()-t:.0f}s)")
+        # Written after every row, so an interrupted run leaves the rows it finished.
+        (RES / args.out).write_text(json.dumps(res, indent=2))
 
     (RES / args.out).write_text(json.dumps(res, indent=2))
     print(f"\nwrote results/{args.out}")

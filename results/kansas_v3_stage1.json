@@ -1,0 +1,117 @@
+{
+  "_meta": {
+    "seed": 5,
+    "ne": 250,
+    "na": 6,
+    "irrigated_km2": 1355.0375,
+    "n_wells": 358,
+    "n_obs_head": 7637,
+    "counties": [
+      "CN",
+      "RA",
+      "DC",
+      "SH",
+      "TH",
+      "SD"
+    ],
+    "years": [
+      2000,
+      2001,
+      2002,
+      2003,
+      2004,
+      2005,
+      2006,
+      2007,
+      2008,
+      2009,
+      2010,
+      2011,
+      2012,
+      2013,
+      2014,
+      2015,
+      2016,
+      2017,
+      2018,
+      2019,
+      2020,
+      2021,
+      2022,
+      2023,
+      2024
+    ],
+    "nominal_error": true,
+    "per_site_error": true,
+    "pooled_unmixing": true,
+    "n_rights": 3545,
+    "n_missing": 0
+  },
+  "BASELINE": {
+    "label": "open loop, efficiency fixed at 0.80",
+    "mae_mcm": 22.5172786962633,
+    "bias_mcm": -15.43705583856368,
+    "rmse_mcm": 29.440180544343736,
+    "mape_pct": 42.178178845966045,
+    "basin_bias_pct": -20.976028258653763
+  },
+  "BASELINE_ORACLE": {
+    "label": "open loop, efficiency fitted to the meters at 0.694",
+    "mae_mcm": 20.50821237183307,
+    "bias_mcm": -6.554325787116769,
+    "rmse_mcm": 27.451026963458734,
+    "mape_pct": 40.55151720574982,
+    "basin_bias_pct": -8.90608444801587
+  },
+  "PRIOR_FLAT": {
+    "label": "mapped irrigated area times one acre-foot per acre, no data at all",
+    "mae_mcm": 14.778559116624594,
+    "bias_mcm": -4.757892873508519,
+    "rmse_mcm": 20.77822320185712,
+    "mape_pct": 21.670322146894677,
+    "basin_bias_pct": -6.4650731596788695
+  },
+  "PRIOR": {
+    "label": "the same prior drawn as an ensemble, no data at all",
+    "mae_mcm": 16.440226875700137,
+    "bias_mcm": 11.39511634371373,
+    "rmse_mcm": 25.62818335043695,
+    "mape_pct": 26.587578691405138,
+    "basin_bias_pct": 15.483799821418915
+  },
+  "ETH": {
+    "label": "evapotranspiration + heads, closure",
+    "mae_mcm": 20.707459148153124,
+    "bias_mcm": -12.678520214345982,
+    "rmse_mcm": 28.605409713343754,
+    "mape_pct": 29.82893264631892,
+    "basin_bias_pct": -17.227702035622006,
+    "cover_50": 0.4,
+    "cover_80": 0.6533333333333333,
+    "cover_90": 0.72,
+    "width90_mcm": 52.67886424054602,
+    "crps_mcm": 16.84779559192647,
+    "phi_history": [
+      17994.740717835204,
+      247.21771950688944,
+      85.34467240332995,
+      26.57762579336214,
+      19.34251375162267,
+      20.733113430047883,
+      10.811854608933533
+    ],
+    "eta_hat": [
+      1.0723559101597624,
+      0.6588803165042926,
+      0.6387656832435559,
+      0.6232743870104016,
+      0.6824781289771419,
+      0.5469622406248483
+    ],
+    "sy_hat": 0.21936145035629692,
+    "bmul_hat": 0.8393102785734027,
+    "bsat_hat": 17.177588877542316,
+    "rch_hat": 3.0071572709047274,
+    "seconds": 1229.6786229610443
+  }
+}

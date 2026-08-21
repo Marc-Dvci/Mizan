@@ -390,6 +390,28 @@ def fetch_mirad(out_dir: Path, log=print) -> None:
         log("  mirad: {} {:.1f} MB".format(name, len(raw) / 1e6))
 
 
+HPSAT = "https://water.usgs.gov/GIS/dsdl/hp_satthk09.zip"
+
+
+def fetch_hpsat(out_dir: Path, log=print) -> None:
+    """The USGS 2009 saturated-thickness grid of the High Plains aquifer, 500 m.
+
+    An ESRI grid in feet on EPSG:5070, published with SIR 2012-5177. It is an
+    observation of the aquifer's geometry into which no water-use report enters, which
+    is why the layer base is taken from it rather than estimated.
+    """
+    dest = out_dir / "hpsat"
+    if (dest / "hp_satthk09" / "w001001.adf").exists():
+        log("  hpsat: cached")
+        return
+    dest.mkdir(parents=True, exist_ok=True)
+    raw = urllib.request.urlopen(
+        urllib.request.Request(HPSAT, headers={"User-Agent": UA}), timeout=900).read()
+    with zipfile.ZipFile(io.BytesIO(raw)) as z:
+        z.extractall(dest)
+    log("  hpsat: {:.1f} MB".format(len(raw) / 1e6))
+
+
 def ssebop_year(year: int, cache: Path) -> Path:
     """Download and unpack one annual actual-evapotranspiration grid."""
     cache.mkdir(parents=True, exist_ok=True)
