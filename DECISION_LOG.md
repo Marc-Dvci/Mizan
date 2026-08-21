@@ -296,3 +296,126 @@ statement the ablation makes in Mm³/yr, arriving from the covariance instead.
 
 Reported by `scripts/07_report.py` from `results/posterior_*.npz`, so the number comes
 from the saved posterior rather than from a field written at run time.
+
+### L2 Kansas saturated thickness, first version: a global scalar, estimated
+
+The first Kansas configuration estimated one saturated thickness for the whole block,
+with a log-uniform prior from 20 m to 140 m centred on 45 m, and settled at **78.7 m**.
+
+**Rejected against a published surface, not against a score.** The USGS High Plains
+saturated-thickness grid `hp_satthk09`, 500 m, published in feet with SIR 2012-5177,
+sampled onto the model grid, gives a block mean of **20.4 m** and county means of 19.7,
+16.6, 13.2, 29.4, 23.6 and 19.1 m. Five of the six counties sit at or below the prior's
+lower bound, so the prior did not merely miss the published value, it excluded it. That
+grid is an observation of the aquifer's geometry into which no water-use report enters,
+so the model was falsifiable against it before any meter was opened.
+
+The mechanism is visible in the scores. Too much transmissivity spreads drawdown too far
+and too thin, which is the condition under which a head record fits well and constrains
+nothing. Sheridan county carried the entire level gap at 52.4 Mm³/yr against a metered
+91.9, with 90 per cent coverage of 0.40 where every other county was above 1.2, and a
+forward run at the posterior mean fitted Sheridan's heads to 0.83 m rms with no residual
+trend: the head data there never constrained the abstraction, so the estimate was free to
+move.
+
+**Replaced by:** the layer base is the published field, sampled and converted, times one
+estimated multiplier with a prior centred on 1.0 and bounds 0.6 and 2.0, floored at 8 m
+per cell so the Newton solve survives the margin of the mapped aquifer. The parameter
+count is unchanged, so the comparison against the previous run is clean. The inversion
+chose **0.90**, so the head record is consistent with the published surface rather than
+pulling away from it. Sheridan returns 109.4 at coverage 0.96.
+
+**What it did not buy, recorded for the same reason.** Cheyenne moved the other
+way, 53.8 to 36.6 against a metered 59.9, and the heads-only row puts it at 33.4, so the
+head leg now drags Cheyenne as it used to drag Sheridan. Mean absolute error improves
+17.65 to 16.57 and relative error worsens 23.3 to 25.4 per cent. No closure configuration
+beats mapped irrigated area times one acre-foot per acre at 14.78 Mm³/yr.
+
+**This change was made after the first Kansas score was known.** It is recorded here for
+that reason. The decision was taken against the published surface rather than against the
+score, both configurations remain in the repository and both remain runnable, and with
+six counties there is no untouched data left to size a further effect on. Nothing after
+this was tuned.
+
+### Kansas error budget: per site rather than pooled
+
+A structural error term read from the converged residual of a first, instrument-weighted
+assimilation, and applied per observation site rather than pooled across a leg.
+
+**Result: kept, and the pooled variant kept beside it.** Under the published thickness
+the per-site budget scores 16.57 Mm³/yr at 25.4 per cent with 95 per cent coverage; the
+pooled budget scores 16.92 at 26.5 per cent with 97 per cent. Both are reported. Neither
+was selected against the meters, and the choice between them changes no claim in the
+submission.
+
+An earlier version of the same idea, run on the *estimated* thickness, made things worse:
+mean absolute error 17.65 to 18.82 and Sheridan's coverage 0.40 to 0.32, because inflating
+the evapotranspiration leg by 22 per cent against the head leg's 13 raised the head leg's
+weight and the head leg was what pulled Sheridan down. The mechanism was right and the
+model underneath it was wrong. That is recorded because it is the reason the thickness was
+checked at all.
+
+### Kansas interannual amplitude: an oracle shrink, replaced by leave-one-county-out
+
+The closure's county-year anomaly correlates with the metered anomaly at 0.64. Under a
+mean-absolute-error metric a correlation below one puts the amplitude that minimises the
+error below the estimate's own, so a single scalar improves the anomaly score.
+
+**Rejected as first written.** The scalar was fitted against all six counties at once,
+which is an oracle: it is fitted on the same meters it is then scored against, and it
+cannot be reported as a result.
+
+**Replaced by:** the same scalar fitted leave-one-county-out, so every county's factor
+comes from the other five and no county enters its own fit. The factor runs 0.68 to 0.75
+across the six folds, the held-out anomaly skill is +0.18 against an oracle +0.18, and
+both columns are published side by side so the distance between them is visible rather
+than asserted.
+
+### Kansas ensemble convergence under the published thickness
+
+Putting the true thickness in costs part of the prior ensemble: thin low-storage members
+dewater and the Newton solve fails on them. Measured on 80 members by
+`scripts/16_kansas_convergence.py`, 27 failed.
+
+**Result: reported rather than absorbed.** The failed members sit 0.07 standard
+deviations from the converged ones on block abstraction, so the scored quantity is
+unaffected. They sit 0.77 away on specific yield and 0.46 on the thickness multiplier.
+The truncation is selective in exactly those two directions, so the posterior specific
+yield of 0.249, which sits above the range published for the Kansas High Plains, is
+reported as an **upper bound rather than as a retrieval**, in the technical note and in
+the generated results.
+
+### L3 Al Jawf, first version: prose with no script behind it
+
+An earlier assessment reported two Al Jawf probes as numbers in a document with no
+script, no results file and no way to re-run them.
+
+**Rejected, and it did not reproduce.** It reported PML V2 at 162 mm/yr for 2021 from a
+collection that ends in 2020; a crop-coefficient account at 958 mm/yr against 1,436 here;
+and a Rub' al Khali control at -8.06 cm/decade against -3.32 here, which inverts the
+conclusion from "at most a quarter of the trend is local" to "between 7 and 71 per cent,
+depending on the control".
+
+**Replaced by:** `scripts/20_aljawf.py` and `scripts/21_aljawf_figure.py`, everything read
+live from Earth Engine, written to `results/aljawf.json`, with the delineation validated
+against the published one (2,541 km² against 2,494 km² at 30 m) and its threshold
+sensitivity published alongside. Two guards are paired with it: an evapotranspiration
+account above reference evapotranspiration is a unit error and is rejected, and the driver
+is asserted to carry more than one control box.
+
+### L2 resolution metric read against zero, replaced by a measured null
+
+The number of directions the data constrained was being read against zero, on the
+assumption that a prior ensemble with no data assimilated constrains none.
+
+**Rejected.** `scripts/13_null.py` assimilates nothing and measures what two independent
+prior ensembles constrain by themselves: **58.3** of 180 directions at L0 and **44.8** of
+150 at L2, from relaxation and localisation alone. Every row was being credited with that
+much for free.
+
+**Replaced by:** the null row is published in both tables and every reading is stated
+above it. Null-corrected, the L0 closure constrains +77.1 and gravity alone comes out at
+**-21.2**, below what nothing does. At L2 the head leg carries the block at +31.6, the
+closure sits at +28.8, and the evapotranspiration leg alone at -3.9 is also below the
+null: a 1 km retrieval over a block that is 14 per cent irrigated carries a structural
+error large enough to cancel it.

@@ -3,9 +3,9 @@ PY ?= .venv/Scripts/python.exe
 NE ?= 250
 NA ?= 8
 
-.PHONY: all setup truth ablation allocation voi detection figures report test clean         robustness kansas-data kansas
+.PHONY: all setup truth ablation allocation voi detection figures report test clean         robustness null kansas-data kansas kansas-score aljawf
 
-all: truth ablation allocation voi detection figures report
+all: truth ablation allocation voi detection null figures report
 
 setup:
 	uv venv --python 3.12 .venv
@@ -46,8 +46,35 @@ robustness:
 kansas-data:
 	$(PY) scripts/10_kansas_fetch.py --workers 4
 
+null:
+	$(PY) scripts/13_null.py
+
+# Two stages. The first is weighted at instrument error and supplies the converged
+# residual the error budget is read from; a budget read off an unconverged residual
+# measures the distance the ensemble has not travelled yet, not the distance it cannot.
+#
+# `_v3` is the published configuration: per-site error budget, layer base taken from the
+# USGS saturated-thickness field rather than estimated. `_v3p` is the pooled-budget
+# sensitivity, reported beside it. Both stay runnable.
 kansas:
-	$(PY) scripts/11_kansas_run.py --ne $(NE) --na $(NA) --workers 6
+	$(PY) scripts/11_kansas_run.py --ne $(NE) --na 6 --workers 6 --nominal-error --rows ETH --out kansas_v3_stage1.json --tag _v3s1
+	$(PY) scripts/11_kansas_run.py --ne $(NE) --na 6 --workers 6 --budget-from kansas_posterior_ETH_v3s1.npz --out kansas_v3.json --tag _v3
+	$(PY) scripts/11_kansas_run.py --ne $(NE) --na 6 --workers 6 --pooled-error --budget-from kansas_posterior_ETH_v3s1.npz --out kansas_v3p.json --tag _v3p
+	$(PY) scripts/16_kansas_convergence.py --ne 80 --workers 6
+
+kansas-score: null
+	$(PY) scripts/12_kansas_anomaly.py --tag _v3
+	$(PY) scripts/14_kansas_resolution.py --tag _v3 --out kansas_resolution_v3.json
+	$(PY) scripts/15_kansas_shrink.py --tag _v3
+
+# L3. Everything is read live from Earth Engine, so this target needs an authenticated
+# project and nothing else: `earthengine authenticate`, then set EARTHENGINE_PROJECT to
+# your own cloud project. Registration is free and every asset read here is public.
+# Nothing in this rung is fitted and nothing is scored: it reports how far the published
+# instruments are from each other over one basin.
+aljawf:
+	$(PY) scripts/20_aljawf.py
+	$(PY) scripts/21_aljawf_figure.py
 
 clean:
 	rm -rf runs/ens runs/alloc runs/jac

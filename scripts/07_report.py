@@ -52,6 +52,8 @@ def section(title):
 
 
 def main():
+    L0_NULL = None
+    L0_ABOVE_NULL = float("nan")
     tr = np.load(RES / "truth.npz")
     ab = load("ablation.json")
     al = load("allocation.json")
@@ -122,11 +124,22 @@ def main():
         print("| Observations | directions resolved to 90% | unresolved | "
               "widened | directions constrained |")
         print("|---|---:|---:|---:|---:|")
+        nullp = RES / "resolution_null.json"
+        if nullp.exists():
+            n = json.loads(nullp.read_text())["L0"]
+            L0_NULL = n["effective_dim"]["mean"]
+            print(f"| **null: two independent prior ensembles, no data at all** | "
+                  f"**{n['n_resolved_90']['mean']:.0f}** | "
+                  f"**{n['n_unresolved']['mean']:.0f}** | "
+                  f"**{n['n_widened']['mean']:.0f}** | "
+                  f"**{n['effective_dim']['mean']:.1f}** |")
         for k in ORDER:
             p = RES / f"posterior_{k}.npz"
             if k not in ab or not p.exists():
                 continue
             ratio = np.load(p)["variance_ratio"]
+            if k == "H" and L0_NULL is not None:
+                L0_ABOVE_NULL = float(np.clip(1.0 - ratio, 0.0, None).sum()) - L0_NULL
             print(f"| {LABEL[k]} | {int((ratio < 0.10).sum())} | "
                   f"{int((ratio > 0.90).sum())} | {int((ratio > 1.0).sum())} | "
                   f"{np.clip(1.0 - ratio, 0.0, None).sum():.1f} |")
@@ -277,24 +290,27 @@ def main():
               f"{eu['BASELINE_ORACLE']['mae_mcm']:.2f} | "
               f"**{eu['H']['mae_mcm']:.2f}** |")
 
-    ks = load("kansas.json")
+    KTAG = "_v3"
+    ks = load(f"kansas{KTAG}.json")
     if ks:
         m = ks["_meta"]
         section("L2 Kansas: against real metered abstraction")
         print(f"Six counties of the Northwest Kansas groundwater management district "
-              f"over the Ogallala, {m['years'][0]} to {m['years'][1]}, "
+              f"over the Ogallala, {m['years'][0]} to {m['years'][-1]}, "
               f"{m['irrigated_km2']:,.0f} km2 irrigated. The scored quantity is "
               f"county-annual abstraction against **per-water-right metered pumping** "
               f"published by the Kansas Department of Agriculture: "
-              f"{m['n_rights']:,} water rights, of which {m['n_missing']} could not be "
-              f"read.\n")
+              f"{m['n_rights']:,} water rights, "
+              + ("none of them unreadable." if not m["n_missing"]
+                 else f"of which {m['n_missing']} could not be read.") + "\n")
         print(f"The estimator sees {m['n_obs_head']:,} well-year head anomalies from "
-              f"{m['n_wells']} wells and {6 * (m['years'][1]-m['years'][0]+1)} "
+              f"{m['n_wells']} wells and {len(m['counties']) * len(m['years'])} "
               f"county-year evapotranspiration volumes. It never sees the meters.\n")
         print("| observations available to the estimator | MAE, Mm3/yr | MAPE | "
               "90% coverage |")
         print("|---|---:|---:|---:|")
-        for k in ("PRIOR", "BASELINE", "BASELINE_ORACLE", "ET", "H", "ETH"):
+        for k in ("PRIOR_FLAT", "PRIOR", "BASELINE", "BASELINE_ORACLE",
+                  "ET", "H", "ETH"):
             if k not in ks:
                 continue
             v = ks[k]
@@ -302,18 +318,217 @@ def main():
             star = "**" if k == "ETH" else ""
             print(f"| {star}{v['label']}{star} | {star}{v['mae_mcm']:.2f}{star} | "
                   f"{star}{v['mape_pct']:.1f}%{star} | {cov} |")
+        ksp = load("kansas_v3p.json")
+        if ksp and "ETH" in ksp:
+            v, vp = ks["ETH"], ksp["ETH"]
+            print(f"\nThe row above is the per-site error budget. Under the pooled "
+                  f"budget on the same published thickness the closure scores "
+                  f"{vp['mae_mcm']:.2f} Mm3/yr at {vp['mape_pct']:.1f}% with "
+                  f"{vp['cover_90']*100:.0f}% coverage, against {v['mae_mcm']:.2f} at "
+                  f"{v['mape_pct']:.1f}% with {v['cover_90']*100:.0f}%. Both are "
+                  f"reported and neither was selected against the meters.")
+
+        print("\n**The layer thickness is an observation, not a parameter.** The first "
+              "Kansas configuration estimated one global saturated thickness and settled "
+              "at 79 m. The USGS High Plains saturated-thickness grid, sampled onto the "
+              "same model grid, gives a block mean of 20.4 m and county means of 19.7, "
+              "16.6, 13.2, 29.4, 23.6 and 19.1 m. The prior did not merely miss that: it "
+              "ran from 20 m to 140 m, so five of the six counties sat at or below its "
+              "lower bound. The model was falsified against an independent published "
+              "surface into which no water-use report enters, before any meter was "
+              "opened. The layer base is now that field times one estimated multiplier, "
+              "so the parameter count is unchanged.")
+
         if "ETH" in ks:
             e = ks["ETH"]
-            print(f"\nPosterior nuisances: specific yield {e['sy_hat']:.3f}, saturated "
-                  f"thickness {e['bsat_hat']:.0f} m, recharge {e['rch_hat']:.0f} mm/yr, "
-                  f"consumptive fraction by county " +
+            print(f"\nPosterior nuisances: a multiplier of {e['bmul_hat']:.2f} on the "
+                  f"published saturated thickness, which puts the layer at "
+                  f"{e['bsat_hat']:.1f} m over the block, recharge "
+                  f"{e['rch_hat']:.0f} mm/yr, consumptive fraction by county " +
                   ", ".join(f"{c} {v:.2f}" for c, v in
-                            zip(m["counties"], e["eta_hat"])) + ".")
+                            zip(m["counties"], e["eta_hat"])) +
+                  ". The multiplier lands within ten per cent of unity, so the head "
+                  "record is consistent with the published surface rather than pulling "
+                  "away from it.")
+
+        kc = load("kansas_convergence.json")
+        if kc and "ETH" in ks:
+            e = ks["ETH"]
+            print(f"\n**One declaration on the specific yield.** The posterior specific "
+                  f"yield is {e['sy_hat']:.3f}, which sits above the range published for "
+                  f"the Kansas High Plains, and it has to be read as an upper bound "
+                  f"rather than as a retrieval. Putting the true thickness in costs part "
+                  f"of the prior ensemble, because thin low-storage members dewater and "
+                  f"fail to converge. Measured on {kc['ne']} members, "
+                  f"{kc['n_failed']} of which failed, the failed members sit "
+                  f"{abs(kc['block abstraction, Mm3/yr']['gap_sd']):.2f} standard "
+                  f"deviations from the converged ones on block abstraction, so the "
+                  f"scored quantity is unaffected, but "
+                  f"{abs(kc['specific yield']['gap_sd']):.2f} on specific yield and "
+                  f"{abs(kc['saturated thickness multiplier']['gap_sd']):.2f} on the "
+                  f"thickness multiplier. The truncation is selective in exactly those "
+                  f"two directions and the number is reported with that attached.")
+
+        an = load(f"kansas_anomaly{KTAG}.json")
+        if an:
+            print(f"\n**The level is the easy part.** Irrigated area times one published "
+                  f"applied depth already lands close on a county mean, so the "
+                  f"county-year anomaly about each county's own record mean is what an "
+                  f"estimator has to earn. The signal is {an['_signal_mcm']:.2f} Mm3/yr "
+                  f"mean absolute, and a flat-in-time estimate scores exactly that.\n")
+            print("| estimate | MAE | anomaly MAE | anomaly skill |")
+            print("|---|---:|---:|---:|")
+            for k, lab in (("FLAT", "each county's own 25-year mean, flat in time"),
+                           ("BASELINE", "open loop at 0.80"),
+                           ("H", "heads only"),
+                           ("ET", "evapotranspiration only"),
+                           ("ETH", "evapotranspiration + heads, closure")):
+                if k not in an:
+                    continue
+                v = an[k]
+                print(f"| {lab} | {v['mae_mcm']:.2f} | {v['anomaly_mae_mcm']:.2f} | "
+                      f"{v['anomaly_skill']:+.2f} |")
+
+        kr = load(f"kansas_resolution{KTAG}.json")
+        if kr:
+            print("\n**What the two legs could resolve**, on the same statistic L0 "
+                  "reports, against the null of two independent prior ensembles with no "
+                  "data assimilated.\n")
+            print("| observations | resolved to 90% | unresolved | widened | "
+                  "directions constrained |")
+            print("|---|---:|---:|---:|---:|")
+            n = kr.get("_null")
+            if n:
+                print(f"| **null: no data at all** | **{n['n_resolved_90']:.0f}** | "
+                      f"**{n['n_unresolved']:.0f}** | **{n['n_widened']:.0f}** | "
+                      f"**{n['effective_dim']:.1f}** |")
+            for k in ("ET", "H", "ETH"):
+                if k not in kr:
+                    continue
+                v = kr[k]
+                print(f"| {v['label']} | {v['n_resolved_90']} | {v['n_unresolved']} | "
+                      f"{v['n_widened']} | {v['effective_dim']:.1f} |")
+            print(f"\nOut of {kr['_ndir']} county-year directions. Read against the null "
+                  f"row, not against zero.")
+            if n and all(k in kr for k in ("ET", "H", "ETH")):
+                d = {k: kr[k]["effective_dim"] - n["effective_dim"]
+                     for k in ("ET", "H", "ETH")}
+                print(f"\nAbove the null the head leg carries Kansas at "
+                      f"{d['H']:+.1f} directions and the closure sits at "
+                      f"{d['ETH']:+.1f}, while the evapotranspiration leg alone at "
+                      f"{d['ET']:+.1f} is below what nothing does: a 1 km product over "
+                      f"a block that is 14 per cent irrigated carries a structural "
+                      f"error large enough to cancel the leg. Adding it to the heads "
+                      f"costs {d['H'] - d['ETH']:.1f} directions of resolution and buys "
+                      f"the level and the interannual amplitude reported below, which "
+                      f"is a trade the two tables have to be read together to see. The "
+                      f"same statistic at L0 put the four-leg closure "
+                      f"{L0_ABOVE_NULL:+.1f} above its "
+                      f"own null out of 180 directions. The real two-leg configuration "
+                      f"extracts about a third as much information per direction as the "
+                      f"synthetic one did, and it said so before the meters were "
+                      f"opened.")
+
+        sh = load(f"kansas_shrink{KTAG}.json")
+        if sh:
+            print("\n**The interannual amplitude, calibrated without an oracle.** The "
+                  "estimate carries real year-to-year information: its county-year anomaly "
+                  "correlates with the metered one. With a correlation below "
+                  "one, the amplitude that minimises mean absolute error is "
+                  "smaller than the estimate's own, and one scalar per county "
+                  "supplies it. Fitted against the meters that scalar is an "
+                  "oracle, so it is fitted leave-one-county-out: every county's "
+                  "factor comes from the other five and no county enters its "
+                  "own fit.\n")
+            print("| estimate | correlation | amplitude ratio | raw skill | "
+                  "leave-one-county-out | oracle |")
+            print("|---|---:|---:|---:|---:|---:|")
+            for k in ("BASELINE", "H", "ET", "ETH"):
+                if k not in sh:
+                    continue
+                v = sh[k]
+                star = "**" if k == "ETH" else ""
+                print(f"| {star}{v['label']}{star} | {v['r']:.2f} | "
+                      f"{v['dispersion']:.2f} | {v['raw']['anomaly_skill']:+.2f} | "
+                      f"{star}{v['loco']['anomaly_skill']:+.2f}{star} | "
+                      f"{v['oracle']['anomaly_skill']:+.2f} |")
+            e = sh.get("ETH", {})
+            if e:
+                fac = e["loco_factors"]
+                print(f"\nThe factor is {min(fac):.2f} to {max(fac):.2f} across the six "
+                      f"folds, so holding a county out costs nothing against the oracle. "
+                      f"This is the operational requirement the value-of-information "
+                      f"layer reached from the other direction: a few metered counties "
+                      f"calibrate the amplitude for the rest.")
+
+    al = load("aljawf.json")
+    if al:
+        section("L3 Al Jawf: how far apart the published instruments are on the Saq")
+        pub, yr = al["_published"], str(al["_published"]["year"])
+        print(f"No metered abstraction exists for this basin, so nothing here is scored. "
+              f"What is reported is the disagreement between the instruments a regulator "
+              f"would reach for today, over one aquifer, from public data.\n")
+        print(f"Centre pivots delineated from the annual maximum MODIS NDVI above "
+              f"{al['_ndvi_threshold']:.2f}: **{al['pivot_km2'][yr]:,.0f} km2** in {yr}, "
+              f"against {pub['pivot_km2']:,.0f} km2 delineated at 30 m by "
+              f"{pub['source']}. Across thresholds 0.35 to 0.50 the extent runs "
+              f"{min(al['_threshold_sensitivity_km2'].values()):,.0f} to "
+              f"{max(al['_threshold_sensitivity_km2'].values()):,.0f} km2.\n")
+        yrs = sorted(al["reference_et_mm_yr"])
+        print("| account | " + " | ".join(yrs) + " |")
+        print("|---|" + "---:|" * len(yrs))
+        def _key(kv):
+            v = kv[1].get(yr)
+            return -(v if v is not None and v == v else -1.0)
+
+        rows = sorted(al["et_mm_yr"].items(), key=_key)
+        for name, r in rows:
+            cells = [("not published" if r.get(y) is None or r[y] != r[y]
+                      else f"{r[y]:,.0f}") for y in yrs]
+            print(f"| {name} | " + " | ".join(cells) + " |")
+        print("| **reference evapotranspiration, the ceiling** | "
+              + " | ".join(f"**{al['reference_et_mm_yr'][y]:,.0f}**" for y in yrs) + " |")
+        # TerraClimate is reported apart from the retrievals. It is a water-balance model
+        # with no irrigation term, so it does not disagree about the agriculture, it
+        # cannot see it, and folding it into a spread would hide that.
+        ab = {k: v for k, v in al["abstraction_mcm"].items()
+              if not k.startswith("TerraClimate")}
+        tc = al["et_mm_yr"]["TerraClimate water balance, 4 km"][yr]
+        print(f"\nOver the same pixels the retrievals span a factor of "
+              f"**{al['et_spread_factor']:.1f}**, which at an efficiency of 0.80 is "
+              f"{min(ab.values()):,.0f} to {max(ab.values()):,.0f} Mm3/yr against a "
+              f"published {pub['abstraction_mcm']:,.0f}. The global water-balance model "
+              f"is reported apart from that range: at {tc:,.0f} mm/yr it is "
+              f"{tc / al['reference_et_mm_yr'][yr] * 100:.0f} per cent of the reference, "
+              f"because it carries no irrigation term and does not see the agriculture "
+              f"at all.")
+
+        g = al["grace"]
+        print(f"\n**The gravimetric leg needs a control and has never had one.** The Saq "
+              f"footprint falls at {g['saq_cm_decade']:+.2f} cm/decade over "
+              f"{g['n_months']} months. The same trend over deserts with no irrigation:\n")
+        print("| control | cm/decade | differenced | local share | Mm3/yr |")
+        print("|---|---:|---:|---:|---:|")
+        for name, c in sorted(g["controls"].items(), key=lambda kv: kv[1]["cm_decade"]):
+            print(f"| {name} | {c['cm_decade']:+.2f} | "
+                  f"{c['differenced_cm_decade']:+.2f} | "
+                  f"{c['local_share_pct']:.0f}% | {c['differenced_mcm_yr']:,.0f} |")
+        lo, hi = g["local_share_pct_range"]
+        vlo, vhi = g["differenced_mcm_yr_range"]
+        print(f"\nThe local share of the raw trend is between {lo:.0f} and {hi:.0f} per "
+              f"cent depending on which desert is the control, so the storage loss it "
+              f"implies runs {vlo:,.0f} to {vhi:,.0f} Mm3/yr over "
+              f"{g['saq_area_km2']:,.0f} km2. Against a crop-coefficient consumptive use "
+              f"of {g['kc_consumptive_mcm_yr']:,.0f} Mm3/yr over the pivots, the two "
+              f"satellite legs disagree by a factor of {g['kc_consumptive_mcm_yr']/vhi:.1f} "
+              f"to {g['kc_consumptive_mcm_yr']/vlo:.0f}. Neither leg can settle it alone, "
+              f"which is what the closure is for.")
 
     print("\n---\n")
     print("Reproduce with `make all` from a fresh clone. `make test` runs the guards, "
-          "`make robustness` the seed and uniform-efficiency repeats, and "
-          "`make kansas-data && make kansas` the Kansas rung.")
+          "`make robustness` the seed and uniform-efficiency repeats, "
+          "`make kansas-data && make kansas && make kansas-score` the Kansas rung, and "
+          "`make aljawf` the Al Jawf rung.")
 
 
 if __name__ == "__main__":

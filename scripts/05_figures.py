@@ -529,8 +529,8 @@ def fig_kansas():
     """L2: the same closure on real observations, against per-well metered pumping."""
     from mizan import ks_data as K
 
-    v = json.loads((RES / "kansas.json").read_text())
-    d = np.load(RES / "kansas_posterior_ETH.npz")
+    v = json.loads((RES / "kansas_v3.json").read_text())
+    d = np.load(RES / "kansas_posterior_ETH_v3.npz")
     q_true = d["q_true"] / 1e6
     ens = d["ens"] / 1e6
     hat = ens.mean(axis=0)
@@ -551,8 +551,8 @@ def fig_kansas():
     ax.contour(county, levels=np.arange(-0.5, 6, 1), colors=FG.INK, linewidths=0.6)
     for i, c in enumerate(K.COUNTIES):
         rr, cc = np.nonzero(county == i)
-        ax.text(cc.mean(), rr.mean(), K.COUNTY_NAME[c][:4], ha="center", va="center",
-                fontsize=7.5, color=FG.INK)
+        ax.text(cc.mean(), rr.mean(), K.COUNTY_NAME[c], ha="center", va="center",
+                fontsize=7.0, color=FG.INK)
     ax.set_xticks([]); ax.set_yticks([]); ax.grid(False)
     ax.set_title(f"Northwest Kansas, {v['_meta']['irrigated_km2']:,.0f} km$^2$ irrigated")
 
@@ -592,28 +592,34 @@ def fig_kansas():
     ax.bar(x - w / 2, errb, width=w, color=FG.WARM, label="open loop")
     ax.bar(x + w / 2, err, width=w, color=FG.ACCENT, label="closure")
     ax.set_xticks(x)
-    ax.set_xticklabels([K.COUNTY_NAME[c][:4] for c in K.COUNTIES], fontsize=7.5)
+    ax.set_xticklabels([K.COUNTY_NAME[c] for c in K.COUNTIES], fontsize=7.0,
+                       rotation=30, ha="right")
     ax.set_ylabel("mean absolute error, Mm$^3$/yr")
     ax.set_title("Per county")
     ax.legend(fontsize=7)
     FG.despine(ax)
 
     ax = axes[2]
-    rows = [k for k in ("BASELINE", "BASELINE_ORACLE", "ET", "H", "ETH") if k in v]
+    rows = [k for k in ("BASELINE", "BASELINE_ORACLE", "PRIOR_FLAT", "ET", "H", "ETH")
+            if k in v]
     lab = {"BASELINE": "open loop\n0.80", "BASELINE_ORACLE": "open loop\nfitted",
-           "ET": "ET only", "H": "heads only", "ETH": "closure"}
+           "PRIOR_FLAT": "area x\none acre-ft", "ET": "ET only", "H": "heads only",
+           "ETH": "closure"}
     val = [v[k]["mae_mcm"] for k in rows]
-    col = [FG.WARM, FG.WARM, FG.MUTED, FG.MUTED, FG.ACCENT][:len(rows)]
+    colour = {"BASELINE": FG.WARM, "BASELINE_ORACLE": FG.WARM, "PRIOR_FLAT": FG.INK,
+              "ET": FG.MUTED, "H": FG.MUTED, "ETH": FG.ACCENT}
+    col = [colour[k] for k in rows]
     ax.bar(range(len(rows)), val, color=col, width=0.62)
     for i, y in enumerate(val):
         ax.text(i, y * 1.02, f"{y:.1f}", ha="center", va="bottom", fontsize=8)
     ax.set_xticks(range(len(rows)))
-    ax.set_xticklabels([lab[k] for k in rows], fontsize=7.5)
+    ax.set_xticklabels([lab[k].replace("\n", " ") for k in rows], fontsize=7.0,
+                       rotation=30, ha="right")
     ax.set_ylabel("MAE, Mm$^3$/yr")
-    ax.set_title("What each leg is worth, on real data")
+    ax.set_title("Every bar a reviewer can compute, on real data")
     FG.despine(ax)
 
-    return FG.save(fig, FIG / "fig10_kansas.png")
+    return FG.save(fig, FIG / "fig11_kansas.png")
 
 
 def main():
@@ -627,7 +633,7 @@ def main():
         made.append(fig_voi())
     if (RES / "detection.json").exists():
         made.append(fig_detection())
-    if (RES / "kansas.json").exists():
+    if (RES / "kansas_v3.json").exists():
         made.append(fig_kansas())
     for p in made:
         print("wrote", p.relative_to(ROOT))

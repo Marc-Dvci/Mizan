@@ -37,7 +37,13 @@ make test           # guards, each paired with a corruption that must break it
 make robustness     # repeat the headline rows across prior ensembles and truths
 make kansas-data    # retrieve the public Kansas records, no account needed
 make kansas         # the L2 rung, scored against metered pumping
+make kansas-score   # the anomaly, resolution and amplitude scoring on top of it
+make aljawf         # the L3 rung, read live from Earth Engine
 ```
+
+`make aljawf` is the only target that needs an account. Run `earthengine authenticate`
+once and set `EARTHENGINE_PROJECT` to your own cloud project; registration is free and
+every asset the rung reads is public.
 
 `make all` writes every number and every figure that appears in the submission into
 `results/` and `figures/`. Nothing in the submission comes from anywhere else.
@@ -90,8 +96,9 @@ DECISION_LOG.md            what was tried, what failed, and what replaced it
 | Rung | What it tests | Where |
 |---|---|---|
 | **L0** | Whether the inverse problem is identifiable at all, against a truth the estimator never sees | `scripts/00_truth.py` to `scripts/07_report.py` |
-| **L0 robustness** | Whether the result survives an independent prior ensemble, and whether it survives removing the planted spread in the consumptive fraction | `make robustness` |
-| **L2 Kansas** | Whether it recovers **real metered abstraction**, in six counties of the Northwest Kansas groundwater management district over the Ogallala, 2000 to 2024 | `make kansas-data && make kansas` |
+| **L0 robustness** | Whether the result survives three independent prior ensembles, and whether it survives removing the planted spread in the consumptive fraction | `make robustness` |
+| **L2 Kansas** | Whether it recovers **real metered abstraction**, in six counties of the Northwest Kansas groundwater management district over the Ogallala, 2000 to 2024 | `make kansas-data && make kansas && make kansas-score` |
+| **L3 Al Jawf** | How far apart the published instruments are over the target basin, from public data. Nothing here is fitted and nothing is scored | `make aljawf` |
 
 L2 is scored against per-water-right metered annual pumping published by the Kansas
 Department of Agriculture through WIMAS. The meters are read once, at the end, to score.
@@ -102,9 +109,18 @@ rather than approximated: the block is smaller than one gravimetric mascon, and 
 Ogallala is unconsolidated and unconfined, so there is no preconsolidation threshold to
 cross.
 
+The published configuration is `_v3`: a per-site error budget, and a layer base taken
+from the USGS saturated-thickness grid rather than estimated. The first configuration
+ran on an estimated thickness of 79 m where that published surface gives 20.4 m over the
+same counties, which is a falsification against an independent observation of geometry
+rather than against a score. `_v3p` is the pooled-budget sensitivity and both stay
+runnable. `DECISION_LOG.md` records that the change was made after the first score was
+known.
+
 ## Data
 
-Every source is a public record and none needs an account.
+Every source is a public record. Only the Earth Engine rung needs an account, and it is
+free.
 
 | Source | What it provides | Held by |
 |---|---|---|
@@ -112,6 +128,8 @@ Every source is a public record and none needs an account.
 | **WIZARD** | Annual winter water levels at 449 wells | Kansas Geological Survey |
 | **SSEBop** | Annual actual evapotranspiration, CONUS, 1 km | USGS EROS |
 | **MIrAD-US** | Irrigated agriculture, CONUS, 250 m, 2002 to 2017 | USGS EROS |
+| **hp_satthk09** | Saturated thickness of the High Plains aquifer, 2009, 500 m. The base of the L2 layer is taken from it rather than estimated | USGS, published with SIR 2012-5177 |
+| **MODIS, PML V2, WaPOR v2 and v3, TerraClimate, GRACE and GRACE-FO** | The L3 rung, read live from Earth Engine over Al Jawf and four control deserts | NASA, FAO, CSIRO, University of Idaho, JPL and GFZ |
 
 The retrieved files land in `data/kansas/` and are excluded from version control, so a
 clone reproduces them rather than carrying them.
