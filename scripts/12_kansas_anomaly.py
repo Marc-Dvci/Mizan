@@ -10,10 +10,11 @@ about each county's own mean over the record. A flat-in-time estimate scores exa
 size of the anomaly signal on the second metric, so anything below it is variation the
 estimator actually recovered.
 
-    python scripts/12_kansas_anomaly.py
+    python scripts/12_kansas_anomaly.py [--tag _v3]
 """
 from __future__ import annotations
 
+import argparse
 import json
 import sys
 from pathlib import Path
@@ -36,10 +37,15 @@ def anomaly(x: np.ndarray) -> np.ndarray:
 
 
 def main() -> None:
-    ks = json.loads((RES / "kansas.json").read_text())
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--tag", type=str, default="")
+    args = ap.parse_args()
+    tag = args.tag
+
+    ks = json.loads((RES / f"kansas{tag}.json").read_text())
     out = {}
 
-    ref = np.load(RES / "kansas_posterior_ETH.npz")
+    ref = np.load(RES / f"kansas_posterior_ETH{tag}.npz")
     q_true = ref["q_true"]
     et = ref["et_obs"]
     signal = float(np.abs(anomaly(q_true)).mean() / 1e6)
@@ -58,12 +64,12 @@ def main() -> None:
     e_star = float(ks["BASELINE_ORACLE"]["label"].rsplit(" ", 1)[-1])
     score(et / e_star, "BASELINE_ORACLE")
     for k in ROWS:
-        p = RES / f"kansas_posterior_{k}.npz"
+        p = RES / f"kansas_posterior_{k}{tag}.npz"
         if p.exists():
             score(np.load(p)["ens"].mean(axis=0), k)
 
     out["_signal_mcm"] = signal
-    (RES / "kansas_anomaly.json").write_text(json.dumps(out, indent=2))
+    (RES / f"kansas_anomaly{tag}.json").write_text(json.dumps(out, indent=2))
 
     print(f"county-year anomaly signal: {signal:.2f} Mm3/yr mean absolute\n")
     print(f"{'estimate':44s} {'MAE':>8s} {'anomaly MAE':>12s} {'skill':>7s}")

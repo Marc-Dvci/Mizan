@@ -1,0 +1,120 @@
+{
+  "_signal_mcm": 12.008955912994097,
+  "_tag": "",
+  "BASELINE": {
+    "label": "open loop at 0.80",
+    "r": 0.6309244929826028,
+    "raw": {
+      "mae_mcm": 23.189753624220497,
+      "anomaly_mae_mcm": 14.556816597963957,
+      "anomaly_skill": -0.21216338068266105
+    },
+    "loco": {
+      "mae_mcm": 20.896751336751425,
+      "anomaly_mae_mcm": 10.472534826457537,
+      "anomaly_skill": 0.1279396058798168
+    },
+    "oracle": {
+      "mae_mcm": 20.767316004825133,
+      "anomaly_mae_mcm": 10.161346697002667,
+      "anomaly_skill": 0.15385261044986043
+    },
+    "oracle_factor": 0.36,
+    "loco_factors": [
+      0.45,
+      0.39,
+      0.36,
+      0.34,
+      0.33,
+      0.45
+    ],
+    "dispersion": 1.509325813775762
+  },
+  "ETH": {
+    "label": "evapotranspiration + heads, closure",
+    "r": 0.6424240039774998,
+    "raw": {
+      "mae_mcm": 17.65468321289171,
+      "anomaly_mae_mcm": 12.452109540786816,
+      "anomaly_skill": -0.03690192811127013
+    },
+    "loco": {
+      "mae_mcm": 14.910502968387117,
+      "anomaly_mae_mcm": 9.686898085748348,
+      "anomaly_skill": 0.19336050894592782
+    },
+    "oracle": {
+      "mae_mcm": 14.891459234632812,
+      "anomaly_mae_mcm": 9.673074028535847,
+      "anomaly_skill": 0.19451165458362174
+    },
+    "oracle_factor": 0.51,
+    "loco_factors": [
+      0.51,
+      0.51,
+      0.51,
+      0.51,
+      0.53,
+      0.51
+    ],
+    "dispersion": 1.1588864249254938
+  },
+  "ET": {
+    "label": "evapotranspiration only",
+    "r": 0.641260135006648,
+    "raw": {
+      "mae_mcm": 16.43972366455374,
+      "anomaly_mae_mcm": 13.113190716100418,
+      "anomaly_skill": -0.09195094153951389
+    },
+    "loco": {
+      "mae_mcm": 14.087324178020765,
+      "anomaly_mae_mcm": 10.175103696053167,
+      "anomaly_skill": 0.152707048824839
+    },
+    "oracle": {
+      "mae_mcm": 13.965827249880126,
+      "anomaly_mae_mcm": 9.968695874988681,
+      "anomaly_skill": 0.1698948728588291
+    },
+    "oracle_factor": 0.43,
+    "loco_factors": [
+      0.5,
+      0.43,
+      0.42,
+      0.42,
+      0.42,
+      0.5
+    ],
+    "dispersion": 1.3486742826242968
+  },
+  "H": {
+    "label": "heads only",
+    "r": 0.5545757287594947,
+    "raw": {
+      "mae_mcm": 19.25006119845006,
+      "anomaly_mae_mcm": 15.961847418094559,
+      "anomaly_skill": -0.3291619632663736
+    },
+    "loco": {
+      "mae_mcm": 14.32624864710914,
+      "anomaly_mae_mcm": 10.616670190216325,
+      "anomaly_skill": 0.1159372832130452
+    },
+    "oracle": {
+      "mae_mcm": 14.34000632606223,
+      "anomaly_mae_mcm": 10.464830866377035,
+      "anomaly_skill": 0.12858112377165654
+    },
+    "oracle_factor": 0.29,
+    "loco_factors": [
+      0.29,
+      0.29,
+      0.29,
+      0.4,
+      0.28,
+      0.29
+    ],
+    "dispersion": 1.5824432856677764
+  }
+}

@@ -1,0 +1,33 @@
+{
+  "FLAT": {
+    "mae_mcm": 12.008955912994097,
+    "anomaly_mae_mcm": 12.008955912994097,
+    "anomaly_skill": 0.0
+  },
+  "BASELINE": {
+    "mae_mcm": 23.189753624220497,
+    "anomaly_mae_mcm": 14.556816597963957,
+    "anomaly_skill": -0.21216338068266105
+  },
+  "BASELINE_ORACLE": {
+    "mae_mcm": 21.291304995587826,
+    "anomaly_mae_mcm": 16.41346771853711,
+    "anomaly_skill": -0.36676892124961347
+  },
+  "ETH": {
+    "mae_mcm": 17.65468321289171,
+    "anomaly_mae_mcm": 12.452109540786816,
+    "anomaly_skill": -0.03690192811127013
+  },
+  "H": {
+    "mae_mcm": 19.25006119845006,
+    "anomaly_mae_mcm": 15.961847418094559,
+    "anomaly_skill": -0.3291619632663736
+  },
+  "ET": {
+    "mae_mcm": 16.43972366455374,
+    "anomaly_mae_mcm": 13.113190716100418,
+    "anomaly_skill": -0.09195094153951389
+  },
+  "_signal_mcm": 12.008955912994097
+}

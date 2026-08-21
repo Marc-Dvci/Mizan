@@ -1,0 +1,26 @@
+{
+  "_ndir": 150,
+  "_ne": 250,
+  "_null": {
+    "n_resolved_90": 9.166666666666666,
+    "n_unresolved": 79.5,
+    "n_widened": 75.83333333333333,
+    "effective_dim": 44.811250934062365
+  },
+  "ET": {
+    "label": "evapotranspiration only",
+    "n_resolved_90": 11,
+    "n_resolved_50": 47,
+    "n_unresolved": 82,
+    "n_widened": 79,
+    "effective_dim": 43.636670769331985
+  },
+  "ETH": {
+    "label": "evapotranspiration + heads, closure",
+    "n_resolved_90": 28,
+    "n_resolved_50": 67,
+    "n_unresolved": 68,
+    "n_widened": 64,
+    "effective_dim": 60.4110413776986
+  }
+}

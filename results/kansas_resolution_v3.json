@@ -1,0 +1,34 @@
+{
+  "_ndir": 150,
+  "_ne": 250,
+  "_null": {
+    "n_resolved_90": 9.166666666666666,
+    "n_unresolved": 79.5,
+    "n_widened": 75.83333333333333,
+    "effective_dim": 44.811250934062365
+  },
+  "ET": {
+    "label": "evapotranspiration only",
+    "n_resolved_90": 7,
+    "n_resolved_50": 45,
+    "n_unresolved": 83,
+    "n_widened": 80,
+    "effective_dim": 40.86884663069612
+  },
+  "H": {
+    "label": "heads only",
+    "n_resolved_90": 45,
+    "n_resolved_50": 83,
+    "n_unresolved": 52,
+    "n_widened": 49,
+    "effective_dim": 76.45036463243815
+  },
+  "ETH": {
+    "label": "evapotranspiration + heads, closure",
+    "n_resolved_90": 39,
+    "n_resolved_50": 81,
+    "n_unresolved": 54,
+    "n_widened": 51,
+    "effective_dim": 73.60168344703428
+  }
+}
