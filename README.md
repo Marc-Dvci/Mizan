@@ -31,7 +31,7 @@ the closure constraint, the inversion target, and what is done with the posterio
 ## Reproducing
 
 ```
-make setup          # environment and MODFLOW 6 binaries
+make setup          # the locked environment and the MODFLOW 6 binaries
 make all            # truth, ablation grid, allocation, data worth, every figure
 make test           # guards, each paired with a corruption that must break it
 make robustness     # repeat the headline rows across prior ensembles and truths
@@ -39,6 +39,7 @@ make kansas-data    # retrieve the public Kansas records, no account needed
 make kansas         # the L2 rung, scored against metered pumping
 make kansas-score   # the anomaly, resolution and amplitude scoring on top of it
 make aljawf         # the L3 rung, read live from Earth Engine
+make env            # rewrite the lock and the licence audit from what is installed
 make gain           # what the mascon gain assumption costs, on an axis
 make saq-gain       # what the mascon gain is on the target basin, from its geometry
 make drift          # what the external mass trend prior costs, against the L3 controls
@@ -91,6 +92,9 @@ src/mizan/ks_data.py       the Kansas region, its observations and its withheld 
 src/mizan/ks_run.py        the Kansas forward model, prior, operators and localisation
 scripts/                   one script per workstream, in order
 tests/                     guards, each with its paired corruption
+RESULTS.md                 every generated number, written by `make report`
+requirements.lock.txt      the environment the published results came from
+docs/LICENCES.md           the licence of every distribution in that environment
 DECISION_LOG.md            what was tried, what failed, and what replaced it
 ```
 

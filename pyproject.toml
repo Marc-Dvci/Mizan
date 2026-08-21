@@ -17,6 +17,8 @@ dependencies = [
 
 [project.optional-dependencies]
 dev = ["pytest>=8"]
+# The L3 rung and the Saq mascon geometry read live from Earth Engine.
+ee = ["earthengine-api>=1.7"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

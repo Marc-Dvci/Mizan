@@ -8,14 +8,22 @@ NA ?= 8
 SAQ_SIGMA ?= 20.4
 EE_PROJECT ?= $(EARTHENGINE_PROJECT)
 
-.PHONY: all setup truth ablation allocation voi detection figures report test clean         robustness null kansas-data kansas kansas-score aljawf verify referee gain saq-gain drift
+.PHONY: all setup env truth ablation allocation voi detection figures report test clean         robustness null kansas-data kansas kansas-score aljawf verify referee gain saq-gain drift
 
 all: truth ablation allocation voi detection null figures report
 
+# The lock is the environment the published results were produced in, so it is what
+# `setup` installs. `pyproject.toml` carries version floors for anyone who wants a fresh
+# resolution instead: `uv pip install -e ".[dev,ee]"`.
 setup:
 	uv venv --python 3.12 .venv
-	VIRTUAL_ENV=$(PWD)/.venv uv pip install -e ".[dev]"
+	VIRTUAL_ENV=$(PWD)/.venv uv pip install -r requirements.lock.txt
+	VIRTUAL_ENV=$(PWD)/.venv uv pip install -e . --no-deps
 	$(PY) -m flopy.utils.get_modflow ./bin --repo executables
+
+# Rewrite the lock and the licence audit from the environment that is installed now.
+env:
+	$(PY) scripts/26_environment.py
 
 truth:
 	$(PY) scripts/00_truth.py
@@ -39,8 +47,10 @@ detection:
 figures:
 	$(PY) scripts/05_figures.py
 
+# Every generated number, tabulated. This file is committed, so a reader can check a
+# number against the code without running anything.
 report:
-	$(PY) scripts/07_report.py > ../09_RESULTS.md
+	$(PY) scripts/07_report.py > RESULTS.md
 
 test:
 	$(PY) -m pytest tests -q
