@@ -15,3 +15,11 @@ data/kansas/wizard_levels.json
 data/kansas/mirad/
 data/kansas/*.npy
 data/kansas/*_region.npz
+
+# Retrieved by `scripts/10_kansas_fetch.py`: the USGS High Plains saturated-thickness
+# grid, 6 MB zipped, public domain.
+data/kansas/hpsat/
+
+# Exploratory runs kept on disk and out of the history: they are referenced by nothing.
+results/*_spec1*
+results/*smoke*
