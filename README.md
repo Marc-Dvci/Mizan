@@ -16,6 +16,54 @@ go.
 
 ---
 
+## What it achieves
+
+Every number below is written by a `make` target into `results/` and tabulated in
+[`RESULTS.md`](RESULTS.md). Nothing in the submission comes from anywhere else.
+
+**L0, a blind synthetic basin.** District-annual abstraction, scored against a truth the
+estimator never sees, on a coarser grid and a different parameter basis than the one that
+generated the data:
+
+| Account | Mean absolute error |
+|---|---|
+| The published open-loop method, at its published efficiency constant | 16.66 Mm3/yr |
+| The same method, with its efficiency fitted against the answer | 14.33 Mm3/yr |
+| **The closure** | **6.72 Mm3/yr** |
+| The closure with no wells at all, which is the situation over Al Jawf | 9.85 Mm3/yr |
+
+Repeated on three independent prior ensembles the closure runs 6.72, 6.27 and 7.27, a
+spread of 1.00, and differences smaller than that are not claimed. The nominal 90 and 50
+per cent intervals cover 99 and 77 per cent of the withheld truth: wider than nominal,
+which is the correct direction to err for a constraint on irreversible loss.
+
+**L2 Kansas, against real meters.** Six counties over the Ogallala, 2000 to 2024, scored
+against 3,545 per-water-right metered annual pumping records the estimator never saw.
+
+It does not win on every metric, and this repository says where it loses. On the *level*
+of county pumping, mapped irrigated area times one acre-foot per acre scores 14.78 Mm3/yr
+against 16.57 for the closure: arithmetic that needs no aquifer at all is closer. That
+arithmetic is a weather model, carrying 92 per cent of its own interannual variance from
+precipitation against 56 per cent for the meters, so it sees the half the weather causes
+and is blind to the half a policy changes.
+
+On the *change* between two periods, which is what a reduction target is written in:
+
+| Averaging window | Pairs | Closure | Best meter-free bar | Closure interval covers |
+|---:|---:|---:|---:|---:|
+| 4 years | 171 | 10.9 | 11.0 | 84% |
+| 5 years | 136 | **8.7** | 9.9 | 89% |
+| 8 years | 55 | **4.5** | 9.1 | 100% |
+
+The closure beats every meter-free bar from a four-year window upward, the gap widens with
+every year added, and it is the only one of these accounts that states an interval at all.
+
+**The decision product.** Every cubic kilometre of water taken from the test basin destroys
+about 147 Mm3 of storage capacity permanently, verified in full MODFLOW across the
+posterior. 9.5 per cent of the simulated storage depletion never returns, at any price.
+
+---
+
 ## What is in this repository
 
 | Layer | Component | Why this one |
