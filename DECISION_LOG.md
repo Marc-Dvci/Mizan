@@ -343,10 +343,31 @@ head leg now drags Cheyenne as it used to drag Sheridan. Mean absolute error imp
 beats mapped irrigated area times one acre-foot per acre at 14.78 Mm³/yr.
 
 **This change was made after the first Kansas score was known.** It is recorded here for
-that reason. The decision was taken against the published surface rather than against the
-score, both configurations remain in the repository and both remain runnable, and with
-six counties there is no untouched data left to size a further effect on. Nothing after
-this was tuned.
+that reason, and the rest of this entry is worth reading against four checkable facts
+rather than against the ordering alone.
+
+**The test used no pumping data.** `hp_satthk09` is a published grid of aquifer geometry
+into which no water-use report enters. The prior ran from 20 m to 140 m and five of the
+six counties sit at or below its lower bound, so the first configuration was not merely
+missing the published value, it excluded it. That is a falsification against an
+independent observation, and it was available before any meter was opened.
+
+**The correction moved toward that observation, not toward the score.** The layer base is
+now the published field times one estimated multiplier, so the parameter count is
+unchanged and the comparison against the previous run is clean. The inversion chose 0.90,
+within ten per cent of unity, which says the head record agrees with the published surface
+rather than pulling away from it. A parameter changed to flatter a score does not land
+there.
+
+**It cost, and the cost is in the row above.** Relative error worsened from 23.3 to 25.4
+per cent while mean absolute error improved from 17.65 to 16.57, Cheyenne moved the wrong
+way, and no closure configuration beats mapped irrigated area times one acre-foot per acre
+at 14.78 Mm³/yr. A change made to improve a score does not report that.
+
+**What cannot be recovered is stated.** With six counties there is no untouched data left
+to size a further effect on, so this rung cannot supply a clean second effect estimate for
+the change itself. Both configurations remain in the repository and both remain runnable.
+Nothing after this was tuned.
 
 ### Kansas error budget: per site rather than pooled
 
