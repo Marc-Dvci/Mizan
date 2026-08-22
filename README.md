@@ -2,9 +2,10 @@
 
 **Satellite-constrained abstraction accounting and permanent-storage decision support for unmetered aquifers.**
 
-Four things about a fossil aquifer are visible from orbit: how much water leaves the
-surface as crop evapotranspiration, how much mass leaves the basin, how the aquifer
-skeleton compacts, and, where wells exist, the head. Each is an estimate on its own.
+Four things about a fossil aquifer can be observed without measuring a single pump.
+Three come from orbit: how much water leaves the surface as crop evapotranspiration,
+how much mass leaves the basin, and how the aquifer skeleton compacts. The fourth is
+read in the wells themselves, where they exist: the head. Each is an estimate on its own.
 Together they are an accounting identity, because the aquifer obeys a mass balance and
 a stress-strain law, and nothing in current practice forces them to agree.
 

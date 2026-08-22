@@ -296,7 +296,9 @@ def main():
                  else f"of which {m['n_missing']} could not be read.") + "\n")
         print(f"The estimator sees {m['n_obs_head']:,} well-year head anomalies from "
               f"{m['n_wells']} wells and {len(m['counties']) * len(m['years'])} "
-              f"county-year evapotranspiration volumes. It never sees the meters.\n")
+              f"county-year evapotranspiration volumes. It never sees the metered "
+              f"volumes: the licensed points of diversion enter as spatial weights, "
+              f"and the use filed against them is the withheld truth.\n")
         print("| observations available to the estimator | MAE, Mm3/yr | MAPE | "
               "90% coverage |")
         print("|---|---:|---:|---:|")
@@ -325,10 +327,12 @@ def main():
               "same model grid, gives a block mean of 20.4 m and county means of 19.7, "
               "16.6, 13.2, 29.4, 23.6 and 19.1 m. The prior did not merely miss that: it "
               "ran from 20 m to 140 m, so five of the six counties sat at or below its "
-              "lower bound. The model was falsified against an independent published "
-              "surface into which no water-use report enters, before any meter was "
-              "opened. The layer base is now that field times one estimated multiplier, "
-              "so the parameter count is unchanged.")
+              "lower bound. The surface that falsified it is an independent published "
+              "observation into which no water-use report enters, so the test itself "
+              "needed no meter; the decision log records that the change was made "
+              "after the first Kansas score was known. The layer base is now that "
+              "field times one estimated multiplier, so the parameter count is "
+              "unchanged.")
 
         if "ETH" in ks:
             e = ks["ETH"]

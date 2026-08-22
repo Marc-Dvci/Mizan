@@ -206,7 +206,7 @@ Differences smaller than the spread in this table are not claimed.
 
 Six counties of the Northwest Kansas groundwater management district over the Ogallala, 2000 to 2024, 1,355 km2 irrigated. The scored quantity is county-annual abstraction against **per-water-right metered pumping** published by the Kansas Department of Agriculture: 3,545 water rights, none of them unreadable.
 
-The estimator sees 7,637 well-year head anomalies from 358 wells and 150 county-year evapotranspiration volumes. It never sees the meters.
+The estimator sees 7,637 well-year head anomalies from 358 wells and 150 county-year evapotranspiration volumes. It never sees the metered volumes: the licensed points of diversion enter as spatial weights, and the use filed against them is the withheld truth.
 
 | observations available to the estimator | MAE, Mm3/yr | MAPE | 90% coverage |
 |---|---:|---:|---:|
@@ -220,7 +220,7 @@ The estimator sees 7,637 well-year head anomalies from 358 wells and 150 county-
 
 The row above is the per-site error budget. Under the pooled budget on the same published thickness the closure scores 16.92 Mm3/yr at 26.5% with 97% coverage, against 16.57 at 25.4% with 95%. Both are reported and neither was selected against the meters.
 
-**The layer thickness is an observation, not a parameter.** The first Kansas configuration estimated one global saturated thickness and settled at 79 m. The USGS High Plains saturated-thickness grid, sampled onto the same model grid, gives a block mean of 20.4 m and county means of 19.7, 16.6, 13.2, 29.4, 23.6 and 19.1 m. The prior did not merely miss that: it ran from 20 m to 140 m, so five of the six counties sat at or below its lower bound. The model was falsified against an independent published surface into which no water-use report enters, before any meter was opened. The layer base is now that field times one estimated multiplier, so the parameter count is unchanged.
+**The layer thickness is an observation, not a parameter.** The first Kansas configuration estimated one global saturated thickness and settled at 79 m. The USGS High Plains saturated-thickness grid, sampled onto the same model grid, gives a block mean of 20.4 m and county means of 19.7, 16.6, 13.2, 29.4, 23.6 and 19.1 m. The prior did not merely miss that: it ran from 20 m to 140 m, so five of the six counties sat at or below its lower bound. The surface that falsified it is an independent published observation into which no water-use report enters, so the test itself needed no meter; the decision log records that the change was made after the first Kansas score was known. The layer base is now that field times one estimated multiplier, so the parameter count is unchanged.
 
 Posterior nuisances: a multiplier of 0.90 on the published saturated thickness, which puts the layer at 18.4 m over the block, recharge 5 mm/yr, consumptive fraction by county CN 0.80, RA 0.72, DC 0.82, SH 0.76, TH 0.68, SD 0.67. The multiplier lands within ten per cent of unity, so the head record is consistent with the published surface rather than pulling away from it.
 
