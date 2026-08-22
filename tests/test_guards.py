@@ -358,6 +358,13 @@ def test_recharge_is_driven_by_observed_precipitation_and_carries_no_water_use()
     for banned in ("wimas", "metered", "water right", "pumping"):
         assert banned not in src.lower(), banned
 
+    # The numeric half needs the fetched precipitation record, which `make
+    # kansas-data` writes and the repository does not ship. Where it is absent the
+    # source guard above still runs, because leakage is the property that must be
+    # checked on every clone.
+    if not (ROOT / "data" / "kansas" / "precip_annual.json").exists():
+        pytest.skip("precipitation record not fetched")
+
     w = KD.recharge_weight()
     assert w.shape == (len(KD.COUNTIES), KD.YEAR1 - KD.YEAR0 + 1)
     assert np.allclose(w.mean(axis=1), 1.0), "the multiplier must average one per county"
