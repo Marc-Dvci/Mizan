@@ -275,7 +275,7 @@ Every meter-free account that can be written down from the same public data, sco
 
 The metered record itself carries 56 per cent of its interannual variance from precipitation, and after weather is removed it still falls by 40.9 Mm3 per standard-deviation year. The two arithmetic bars are 11 and 92 per cent weather and keep 2.8 and 4.0 of that trend. They carry the half of the signal the weather causes and they are blind to the half a policy changes.
 
-The change is scored over every pair of non-overlapping 5-year windows the record admits, 136 of them, rather than over a chosen contrast. The closure's 90 per cent interval contains the metered change in 89 per cent of pairs. Where it declares a change the metered change averages 19.7 per cent against 11.2 per cent where it declares none, an area under the curve of 0.766 with a permutation p below 0.0001.
+The change is scored over every pair of non-overlapping 5-year windows the record admits, 136 of them, rather than over a chosen contrast. The closure's 90 per cent interval contains the metered change in 89 per cent of pairs. Where it declares a change the metered change averages 19.7 per cent against 11.2 per cent where it declares none, an area under the curve of 0.766. The pairs are drawn from one 25-year record and share years, so 136 is a count of contrasts and not of independent cases: the coverage and the area under the curve are descriptive, and no p-value is attached to either.
 
 **The direction of the change is not a test on this record and is not reported as one.** Abstraction fell over 119 of the 136 pairs, so an estimator that says down every time scores 96 per cent, which is what the closure scores. The magnitude above is the test.
 

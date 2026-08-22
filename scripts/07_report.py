@@ -507,8 +507,10 @@ def main():
               f"{sw['metered_pct_where_declared']:.1f} per cent against "
               f"{sw['metered_pct_where_not_declared']:.1f} per cent where it declares "
               f"none, an area under the curve of "
-              f"{sw['declaration_auc_vs_metered_magnitude']:.3f} with a permutation p "
-              f"below {max(sw['declaration_auc_permutation_p'], 1e-4):.4f}.\n")
+              f"{sw['declaration_auc_vs_metered_magnitude']:.3f}. The pairs are drawn from one "
+              f"25-year record and share years, so 136 is a count of contrasts and not of "
+              f"independent cases: the coverage and the area under the curve are descriptive, "
+              f"and no p-value is attached to either.\n")
         print(f"**The direction of the change is not a test on this record and is not "
               f"reported as one.** Abstraction fell over "
               f"{sw['n_metered_change_negative']} of the {sw['n_pairs']} pairs, so an "

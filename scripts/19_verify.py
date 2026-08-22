@@ -199,24 +199,24 @@ def main() -> None:
     # "down" every time scores whatever the closure scores on sign. What is a test is
     # whether declaring a change tracks the size of the real one, which no constant
     # satisfies. Reported as the area under the curve of the declaration against the
-    # metered magnitude, with a permutation null.
+    # metered magnitude. No p-value is attached to it. The 136 window pairs are
+    # drawn from one 25-year record and share years with each other, so permuting the
+    # declaration labels across pairs assumes an exchangeability the data does not
+    # have, and any p it produces is not a significance statement. The AUC is reported
+    # as a descriptive summary; a valid test would need a block scheme that preserves
+    # the window overlap.
     big, small = np.abs(truth_pct)[flag], np.abs(truth_pct)[~flag]
     auc = float((big[:, None] > small[None, :]).mean()
                 + 0.5 * (big[:, None] == small[None, :]).mean())
-    rng = np.random.default_rng(0)
-    null = np.empty(20000)
-    for b in range(null.size):
-        pm = rng.permutation(flag)
-        u, v = np.abs(truth_pct)[pm], np.abs(truth_pct)[~pm]
-        null[b] = ((u[:, None] > v[None, :]).mean()
-                   + 0.5 * (u[:, None] == v[None, :]).mean())
     detect = {
         "n_metered_change_negative": int((truth_pct < 0).sum()),
         "always_down_scores_on_declared": float(max((truth_pct[flag] < 0).mean(),
                                                     (truth_pct[flag] > 0).mean())),
         "sign_is_not_a_test_on_this_record": True,
         "declaration_auc_vs_metered_magnitude": auc,
-        "declaration_auc_permutation_p": float((null >= auc).mean()),
+        "declaration_auc_is_descriptive_not_a_test": (
+            "the 136 window pairs share years, so no permutation null over their "
+            "labels is valid and no p-value is reported"),
         "metered_pct_where_declared": float(big.mean()),
         "metered_pct_where_not_declared": float(small.mean()),
         "change_r": float(np.corrcoef(est_pct, truth_pct)[0, 1]),
@@ -309,10 +309,10 @@ def main() -> None:
           .format(100 * s["coverage_90"]))
     print("  it declares a change in {} pairs; the metered change there averages {:.1f} "
           "per cent".format(s["n_declared_change"], s["metered_pct_where_declared"]))
-    print("  against {:.1f} where it declares none, AUC {:.3f}, permutation p {:.4f}"
+    print("  against {:.1f} where it declares none, AUC {:.3f} (descriptive: the pairs"
           .format(s["metered_pct_where_not_declared"],
-                  s["declaration_auc_vs_metered_magnitude"],
-                  s["declaration_auc_permutation_p"]))
+                  s["declaration_auc_vs_metered_magnitude"]))
+    print("  share years, so no p-value is attached)")
     print("  direction is NOT a test here: the metered change is negative in {} of {} "
           "pairs,".format(s["n_metered_change_negative"], s["n_pairs"]))
     print("  so an estimator that always says down scores {:.0f} per cent on the declared set"
