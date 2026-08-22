@@ -7,10 +7,9 @@ twenty-year horizon, computed in full MODFLOW across the posterior ensemble, so 
 frontier carries the uncertainty of the abstraction estimate rather than assuming it
 away. This is the curve that prices the irreversible column.
 
-**How it should be spread.** At a fixed delivered volume, the quota vector that
-minimises the tail of permanent loss, against the uniform proportional cut regulators
-actually apply. Both are re-run in full MODFLOW with the inelastic switch active and
-the surrogate-to-simulator discrepancy is reported.
+**Experimental spatial allocation.** At a fixed delivered volume, a response-matrix
+programme tests quota vectors against the uniform proportional cut. These diagnostics
+are retained for method development and are not part of the submitted decision claim.
 
 Usage:  python scripts/03_allocation.py [--members 24] [--cut 0.15]
 """
@@ -60,7 +59,7 @@ def _lti(arg):
 
 
 def _verify(arg):
-    """Permanent storage loss added over the horizon, m3, in full MODFLOW."""
+    """Permanent loss and threshold exceedance in full MODFLOW."""
     i, x, q = arg
     try:
         p = E.to_params(x, C.EST)
@@ -68,9 +67,15 @@ def _verify(arg):
         M.build(_W["ws"], C.EST, p, _W["mask"], inelastic=True)
         if not M.run(_W["ws"]):
             return i, None
+        st = O.read_state(_W["ws"], C.EST, sy=p.sy)
         inel = O.read_inelastic(_W["ws"], C.EST)
         a = C.EST.delr_m ** 2
-        return i, float((inel[-1].sum() - inel[C.NPER - 1].sum()) * a)
+        loss = float((inel[-1].sum() - inel[C.NPER - 1].sum()) * a)
+        hist = st.head[:C.NPER, C.CSUB_LAYER]
+        pcs = np.minimum(C.H_INIT - p.pcs_offset, hist.min(axis=0))
+        future = st.head[C.NPER:, C.CSUB_LAYER]
+        worst = float(np.max(pcs[None, :, :] - future))
+        return i, {"loss_m3": loss, "worst_exceed_m": worst}
     except Exception:
         return i, None
 
@@ -84,15 +89,69 @@ def pmap(fn, items, workers, mask, qref):
     return out
 
 
-def band(v):
-    v = np.asarray([x for x in v if x is not None], dtype=float)
+def verification_summary(values):
+    """Exact empirical summaries of completed full-simulator runs."""
+    valid = [x for x in values if x is not None]
+    loss = np.asarray([x["loss_m3"] for x in valid], dtype=float)
+    worst = np.asarray([x["worst_exceed_m"] for x in valid], dtype=float)
+    if not len(valid):
+        raise RuntimeError("all full-simulator verification runs failed")
     return {
-        "mean_mcm": float(v.mean() / 1e6),
-        "p10_mcm": float(np.quantile(v, 0.10) / 1e6),
-        "p90_mcm": float(np.quantile(v, 0.90) / 1e6),
-        "cvar90_mcm": float(np.sort(v)[int(0.9 * len(v)):].mean() / 1e6),
-        "n": int(v.size),
+        "mean_mcm": float(loss.mean() / 1e6),
+        "p10_mcm": float(np.quantile(loss, 0.10) / 1e6),
+        "p90_mcm": float(np.quantile(loss, 0.90) / 1e6),
+        "cvar90_mcm": float(AL.empirical_cvar(loss, 0.90) / 1e6),
+        "p_exceed": float((worst > 1.0e-6).mean()),
+        "exceed_cvar95_m": float(AL.empirical_cvar(worst, 0.95)),
+        "worst_exceed_m": float(worst.max()),
+        "samples_loss_m3": loss.tolist(),
+        "samples_worst_exceed_m": worst.tolist(),
+        "n": int(loss.size),
     }
+
+
+def verify_saved_interpolations(args):
+    """Full-model safety scan from the uniform policy toward a saved surrogate optimum."""
+    saved = np.load(ROOT / "results" / "allocation.npz")
+    post = np.load(ROOT / "results" / "posterior_H.npz")
+    X = post["X"]
+    training_members = saved["members"].astype(int)
+    take = training_members
+    cohort = "training"
+    if args.holdout_members:
+        ok = np.nonzero(post["ok"])[0]
+        available = np.setdiff1d(ok, training_members)
+        if args.holdout_members > len(available):
+            raise ValueError("requested more holdout members than are available")
+        take = available[np.linspace(0, len(available) - 1,
+                                     args.holdout_members).astype(int)]
+        cohort = "holdout"
+    q_ref = saved["q_ref"]
+    q_uniform = saved["q_uniform"]
+    q_opt = saved["q_opt"]
+    if q_opt.shape != q_uniform.shape:
+        raise RuntimeError("results/allocation.npz has no valid experimental optimum")
+    mask_e = fields.upscale_mask(F.pivot_mask(C.TRUTH), 2)
+    fractions = tuple(float(x) for x in args.interpolation_fractions.split(","))
+    if any(not 0.0 <= x <= 1.0 for x in fractions):
+        raise ValueError("interpolation fractions must be between zero and one")
+
+    out = {"cohort": cohort, "members": take.tolist(), "policies": []}
+    for fraction in fractions:
+        q = q_uniform + fraction * (q_opt - q_uniform)
+        vals = pmap(_verify, [(i, X[:, j], q) for i, j in enumerate(take)],
+                    args.workers, mask_e, q_ref)
+        summary = verification_summary(vals)
+        summary.update({"fraction_toward_surrogate_optimum": fraction,
+                        "delivered_km3": float(q.sum() / 1e9)})
+        out["policies"].append(summary)
+        print(f"fraction {fraction:5.2f}: CVaR90 {summary['cvar90_mcm']:8.1f} Mm3, "
+              f"P(exceed) {summary['p_exceed']:.3f}, "
+              f"exceed-CVaR95 {summary['exceed_cvar95_m']:.2f} m")
+    suffix = "_holdout" if args.holdout_members else ""
+    path = ROOT / "results" / f"allocation_interpolation{suffix}.json"
+    path.write_text(json.dumps(out, indent=2) + "\n", encoding="utf-8", newline="\n")
+    print(f"wrote {path.relative_to(ROOT)}")
 
 
 def main():
@@ -101,7 +160,14 @@ def main():
     ap.add_argument("--cut", type=float, default=0.15)
     ap.add_argument("--workers", type=int, default=6)
     ap.add_argument("--floor", type=float, default=0.25)
+    ap.add_argument("--verify-saved-interpolations", action="store_true")
+    ap.add_argument("--interpolation-fractions", default="0.10,0.25,0.50,0.75")
+    ap.add_argument("--holdout-members", type=int, default=0)
     args = ap.parse_args()
+
+    if args.verify_saved_interpolations:
+        verify_saved_interpolations(args)
+        return
 
     post = np.load(ROOT / "results" / "posterior_H.npz")
     X, ok = post["X"], post["ok"]
@@ -150,24 +216,34 @@ def main():
         q = AL.uniform_policy(qhat.mean(axis=0), (1.0 - cut) * bau)
         vals = pmap(_verify, [(i, X[:, j], q) for i, j in enumerate(take)],
                     args.workers, mask_e, q_ref)
-        b = band(vals)
+        b = verification_summary(vals)
         b.update({"cut": cut, "delivered_km3": float(q.sum() / 1e9)})
         frontier.append(b)
         print(f"{q.sum()/1e9:10.2f} {cut*100:6.0f} | {b['mean_mcm']:10.0f} "
               f"{b['p10_mcm']:10.0f} {b['p90_mcm']:10.0f}")
     res["frontier"] = frontier
 
-    # -- how it should be spread, at one operating point --------------------------
+    # -- experimental spatial allocation at one operating point -------------------
     total = (1.0 - args.cut) * bau
     q_uni = AL.uniform_policy(qhat.mean(axis=0), total)
     cap = np.tile(1.20 * qhat.mean(axis=0).max(axis=1)[:, None], (1, AL.HORIZON_Y))
     floor = args.floor * q_uni.sum(axis=1)
 
-    q_opt, status = AL.optimise(surrs, q_ref, total, cap, floor, beta=0.90)
-    q_cc, status_cc = AL.optimise(surrs, q_ref, total, cap, floor, beta=0.90, chance=0.95)
+    opt = AL.optimise(surrs, q_ref, total, cap, floor, beta=0.90)
+    opt_cc = AL.optimise(surrs, q_ref, total, cap, floor, beta=0.90, chance=0.95)
+    q_opt, q_cc = opt.policy, opt_cc.policy
     print("")
     print(f"at a {args.cut*100:.0f}% cut, floor {args.floor:.2f} of the uniform share")
-    print(f"  allocation status {status}; chance-constrained {status_cc}")
+    print(f"  experimental allocation {opt.solver}/{opt.status}, "
+          f"post-check feasible={opt.feasible}")
+    print(f"  experimental chance constraint {opt_cc.solver}/{opt_cc.status}, "
+          f"post-check feasible={opt_cc.feasible}")
+    res["experimental_optimisation"] = {
+        "risk_bounded": opt.summary(),
+        "chance_constrained": opt_cc.summary(),
+        "floor_fraction_of_uniform_district_total": float(args.floor),
+        "district_year_cap_fraction_of_historical_peak": 1.20,
+    }
 
     pol = {"uniform": q_uni}
     if q_opt is not None:
@@ -180,18 +256,21 @@ def main():
         res[name]["delivered_km3"] = float(q.sum() / 1e9)
         vals = pmap(_verify, [(i, X[:, j], q) for i, j in enumerate(take)],
                     args.workers, mask_e, q_ref)
-        res[name]["simulator"] = band(vals)
+        res[name]["simulator"] = verification_summary(vals)
         d = res[name]["simulator"]["cvar90_mcm"]
         print(f"  {name:20s} surrogate CVaR90 {res[name]['loss_cvar90_mcm']:8.0f} Mm3   "
               f"simulator {d:8.0f} Mm3   discrepancy "
               f"{(res[name]['loss_cvar90_mcm']-d)/d*100:+.0f}%")
 
-    a = res["uniform"]["simulator"]["cvar90_mcm"]
-    b = res.get("risk_bounded", res["uniform"])["simulator"]["cvar90_mcm"]
-    res["reallocation_gain_pct"] = float((a - b) / a * 100.0)
-    print("")
-    print(f"reallocation at equal delivered water changes permanent loss at the 90 per "
-          f"cent tail by {res['reallocation_gain_pct']:+.1f}%")
+    if "risk_bounded" in res:
+        a = res["uniform"]["simulator"]["cvar90_mcm"]
+        b = res["risk_bounded"]["simulator"]["cvar90_mcm"]
+        res["experimental_reallocation_gain_pct"] = float((a - b) / a * 100.0)
+        print("")
+        print(f"experimental reallocation changes permanent loss at the 90 per cent tail "
+              f"by {res['experimental_reallocation_gain_pct']:+.1f}%")
+    else:
+        res["experimental_reallocation_gain_pct"] = None
 
     f0, f1 = frontier[0], frontier[-1]
     dq = f0["delivered_km3"] - f1["delivered_km3"]
@@ -205,7 +284,8 @@ def main():
                         q_opt=q_opt if q_opt is not None else np.zeros(0),
                         q_cc=q_cc if q_cc is not None else np.zeros(0),
                         members=take)
-    (ROOT / "results" / "allocation.json").write_text(json.dumps(res, indent=2))
+    (ROOT / "results" / "allocation.json").write_text(
+        json.dumps(res, indent=2) + "\n", encoding="utf-8", newline="\n")
     print("wrote results/allocation.json")
 
 

@@ -206,8 +206,8 @@ def esmda_update(X, D, d_obs, sd, alpha, rho, rng, ok=None, pr=None, max_step=2.
 
     `rtps` is relaxation to prior spread. A localised smoother iterated on a problem
     with strong degeneracies under-disperses, and an interval that does not cover is
-    worse than no interval, because a chance constraint written on it is not the
-    constraint it claims to be. After each analysis the posterior anomalies are
+    worse than no interval, because any posterior decision made from it would be
+    overconfident. After each analysis the posterior anomalies are
     relaxed back towards the prior spread by this fraction, which is the standard
     treatment and costs nothing in the mean.
     """

@@ -1,6 +1,6 @@
 # Mizan
 
-**Satellite-constrained abstraction accounting and risk-bounded allocation for unmetered aquifers.**
+**Satellite-constrained abstraction accounting and permanent-storage decision support for unmetered aquifers.**
 
 Four things about a fossil aquifer are visible from orbit: how much water leaves the
 surface as crop evapotranspiration, how much mass leaves the basin, how the aquifer
@@ -10,9 +10,9 @@ a stress-strain law, and nothing in current practice forces them to agree.
 
 Mizan makes them agree inside one groundwater-flow and compaction model and solves for
 the quantity none of them measures: **the unmetered abstraction field, with calibrated
-uncertainty.** It then passes that uncertainty into a chance-constrained allocation
-that bounds *permanent* storage loss, and into a data-worth analysis that ranks where
-the next meter should go.
+uncertainty.** It then runs a full-MODFLOW frontier from delivered water to *permanent*
+storage-capacity loss, and a data-worth analysis that ranks where the next meter should
+go.
 
 ---
 
@@ -23,7 +23,7 @@ the next meter should go.
 | Forward physics | **MODFLOW 6** with the **CSUB** package, driven by **flopy** | USGS-authoritative. Elastic and inelastic skeletal storage, preconsolidation head and land subsidence are solved with flow, so irreversibility is a state variable rather than a correlation |
 | Inversion | Ensemble smoother with multiple data assimilation, local analysis with R-localisation | Ensemble posterior; parameter, forcing and instrument-nuisance uncertainty propagated together |
 | Data worth | Schur complement, cross-checked against **pyEMU** | Standard Bayesian linear data-worth analysis |
-| Allocation | **cvxpy**, conditional value at risk in the Rockafellar-Uryasev linear form | Convex, so the tail measure is exact rather than sampled |
+| Decision support | **MODFLOW 6 + CSUB** over the posterior pumping frontier | Every submitted frontier point is evaluated in the nonlinear simulator; experimental CVaR allocation code is retained separately |
 
 Nothing in the physics or the statistics is homemade. The contribution is the coupling:
 the closure constraint, the inversion target, and what is done with the posterior.
@@ -84,7 +84,7 @@ src/mizan/observations.py  the four observation operators and their error models
 src/mizan/truth.py         the hidden reality of the L0 experiment
 src/mizan/estimator.py     what the estimator may vary, and what it believes a priori
 src/mizan/inversion.py     ES-MDA, localisation, and the total error budget
-src/mizan/allocation.py    response-matrix surrogate and the CVaR allocation
+src/mizan/allocation.py    pumping-frontier helpers and experimental CVaR allocation
 src/mizan/voi.py           Schur-complement data worth
 src/mizan/metrics.py       scoring, including interval calibration and resolution
 src/mizan/ks_fetch.py      retrieval of the public Kansas records

@@ -1,8 +1,8 @@
 """The Al Jawf figure: two published instruments, one aquifer, and how far apart they are.
 
 Left: actual evapotranspiration over exactly the same irrigated pixels in the same years,
-from every global product that covers them, against the reference evapotranspiration that
-bounds all of them and against the published account for this basin.
+from every global product that covers them, against reference evapotranspiration as a
+climatic benchmark and against the published account for this basin.
 
 Right: the gravimetric record over the Saq footprint and over four deserts with no
 irrigation, which is what a raw trend has to be read against before any of it is called

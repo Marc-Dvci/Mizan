@@ -155,9 +155,9 @@ def kc_annual(ee, year: int):
 def reference_et(ee, year: int):
     """Reference evapotranspiration over the same pixels, mm/yr.
 
-    It is the ceiling every actual-evapotranspiration account has to sit under. A
-    well-watered crop can approach it and cannot exceed it by more than its crop
-    coefficient, so an account above it is a unit error rather than a retrieval.
+    It is a climatic benchmark, not a physical ceiling on actual evapotranspiration:
+    crop coefficients can exceed one. The separate 1.2 x reference screen below is a
+    conservative data-quality guard against composite-period unit mistakes.
     """
     return (ee.ImageCollection("IDAHO_EPSCOR/TERRACLIMATE")
             .filterDate(f"{year}-01-01", f"{year + 1}-01-01")
@@ -269,12 +269,12 @@ def main() -> None:
 
     eto = {y: masked_mean(ee, reference_et(ee, y), masks[y], 4638) for y in YEARS_ET}
     out["reference_et_mm_yr"] = {str(y): v for y, v in eto.items()}
-    print(f"{'reference evapotranspiration, the ceiling':44s} " + " ".join(
+    print(f"{'reference evapotranspiration, climatic benchmark':44s} " + " ".join(
         f"{eto[y]:10.0f}" for y in YEARS_ET))
 
-    # Every retrieval has to sit under the reference. PML's eight-day composites carry
-    # the period total rather than a daily rate, and reading them as a rate would put
-    # the account six times above the ceiling. This is the check that settles it.
+    # PML's eight-day composites carry the period total rather than a daily rate. Reading
+    # them as a rate would inflate the annual account eightfold. The 1.2 x reference
+    # threshold is a conservative plausibility screen, not a physical ET ceiling.
     CEIL = 1.20
     for name, row in et.items():
         for y, v in row.items():

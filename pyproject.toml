@@ -1,7 +1,7 @@
 [project]
 name = "mizan"
 version = "0.1.0"
-description = "Satellite-constrained abstraction accounting and risk-bounded allocation for unmetered aquifers"
+description = "Satellite-constrained abstraction accounting and permanent-storage decision support for unmetered aquifers"
 requires-python = ">=3.12"
 dependencies = [
   "numpy>=2.0",

@@ -231,17 +231,15 @@ def fig_nullspace():
 
 
 def fig_allocation():
-    """What the posterior lets a regulator decide: how much can be taken, and whether
-    where it is taken matters."""
+    """The submitted decision product: pumping versus permanent capacity loss."""
     al = json.loads((RES / "allocation.json").read_text())
-    d = np.load(RES / "allocation.npz")
     fr = al["frontier"]
     x = np.array([f["delivered_km3"] for f in fr])
     mu = np.array([f["mean_mcm"] for f in fr])
     lo = np.array([f["p10_mcm"] for f in fr])
     hi = np.array([f["p90_mcm"] for f in fr])
 
-    fig, ax = plt.subplots(1, 3, figsize=(12.6, 3.8))
+    fig, ax = plt.subplots(1, 2, figsize=(10.6, 4.0))
 
     ax[0].fill_between(x, lo, hi, color=FG.ACCENT, alpha=0.20,
                        label="posterior 10-90%")
@@ -255,32 +253,24 @@ def fig_allocation():
     ax[0].legend(fontsize=8)
     FG.despine(ax[0])
 
-    names = [k for k in ("uniform", "risk_bounded", "chance_constrained") if k in al]
-    lbl = {"uniform": "uniform cut", "risk_bounded": "risk-bounded",
-           "chance_constrained": "chance-constrained"}
-    xs = np.arange(len(names))
-    ax[1].bar(xs - 0.19, [al[k]["loss_cvar90_mcm"] for k in names], width=0.36,
-              color=FG.MUTED, label="zone surrogate")
-    ax[1].bar(xs + 0.19, [al[k]["simulator"]["cvar90_mcm"] for k in names], width=0.36,
-              color=FG.ACCENT, label="full MODFLOW")
-    ax[1].set_xticks(xs)
-    ax[1].set_xticklabels([lbl[k] for k in names], rotation=16, ha="right")
-    ax[1].set_ylabel("permanent loss, Mm$^3$ (90% tail)")
-    ax[1].set_title(f"At equal water, {al['uniform']['delivered_km3']:.1f} km$^3$")
+    samples = np.array([f["samples_loss_m3"] for f in fr], dtype=float) / 1e6
+    water_not_taken = x.max() - x
+    avoided = samples[0, None, :] - samples
+    avoided_mu = avoided.mean(axis=1)
+    avoided_lo = np.quantile(avoided, 0.10, axis=1)
+    avoided_hi = np.quantile(avoided, 0.90, axis=1)
+    ax[1].fill_between(water_not_taken, avoided_lo, avoided_hi,
+                       color=FG.SAND, alpha=0.25, label="posterior 10-90%")
+    ax[1].plot(water_not_taken, avoided_mu, color=FG.WARM, lw=2.2,
+               marker="o", ms=4, label="mean")
+    ax[1].text(water_not_taken.max() * 0.48, avoided_mu.max() * 0.55,
+               f"{al['marginal_capacity_per_km3']:.0f} Mm$^3$ protected\n"
+               "per km$^3$ not pumped", color=FG.WARM, fontsize=10, weight="bold")
+    ax[1].set_xlabel("water not pumped over 20 years, km$^3$")
+    ax[1].set_ylabel("permanent capacity protected, Mm$^3$")
+    ax[1].set_title("What lower pumping protects")
     ax[1].legend(fontsize=8)
     FG.despine(ax[1])
-
-    du = d["q_uniform"].sum(axis=1) / 1e6
-    ax[2].bar(np.arange(C.NDIST) - 0.19, du, width=0.38, color=FG.WARM, label="uniform")
-    if d["q_opt"].size:
-        ax[2].bar(np.arange(C.NDIST) + 0.19, d["q_opt"].sum(axis=1) / 1e6, width=0.38,
-                  color=FG.ACCENT, label="risk-bounded")
-    ax[2].set_xticks(range(C.NDIST))
-    ax[2].set_xticklabels([f"D{i}" for i in range(C.NDIST)])
-    ax[2].set_ylabel("20-year quota, Mm$^3$")
-    ax[2].set_title(f"Where it is taken ({al['reallocation_gain_pct']:+.1f}% on loss)")
-    ax[2].legend(fontsize=8)
-    FG.despine(ax[2])
     fig.tight_layout()
     return FG.save(fig, FIG / "fig7_allocation.png")
 

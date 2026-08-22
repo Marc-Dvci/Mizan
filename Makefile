@@ -103,6 +103,10 @@ verify:
 	$(PY) scripts/18_ladder.py --tag $(KTAG)
 	$(PY) scripts/19_verify.py --tag $(KTAG)
 	$(PY) scripts/22_verify_figure.py --tag $(KTAG)
+# The same four panels on a two-by-two grid. The banner is a page-width figure for
+# the documents; at 16:9 it shrinks every panel past reading size, so the deck and
+# the film use this one.
+	$(PY) scripts/22_verify_figure.py --tag $(KTAG) --layout grid --out fig12_verify_deck.png
 
 referee:
 	$(PY) scripts/17_referee.py --ne 100 --na 3 --workers 6 --tag $(KTAG)

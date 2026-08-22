@@ -52,8 +52,7 @@ per cell by an auxiliary multiplier, so changing a whole ensemble member's abstr
 rewrites nine time series rather than a stress-period table.
 
 The compaction formulation is head-based, so the preconsolidation state is expressed as
-a **preconsolidation head**, which is directly the quantity the allocation layer
-constrains.
+a **preconsolidation head**, which is directly the threshold the decision layer tracks.
 
 Water released from storage is integrated from the compaction field and the water table
 rather than from a cell budget. That identity is checked against MODFLOW's own
@@ -105,21 +104,14 @@ and produces intervals that do not cover.
 
 The posterior is not the product. The product is what can be decided with it.
 
-A superposition response matrix is built by pulsing each district in turn, so district
-head is linear in the quota vector. Inelastic compaction is the positive part of the
-preconsolidation exceedance at the lowest head reached, which is convex in head, so the
-programme is linear. The tail measure is written in the Rockafellar-Uryasev form and the
-chance constraint on preconsolidation crossing enters through its conservative convex
-surrogate.
+Uniform proportional pumping cuts are evaluated over the twenty-year future horizon for
+each selected posterior member. Every reported frontier point is run directly in full
+MODFLOW with CSUB and the inelastic switch active. The output is the posterior distribution
+of permanent storage-capacity loss at each delivered-water level.
 
-The comparison is held at **equal delivered water** against the instrument regulators
-actually use, a uniform proportional quota cut applied to every district. Beating "do
-nothing" is not a result.
-
-Time invariance of the response matrix is measured rather than assumed, by pulsing a
-district in a later year and comparing against what superposition predicts. Every
-candidate policy is then re-run in full MODFLOW with the inelastic switch active, and
-the surrogate-to-simulator discrepancy is reported.
+The submitted result is the full-model pumping frontier and its marginal permanent
+capacity protected per cubic kilometre not pumped. Response-matrix and CVaR routines are
+retained as experimental code, separate from the demonstrated decision product.
 
 ## 8. Value of information
 

@@ -37,7 +37,7 @@ GHB_COND = 5.0e-3            # m2/d per cell, weak lateral connection on two edg
 H_INIT = 0.0                 # m, initial head (datum = pre-development potentiometric)
 
 # CSUB, head-based formulation: preconsolidation is a head, which is the quantity
-# the allocation layer constrains directly.
+# the decision layer tracks directly.
 CSUB_LAYER = 1               # interbeds sit inside the pumped confined aquifer
 CSUB_THICK_FRAC = 0.10       # interbed fraction of that layer
 CSUB_SSV = 3.5e-4            # 1/m, inelastic (virgin) skeletal specific storage

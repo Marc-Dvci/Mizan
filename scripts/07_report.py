@@ -85,7 +85,7 @@ def main():
     print(f"| Peak subsidence | {tr['subsidence_final'].max()*100:.1f} cm "
           f"({tr['subsidence_final'].max()*100/C.NYEAR:.2f} cm/yr) |")
     print(f"| **Storage capacity destroyed permanently** | "
-          f"**{perm/1e9:.3f} km3, {perm/sd*100:.1f}% of the water removed** |")
+          f"**{perm/1e9:.3f} km3, {perm/sd*100:.1f}% of simulated storage depletion** |")
     print(f"| Irreversible share of peak subsidence | "
           f"{tr['inelastic_final'].max()/tr['subsidence_final'].max()*100:.0f}% |")
     print(f"| Observations | " + ", ".join(
@@ -202,19 +202,9 @@ def main():
               f"{al['frontier'][0]['mean_mcm']-al['frontier'][-1]['mean_mcm']:.0f} Mm3 of "
               f"permanent capacity loss: "
               f"**{al['marginal_capacity_per_km3']:.0f} Mm3 of capacity per km3 not taken.**")
-        print("\n**How it should be spread**, at equal delivered water.\n")
-        print("| policy | delivered, km3 | surrogate 90% tail | MODFLOW 90% tail | discrepancy |")
-        print("|---|---:|---:|---:|---:|")
-        for k in ("uniform", "risk_bounded", "chance_constrained"):
-            if k in al:
-                v = al[k]
-                d = v["simulator"]["cvar90_mcm"]
-                print(f"| {k.replace('_',' ')} | {v['delivered_km3']:.2f} | "
-                      f"{v['loss_cvar90_mcm']:.0f} | {d:.0f} | "
-                      f"{(v['loss_cvar90_mcm']-d)/d*100:+.0f}% |")
-        print(f"\nReallocating at equal delivered water changes permanent loss at the "
-              f"90 per cent tail by **{al['reallocation_gain_pct']:+.1f}%**. Within "
-              f"realistic bounds the distribution is not the lever; the total is.")
+        print("\nEvery frontier value above is evaluated directly in full MODFLOW across "
+              "the posterior. Experimental spatial-allocation diagnostics are retained "
+              "in `results/allocation.json` and are not submission results.")
 
     if vo:
         section("Value of information")
@@ -586,7 +576,7 @@ def main():
             cells = [("not published" if r.get(y) is None or r[y] != r[y]
                       else f"{r[y]:,.0f}") for y in yrs]
             print(f"| {name} | " + " | ".join(cells) + " |")
-        print("| **reference evapotranspiration, the ceiling** | "
+        print("| **reference evapotranspiration, climatic benchmark** | "
               + " | ".join(f"**{al['reference_et_mm_yr'][y]:,.0f}**" for y in yrs) + " |")
         # TerraClimate is reported apart from the retrievals. It is a water-balance model
         # with no irrigation term, so it does not disagree about the agriculture, it

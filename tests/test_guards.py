@@ -306,14 +306,14 @@ def test_saturated_thickness_is_the_published_surface_and_not_a_fitted_scalar():
     assert flat.max() / flat.min() == 1.0
 
 
-def test_an_evapotranspiration_account_cannot_exceed_the_reference():
-    """A retrieval above reference evapotranspiration is a unit error, not a result.
+def test_extreme_evapotranspiration_values_fail_a_conservative_unit_guard():
+    """A grossly inflated retrieval fails a conservative plausibility screen.
 
     The Al Jawf rung compares five published products whose composites carry different
     quantities: a daily rate in one, a period total in another. Reading an eight-day
     total as a rate multiplies the annual account by eight, which is invisible in a
-    table of numbers and fatal in a document a jury reads. The ceiling is what settles
-    it, so the ceiling is asserted here and asserted to reject the corruption.
+    table of numbers and fatal in a document a jury reads. Reference ET is a benchmark,
+    not a physical ceiling; the 1.2 multiplier is an explicit screen for this unit error.
     """
     reference = 2025.0
     ceiling = 1.20 * reference

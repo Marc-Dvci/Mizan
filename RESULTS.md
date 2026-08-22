@@ -17,7 +17,7 @@ here and from nowhere else.
 | Storage depleted | 29.06 km3 |
 | Peak head decline | 55.8 m |
 | Peak subsidence | 84.5 cm (4.22 cm/yr) |
-| **Storage capacity destroyed permanently** | **2.768 km3, 9.5% of the water removed** |
+| **Storage capacity destroyed permanently** | **2.768 km3, 9.5% of simulated storage depletion** |
 | Irreversible share of peak subsidence | 96% |
 | Observations | et 2160, grace 240, insar 5120, head 8130 |
 
@@ -136,15 +136,7 @@ Permanent loss already taken over the record: 3037 Mm3.
 
 Cutting delivery by 13.98 km3 over the horizon avoids 2058 Mm3 of permanent capacity loss: **147 Mm3 of capacity per km3 not taken.**
 
-**How it should be spread**, at equal delivered water.
-
-| policy | delivered, km3 | surrogate 90% tail | MODFLOW 90% tail | discrepancy |
-|---|---:|---:|---:|---:|
-| uniform | 23.77 | 3160 | 3760 | -16% |
-| risk bounded | 23.77 | 3063 | 3803 | -19% |
-| chance constrained | 23.77 | 3079 | 3758 | -18% |
-
-Reallocating at equal delivered water changes permanent loss at the 90 per cent tail by **-1.2%**. Within realistic bounds the distribution is not the lever; the total is.
+Every frontier value above is evaluated directly in full MODFLOW across the posterior. Experimental spatial-allocation diagnostics are retained in `results/allocation.json` and are not submission results.
 
 ## Value of information
 
@@ -319,7 +311,7 @@ Centre pivots delineated from the annual maximum MODIS NDVI above 0.40: **2,541 
 | WaPOR v2, 250 m | 622 | 409 | 445 |
 | TerraClimate water balance, 4 km | 38 | 38 | 4 |
 | WaPOR v3, 326 m | not published | 401 | 431 |
-| **reference evapotranspiration, the ceiling** | **2,025** | **2,091** | **2,125** |
+| **reference evapotranspiration, climatic benchmark** | **2,025** | **2,091** | **2,125** |
 
 The three retrievals that publish a value for 2015 span a factor of **3.4**, and across the three years measured the spread runs 3.3 to 3.9. TerraClimate is left out of that range on purpose: at 38 mm/yr it is 2 per cent of the reference, because it carries no irrigation term, so it does not disagree about the agriculture, it cannot see it. At an efficiency of 0.80 the 2015 spread is 1,976 to 6,699 Mm3/yr against a published 5,500.
 

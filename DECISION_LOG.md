@@ -411,8 +411,8 @@ depending on the control".
 live from Earth Engine, written to `results/aljawf.json`, with the delineation validated
 against the published one (2,541 km² against 2,494 km² at 30 m) and its threshold
 sensitivity published alongside. Two guards are paired with it: an evapotranspiration
-account above reference evapotranspiration is a unit error and is rejected, and the driver
-is asserted to carry more than one control box.
+account above 1.2 times reference evapotranspiration fails a conservative plausibility
+screen and is rejected, and the driver is asserted to carry more than one control box.
 
 ### L2 resolution metric read against zero, replaced by a measured null
 

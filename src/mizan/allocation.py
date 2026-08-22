@@ -1,4 +1,4 @@
-"""Workstream C: risk-bounded allocation over a response-matrix surrogate.
+"""Experimental spatial allocation over a response-matrix surrogate.
 
 The decision is a per-district annual quota over a twenty-year horizon. The quantity
 being protected is not water in the ground, which can be refilled in principle, but
@@ -9,8 +9,8 @@ the price of desalination.
 The surrogate is a superposition response matrix built by pulsing each district in
 turn, so head is linear in the quota vector. Inelastic compaction is the positive part
 of the preconsolidation exceedance, which is convex in head, so the whole programme is
-a linear programme in the Rockafellar-Uryasev form and the tail measure is exact rather
-than sampled.
+a linear programme in the Rockafellar-Uryasev form. The uncertainty ensemble is sampled;
+the CVaR calculation is exact for that finite empirical distribution.
 
 Resolution matters here and is not a free parameter. Compaction is a positive part, so
 averaging head over an area before applying it understates the loss by Jensen's
@@ -197,26 +197,128 @@ def uniform_policy(q_hist: np.ndarray, total: float) -> np.ndarray:
     return np.outer(share, np.full(HORIZON_Y, total / HORIZON_Y))
 
 
-def evaluate_policy(surrs, q: np.ndarray, q_ref: np.ndarray) -> dict:
-    """Surrogate prediction of permanent loss and exceedance for a quota vector."""
+def empirical_cvar(values, alpha: float) -> float:
+    """Exact upper-tail CVaR of an equally weighted empirical distribution.
+
+    Fractional weight is assigned to the sample at the quantile boundary. This matches
+    the Rockafellar-Uryasev objective used by the optimiser; taking an integer number of
+    worst members does not when ``(1 - alpha) * n`` is non-integral.
+    """
+    v = np.asarray(values, dtype=float).reshape(-1)
+    if v.size == 0 or not np.all(np.isfinite(v)):
+        raise ValueError("CVaR values must be a non-empty finite array")
+    if not 0.0 <= alpha < 1.0:
+        raise ValueError("CVaR alpha must satisfy 0 <= alpha < 1")
+    tail_mass = (1.0 - alpha) * v.size
+    ordered = np.sort(v)[::-1]
+    whole = int(np.floor(tail_mass + 1.0e-12))
+    fraction = tail_mass - whole
+    total = float(ordered[:whole].sum())
+    if fraction > 1.0e-12:
+        total += fraction * float(ordered[whole])
+    return total / tail_mass
+
+
+def policy_samples(surrs, q: np.ndarray, q_ref: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
+    """Per-member permanent loss (m3) and worst threshold exceedance (m)."""
     loss, worst = [], []
     for s in surrs:
         h = head_from_policy(s, q, q_ref)
         g = (s.pcs[:, None] - h).max(axis=1)
         worst.append(float(g.max()))
         loss.append(float(s.ssv_b * (s.area * np.maximum(g, 0.0)).sum()))
-    loss = np.asarray(loss)
-    worst = np.asarray(worst)
+    return np.asarray(loss), np.asarray(worst)
+
+
+def evaluate_policy(surrs, q: np.ndarray, q_ref: np.ndarray,
+                    exceed_tolerance_m: float = 1.0e-6) -> dict:
+    """Surrogate prediction of permanent loss and threshold exceedance."""
+    loss, worst = policy_samples(surrs, q, q_ref)
     return {
         "loss_mean_mcm": float(loss.mean() / 1e6),
-        "loss_cvar90_mcm": float(np.sort(loss)[int(0.9 * len(loss)):].mean() / 1e6),
+        "loss_cvar90_mcm": float(empirical_cvar(loss, 0.90) / 1e6),
         "loss_p90_mcm": float(np.quantile(loss, 0.9) / 1e6),
-        "p_exceed": float((worst > 0).mean()),
+        "p_exceed": float((worst > exceed_tolerance_m).mean()),
+        "exceed_cvar95_m": float(empirical_cvar(worst, 0.95)),
         "worst_exceed_m": float(worst.max()),
+        "samples_loss_m3": loss.tolist(),
+        "samples_worst_exceed_m": worst.tolist(),
     }
 
 
 QSCALE = 1.0e6            # decision variables are solved in Mm3, not m3
+
+
+@dataclass
+class OptimisationResult:
+    policy: np.ndarray | None
+    status: str
+    solver: str | None
+    feasible: bool
+    objective_mcm: float | None
+    diagnostics: dict
+    attempts: list[dict]
+
+    def summary(self) -> dict:
+        """JSON-safe solver provenance and independent feasibility checks."""
+        return {
+            "status": self.status,
+            "solver": self.solver,
+            "feasible": self.feasible,
+            "objective_mcm": self.objective_mcm,
+            "diagnostics": self.diagnostics,
+            "attempts": self.attempts,
+        }
+
+
+def validate_policy(surrs, q: np.ndarray, q_ref: np.ndarray, total: float,
+                    cap: np.ndarray, floor: np.ndarray,
+                    chance: float | None = None,
+                    volume_tolerance_m3: float | None = None,
+                    bound_tolerance_m3: float | None = None,
+                    head_tolerance_m: float = 1.0e-5) -> dict:
+    """Check a numerical candidate against every physical/programme constraint."""
+    q = np.asarray(q, dtype=float)
+    volume_tol = (max(1.0, 1.0e-8 * total) if volume_tolerance_m3 is None
+                  else float(volume_tolerance_m3))
+    bound_scale = max(float(np.max(cap)), float(np.max(floor)), 1.0)
+    bound_tol = (max(1.0, 1.0e-8 * bound_scale) if bound_tolerance_m3 is None
+                 else float(bound_tolerance_m3))
+    finite = bool(np.all(np.isfinite(q)))
+    total_error = float(abs(q.sum() - total)) if finite else float("inf")
+    nonnegative_violation = float(max(0.0, -q.min())) if finite else float("inf")
+    cap_violation = float(max(0.0, np.max(q - cap))) if finite else float("inf")
+    district_total = q.sum(axis=1) if finite else np.full_like(floor, np.nan)
+    floor_violation = (float(max(0.0, np.max(floor - district_total)))
+                       if finite else float("inf"))
+    chance_cvar = None
+    chance_violation = 0.0
+    if finite and chance is not None:
+        _, worst = policy_samples(surrs, q, q_ref)
+        chance_cvar = float(empirical_cvar(worst, chance))
+        chance_violation = max(0.0, chance_cvar - head_tolerance_m)
+    feasible = bool(
+        finite
+        and total_error <= volume_tol
+        and nonnegative_violation <= bound_tol
+        and cap_violation <= bound_tol
+        and floor_violation <= bound_tol
+        and chance_violation <= 0.0
+    )
+    return {
+        "feasible": feasible,
+        "finite": finite,
+        "total_error_m3": total_error,
+        "volume_tolerance_m3": volume_tol,
+        "bound_tolerance_m3": bound_tol,
+        "nonnegative_violation_m3": nonnegative_violation,
+        "cap_violation_m3": cap_violation,
+        "floor_violation_m3": floor_violation,
+        "chance_alpha": chance,
+        "chance_cvar_m": chance_cvar,
+        "head_tolerance_m": head_tolerance_m,
+        "chance_violation_m": chance_violation,
+    }
 
 
 def optimise(surrs, q_ref: np.ndarray, total: float, cap: np.ndarray,
@@ -262,14 +364,31 @@ def optimise(surrs, q_ref: np.ndarray, total: float, cap: np.ndarray,
         cons += [zc >= w - tc, tc + cp.sum(zc) / ((1.0 - chance) * m) <= 0.0]
 
     prob = cp.Problem(cp.Minimize(obj), cons)
-    last = "not attempted"
+    attempts = []
+    last_status = "not_attempted"
+    last_solver = None
+    last_diagnostics = {}
     for sv in solvers:
         try:
             prob.solve(solver=sv)
         except Exception as exc:
-            last = f"{sv}: {exc}"
+            attempts.append({"solver": sv, "status": "exception", "message": str(exc)})
+            last_status, last_solver = "exception", sv
             continue
+        last_status, last_solver = str(prob.status), sv
+        attempt = {"solver": sv, "status": str(prob.status)}
         if qs.value is not None and prob.status in ("optimal", "optimal_inaccurate"):
-            return np.asarray(qs.value).reshape(H, n).T * QSCALE, f"{sv}/{prob.status}"
-        last = f"{sv}: {prob.status}"
-    return None, last
+            candidate = np.asarray(qs.value).reshape(H, n).T * QSCALE
+            diagnostics = validate_policy(surrs, candidate, q_ref, total, cap, floor,
+                                          chance=chance)
+            attempt["diagnostics"] = diagnostics
+            attempts.append(attempt)
+            last_diagnostics = diagnostics
+            if diagnostics["feasible"]:
+                objective = float(prob.value) if prob.value is not None else None
+                return OptimisationResult(candidate, str(prob.status), sv, True,
+                                          objective, diagnostics, attempts)
+            continue
+        attempts.append(attempt)
+    return OptimisationResult(None, last_status, last_solver, False, None,
+                              last_diagnostics, attempts)

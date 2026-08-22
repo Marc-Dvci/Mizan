@@ -3,7 +3,7 @@
 The scored quantity is district-annual abstraction, which is the decision variable a
 regulator can act on, not head and not storage. Interval calibration is scored
 alongside the point error, because an abstraction estimate without a defensible error
-bar cannot enter a chance constraint.
+bar cannot support a posterior decision frontier.
 """
 from __future__ import annotations
 
