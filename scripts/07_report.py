@@ -796,11 +796,16 @@ def main():
                                   if c["gain_free"])))
 
     print("\n---\n")
-    print("Reproduce with `make all` from a fresh clone. `make test` runs the guards, "
-          "`make robustness` the seed and uniform-efficiency repeats, "
+    print("Reproduce with `make reproduce` from a fresh clone, which runs every rung "
+          "below in order and ends with this report. `make all` on its own is the L0 rung "
+          "and its figures, not the whole submission. Rung by rung: `make test` runs the "
+          "guards, `make robustness` the seed and uniform-efficiency repeats, "
           "`make kansas-data && make kansas && make kansas-score` the Kansas rung, "
-          "`make aljawf` the Al Jawf rung, and `make gain`, `make saq-gain` and "
-          "`make drift` the three sensitivity studies on the gravity leg.")
+          "`make verify` the window-pair scoring, `make aljawf` the Al Jawf rung, and "
+          "`make gain`, `make saq-gain` and `make drift` the three sensitivity studies "
+          "on the gravity leg. `make aljawf` and `make saq-gain` read Earth Engine and "
+          "need an account, so `make reproduce` leaves them out and `make reproduce-ee` "
+          "adds them.")
 
 
 if __name__ == "__main__":

@@ -694,3 +694,44 @@ def test_the_results_table_is_written_inside_the_repository():
     text = out.read_text(encoding="utf-8")
     assert text.startswith("# Results")
     assert "make all" in text and "Mm" in text
+
+
+def test_the_reproduce_target_runs_every_rung_the_report_reads():
+    """`make all` is the L0 rung, and the README once claimed it was the submission.
+
+    The report writes a section per rung and every rung has a target, so the claim is
+    checkable: `reproduce` has to invoke each of them, in one place, ending with the
+    report that reads them. The two Earth Engine rungs need an account, so they belong
+    to `reproduce-ee` instead, and the README has to say which is which.
+
+    The corruption is a target name that is not a rule. If the lookup accepted it, the
+    check would be passing on something that never fails.
+    """
+    import re as _re
+
+    makefile = (ROOT / "Makefile").read_text(encoding="utf-8")
+    rules = set(_re.findall(r"(?m)^([a-z][a-z0-9-]*):", makefile))
+
+    body = makefile.split("reproduce:")[1].split("reproduce-ee:")[0]
+    called = [ln.strip() for ln in body.splitlines()]
+    rungs = ["all", "robustness", "kansas-data", "kansas", "kansas-score", "verify",
+             "gain", "drift", "report", "test"]
+    for target in rungs:
+        assert "$(MAKE) " + target in called, target
+        assert target in rules, target
+    assert called.index("$(MAKE) report") > called.index("$(MAKE) kansas"), (
+        "the report has to run after the rungs it reads")
+
+    ee = [ln.strip() for ln in makefile.split("reproduce-ee:")[1].splitlines()]
+    for target in ("aljawf", "saq-gain"):
+        assert "$(MAKE) " + target in ee, target
+        assert target in rules, target
+        assert "$(MAKE) " + target not in called, target
+
+    # The corruption: the same lookup has to reject a target that does not exist.
+    assert "mizan-not-a-target" not in rules
+
+    readme = (ROOT / "README.md").read_text(encoding="utf-8")
+    assert "make reproduce" in readme
+    assert "make all` writes every number" not in readme, (
+        "`all` is the L0 rung; the whole submission is `reproduce`")

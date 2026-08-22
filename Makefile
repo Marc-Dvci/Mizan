@@ -8,9 +8,33 @@ NA ?= 8
 SAQ_SIGMA ?= 20.4
 EE_PROJECT ?= $(EARTHENGINE_PROJECT)
 
-.PHONY: all setup env truth ablation allocation voi detection figures report test clean         robustness null kansas-data kansas kansas-score aljawf verify referee gain saq-gain drift
+.PHONY: all setup env truth ablation allocation voi detection figures report test clean         robustness null kansas-data kansas kansas-score aljawf verify referee gain saq-gain drift reproduce reproduce-ee
 
 all: truth ablation allocation voi detection null figures report
+
+# `all` is the L0 rung and its figures. It is not the whole submission: the Kansas
+# rung, the two Earth Engine rungs and the three gravity-leg studies have their own
+# targets below, and `RESULTS.md` reports whichever of them have been run. This target
+# is the difference. Each step is a separate `make` so the ordering is the real one and
+# the report runs last, after every rung it has to read.
+reproduce:
+	$(MAKE) all
+	$(MAKE) robustness
+	$(MAKE) kansas-data
+	$(MAKE) kansas
+	$(MAKE) kansas-score
+	$(MAKE) verify
+	$(MAKE) gain
+	$(MAKE) drift
+	$(MAKE) report
+	$(MAKE) test
+
+# The same, plus the two rungs that read Earth Engine and so need an account.
+reproduce-ee:
+	$(MAKE) reproduce
+	$(MAKE) aljawf
+	$(MAKE) saq-gain
+	$(MAKE) report
 
 # The lock is the environment the published results were produced in, so it is what
 # `setup` installs. `pyproject.toml` carries version floors for anyone who wants a fresh

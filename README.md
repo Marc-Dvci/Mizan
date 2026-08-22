@@ -81,12 +81,14 @@ the closure constraint, the inversion target, and what is done with the posterio
 
 ```
 make setup          # the locked environment and the MODFLOW 6 binaries
-make all            # truth, ablation grid, allocation, data worth, every figure
+make all            # the L0 rung: truth, ablation grid, allocation, data worth, figures
+make reproduce      # every rung below, in order, ending with the report
 make test           # guards, each paired with a corruption that must break it
 make robustness     # repeat the headline rows across prior ensembles and truths
 make kansas-data    # retrieve the public Kansas records, no account needed
 make kansas         # the L2 rung, scored against metered pumping
 make kansas-score   # the anomaly, resolution and amplitude scoring on top of it
+make verify         # the window-pair scoring a reduction target is written in
 make aljawf         # the L3 rung, read live from Earth Engine
 make env            # rewrite the lock and the licence audit from what is installed
 make gain           # what the mascon gain assumption costs, on an axis
@@ -98,8 +100,15 @@ make drift          # what the external mass trend prior costs, against the L3 c
 once and set `EARTHENGINE_PROJECT` to your own cloud project; registration is free and
 every asset the rung reads is public.
 
-`make all` writes every number and every figure that appears in the submission into
-`results/` and `figures/`. Nothing in the submission comes from anywhere else.
+`make all` is the L0 rung: the truth run, the ablation grid, the decision layer, the
+data worth and the figures those carry. It is not the whole submission. The Kansas
+rung, the two Earth Engine rungs and the three gravity-leg studies are the separate
+targets listed above, and `RESULTS.md` reports whichever of them have been run.
+
+`make reproduce` runs the lot in order and ends with the report, so one command from a
+fresh clone writes every number and figure in the submission except the two Earth
+Engine rungs, which need an account; `make reproduce-ee` adds those. Nothing in the
+submission comes from anywhere else.
 
 ## The experiment
 
