@@ -201,7 +201,10 @@ def main():
               f"km3 over the horizon avoids "
               f"{al['frontier'][0]['mean_mcm']-al['frontier'][-1]['mean_mcm']:.0f} Mm3 of "
               f"permanent capacity loss: "
-              f"**{al['marginal_capacity_per_km3']:.0f} Mm3 of capacity per km3 not taken.**")
+              f"**{al['marginal_capacity_per_km3']:.0f} Mm3 of capacity per km3 not "
+              f"taken, in the test basin.** That rate is a simulated output of this "
+              f"basin and not an estimate for any real aquifer; what transfers is the "
+              f"frontier as an instrument.")
         print("\nEvery frontier value above is evaluated directly in full MODFLOW across "
               "the posterior. Experimental spatial-allocation diagnostics are retained "
               "in `results/allocation.json` and are not submission results.")
@@ -609,7 +612,9 @@ def main():
               f"at {tc:,.0f} mm/yr it is "
               f"{tc / al['reference_et_mm_yr'][yr] * 100:.0f} per cent of the reference, "
               f"because it carries no irrigation term, so it does not disagree about the "
-              f"agriculture, it cannot see it. At an efficiency of 0.80 the {yr} spread "
+              f"agriculture, it cannot see it. Converted at a single constant of 0.80, "
+              f"which rescales every account together and so leaves the spread "
+              f"between them unchanged, the {yr} spread "
               f"is {min(al_abs.values()):,.0f} to {max(al_abs.values()):,.0f} Mm3/yr against a "
               f"published {pub['abstraction_mcm']:,.0f}.")
 

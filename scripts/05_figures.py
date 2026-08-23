@@ -452,25 +452,30 @@ def fig_context():
                      "the reported 2023 figures raised by the reported decreases.",
                      fontsize=6.9, color=FG.MUTED)
 
-    # MEWA, National Water Strategy: irrigation efficiency today against best practice,
-    # and the constant the published open-loop method assumes instead.
+    # MEWA, National Water Strategy: irrigation efficiency today against best practice.
+    # Both bars are the same quantity from the same source, beneficial use over water
+    # withdrawn. The 0.80 the published Al Jawf account divides by is deliberately not
+    # drawn beside them: it is a wind drift and spray evaporation loss at the pivot, a
+    # different quantity over different water, and putting the two on one percent axis
+    # would assert a comparison neither source supports.
     names = ["MEWA:\nirrigation efficiency\ntoday",
-             "published method:\nassumed\nefficiency",
              "MEWA:\nbest practice"]
-    vals = [50, 80, 75]
-    cols = [FG.WARM, FG.MUTED, FG.GREEN]
-    ax[1].bar(range(3), vals, color=cols, width=0.6)
+    vals = [50, 75]
+    cols = [FG.WARM, FG.GREEN]
+    ax[1].bar(range(2), vals, color=cols, width=0.48)
     for i, v in enumerate(vals):
         ax[1].text(i, v + 1.5, f"{v}%", ha="center", fontsize=9, weight="bold")
-    ax[1].set_xticks(range(3))
+    ax[1].set_xticks(range(2))
     ax[1].set_xticklabels(names, fontsize=7.4)
+    ax[1].set_xlim(-0.72, 1.72)
     ax[1].set_ylim(0, 95)
     ax[1].set_ylabel("per cent")
     ax[1].set_title("The constant nobody measures")
     FG.despine(ax[1])
-    ax[1].set_xlabel("MEWA National Water Strategy; López Valencia et al. 2020. The\n"
-                     "two definitions are not identical, which is the point: the number\n"
-                     "an abstraction estimate divides by is assumed, never measured.",
+    ax[1].set_xlabel("MEWA National Water Strategy. Every open-loop abstraction estimate\n"
+                     "divides consumptive use by a constant of this kind and none of them\n"
+                     "measures it. The published Al Jawf account divides by a different one\n"
+                     "again, 0.80 for wind drift alone, so the two do not share an axis.",
                      fontsize=6.9, color=FG.MUTED)
 
     fig.tight_layout()

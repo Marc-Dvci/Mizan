@@ -134,7 +134,7 @@ Permanent loss already taken over the record: 3037 Mm3.
 | 16.78 | 40% | 2428 | 2289 | 2583 |
 | 13.98 | 50% | 2017 | 1901 | 2146 |
 
-Cutting delivery by 13.98 km3 over the horizon avoids 2058 Mm3 of permanent capacity loss: **147 Mm3 of capacity per km3 not taken.**
+Cutting delivery by 13.98 km3 over the horizon avoids 2058 Mm3 of permanent capacity loss: **147 Mm3 of capacity per km3 not taken, in the test basin.** That rate is a simulated output of this basin and not an estimate for any real aquifer; what transfers is the frontier as an instrument.
 
 Every frontier value above is evaluated directly in full MODFLOW across the posterior. Experimental spatial-allocation diagnostics are retained in `results/allocation.json` and are not submission results.
 
@@ -313,7 +313,7 @@ Centre pivots delineated from the annual maximum MODIS NDVI above 0.40: **2,541 
 | WaPOR v3, 326 m | not published | 401 | 431 |
 | **reference evapotranspiration, climatic benchmark** | **2,025** | **2,091** | **2,125** |
 
-The three retrievals that publish a value for 2015 span a factor of **3.4**, and across the three years measured the spread runs 3.3 to 3.9. TerraClimate is left out of that range on purpose: at 38 mm/yr it is 2 per cent of the reference, because it carries no irrigation term, so it does not disagree about the agriculture, it cannot see it. At an efficiency of 0.80 the 2015 spread is 1,976 to 6,699 Mm3/yr against a published 5,500.
+The three retrievals that publish a value for 2015 span a factor of **3.4**, and across the three years measured the spread runs 3.3 to 3.9. TerraClimate is left out of that range on purpose: at 38 mm/yr it is 2 per cent of the reference, because it carries no irrigation term, so it does not disagree about the agriculture, it cannot see it. Converted at a single constant of 0.80, which rescales every account together and so leaves the spread between them unchanged, the 2015 spread is 1,976 to 6,699 Mm3/yr against a published 5,500.
 
 **The gravimetric leg needs a control and has never had one.** The Saq footprint falls at -10.93 cm/decade over 238 months. The same trend over deserts with no irrigation:
 
