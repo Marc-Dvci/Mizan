@@ -642,6 +642,77 @@ def test_the_environment_the_results_were_produced_in_is_pinned():
         assert here == pins[name], (name, here, pins[name])
 
 
+def test_the_solver_binary_is_pinned_to_one_release_and_not_to_latest():
+    """Pinned packages plus an unpinned solver is not a pinned environment.
+
+    `flopy.utils.get_modflow` defaults to `--release-id latest`, so a `make setup`
+    without an explicit release fetches whatever MODFLOW-ORG/executables published most
+    recently. Every forward run in this repository goes through that binary, so two
+    clones a month apart could produce different numbers from identical Python pins, and
+    nothing in the lockfile would show it.
+
+    Three properties, and the third is the one that is not a declaration:
+
+      * the Makefile pins a release rather than taking `latest`;
+      * the lock header records the same release the Makefile pins;
+      * the lock header records the SHA-256 of `bin/mf6.exe`, and where that binary is
+        present the recorded hash is the hash it actually has.
+
+    The corruptions are two, because the first two properties are text comparisons and a
+    text comparison can be satisfied by text alone: a Makefile body with the release
+    argument removed must fail the pin check, and a one-character mutation of the
+    recorded digest must fail the hash check.
+    """
+    import hashlib
+    import re as _re
+
+    makefile = (ROOT / "Makefile").read_text(encoding="utf-8")
+    lock = (ROOT / "requirements.lock.txt").read_text(encoding="utf-8")
+
+    def pinned_release(text: str) -> str | None:
+        """The release `get_modflow` is invoked with, resolved through the variable."""
+        call = _re.search(r"get_modflow[^\n]*--release-id[ \t]+(\S+)", text)
+        if not call:
+            return None
+        token = call.group(1)
+        var = _re.fullmatch(r"\$\((\w+)\)", token)
+        if not var:
+            return None if token == "latest" else token
+        decl = _re.search(r"^" + var.group(1) + r"\s*\??=\s*(\S+)", text, _re.M)
+        return decl.group(1) if decl else None
+
+    release = pinned_release(makefile)
+    assert release, (
+        "`make setup` must pin the executables release: without --release-id it "
+        "installs whatever is latest on the day of the clone"
+    )
+
+    # The corruption: the same reader has to return nothing when the pin is gone.
+    stripped = makefile.replace("--release-id $(MF6_RELEASE)", "")
+    assert pinned_release(stripped) is None
+
+    recorded = _re.search(r"^#\s*mf6 release-id\s+(\S+)", lock, _re.M)
+    assert recorded, "the lock header has to record the release the Makefile pins"
+    assert recorded.group(1) == release, (recorded.group(1), release)
+
+    digest = _re.search(r"^#\s*mf6 sha256\s+([0-9a-f]{64})\b", lock, _re.M)
+    assert digest, "the lock header has to record the hash of the solver binary"
+
+    exe = ROOT / "bin" / ("mf6.exe" if sys.platform == "win32" else "mf6")
+    if not exe.exists():
+        pytest.skip("bin/mf6.exe is not in the repository; run `make setup`")
+
+    h = hashlib.sha256()
+    with open(exe, "rb") as f:
+        for block in iter(lambda: f.read(1 << 20), b""):
+            h.update(block)
+    assert h.hexdigest() == digest.group(1), (h.hexdigest(), digest.group(1))
+
+    # The corruption: the same comparison has to reject a binary that is not this one.
+    mutated = ("0" if digest.group(1)[0] != "0" else "1") + digest.group(1)[1:]
+    assert h.hexdigest() != mutated
+
+
 def test_the_licence_audit_covers_the_environment_it_claims_to():
     """An audit that lists a subset of the environment is not an audit.
 

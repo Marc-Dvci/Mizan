@@ -8,8 +8,12 @@
 # distributions     75
 #
 # MODFLOW 6 and the rest of the USGS executables are fetched by `make setup`
-# from the MODFLOW-ORG/executables release. Pass --release-id to
-# flopy.utils.get_modflow to pin that download to one release.
+# from one pinned MODFLOW-ORG/executables release, not from `latest`, so the
+# solver is pinned the way the Python packages are. The hash below is measured
+# from the ./bin binary the published runs were made with.
+#
+# mf6 release-id    29.0
+# mf6 sha256        b0b70e1c4cde6183932496b644563fd98867c520026321fd22a8fc796084fa1c
 
 affine==3.0.0
 asf_search==12.3.1

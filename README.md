@@ -80,7 +80,7 @@ the closure constraint, the inversion target, and what is done with the posterio
 ## Reproducing
 
 ```
-make setup          # the locked environment and the MODFLOW 6 binaries
+make setup          # the locked environment and the pinned MODFLOW 6 binaries
 make all            # the L0 rung: truth, ablation grid, allocation, data worth, figures
 make reproduce      # every rung below, in order, ending with the report
 make test           # guards, each paired with a corruption that must break it
@@ -95,6 +95,13 @@ make gain           # what the mascon gain assumption costs, on an axis
 make saq-gain       # what the mascon gain is on the target basin, from its geometry
 make drift          # what the external mass trend prior costs, against the L3 controls
 ```
+
+The environment is pinned on both sides. `requirements.lock.txt` carries an exact
+version for every Python distribution, and its header carries the MODFLOW-ORG
+executables release `make setup` installs together with the SHA-256 of the `mf6.exe`
+that release ships: `get_modflow` defaults to `latest`, and an unpinned solver behind
+pinned packages is not a pinned environment. A guard holds the Makefile, the header and
+the installed binary to the same release.
 
 `make aljawf` and `make saq-gain` are the only targets that need an account. Run `earthengine authenticate`
 once and set `EARTHENGINE_PROJECT` to your own cloud project; registration is free and

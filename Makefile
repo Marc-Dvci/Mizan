@@ -39,11 +39,19 @@ reproduce-ee:
 # The lock is the environment the published results were produced in, so it is what
 # `setup` installs. `pyproject.toml` carries version floors for anyone who wants a fresh
 # resolution instead: `uv pip install -e ".[dev,ee]"`.
+#
+# The solver is pinned the same way the Python side is. `get_modflow` defaults to the
+# latest MODFLOW-ORG/executables release, so without --release-id two clones a month
+# apart can run different binaries against the same locked packages. MF6_RELEASE is the
+# release the published runs used; the lock header records it beside the SHA-256 of the
+# `mf6.exe` it installs, and `tests/test_guards.py` holds the three together.
+MF6_RELEASE ?= 29.0
+
 setup:
 	uv venv --python 3.12 .venv
 	VIRTUAL_ENV=$(PWD)/.venv uv pip install -r requirements.lock.txt
 	VIRTUAL_ENV=$(PWD)/.venv uv pip install -e . --no-deps
-	$(PY) -m flopy.utils.get_modflow ./bin --repo executables
+	$(PY) -m flopy.utils.get_modflow ./bin --repo executables --release-id $(MF6_RELEASE)
 
 # Rewrite the lock and the licence audit from the environment that is installed now.
 env:

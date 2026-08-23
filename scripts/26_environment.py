@@ -7,7 +7,9 @@ Writes two files, both from the interpreter that is running, so neither can drif
 what the numbers were computed with:
 
   requirements.lock.txt   every installed distribution at an exact version, with the
-                          interpreter and the MODFLOW 6 build recorded in the header.
+                          interpreter and the MODFLOW 6 build recorded in the header,
+                          together with the executables release `make setup` pins and the
+                          SHA-256 of the `mf6.exe` that release installs.
                           `make setup` installs from this file, so a fresh clone gets the
                           environment the results came from rather than whatever the
                           version floors in `pyproject.toml` resolve to today.
@@ -19,6 +21,7 @@ The project itself is left out of the lock: it is installed from the working tre
 """
 from __future__ import annotations
 
+import hashlib
 import platform
 import re
 import subprocess
@@ -42,9 +45,13 @@ def installed() -> list[tuple[str, str, object]]:
     return sorted(out, key=lambda r: r[0].lower())
 
 
+def modflow_exe() -> Path:
+    return ROOT / "bin" / ("mf6.exe" if sys.platform == "win32" else "mf6")
+
+
 def modflow_version() -> str:
     """The MODFLOW 6 build in ./bin, which is what every forward run used."""
-    exe = ROOT / "bin" / ("mf6.exe" if sys.platform == "win32" else "mf6")
+    exe = modflow_exe()
     if not exe.exists():
         return "not installed in ./bin"
     try:
@@ -54,6 +61,30 @@ def modflow_version() -> str:
         return "unavailable"
     m = re.search(r"([0-9]+\.[0-9]+\.[0-9]+.*)", out)
     return m.group(1).strip() if m else out.strip().splitlines()[0]
+
+
+def modflow_sha256() -> str:
+    """The hash of the solver binary itself.
+
+    A version string is what the executable says about itself; this is what it is. It is
+    measured from `./bin` rather than copied from the Makefile, so the guard that
+    compares the two is comparing a declaration against an observation.
+    """
+    exe = modflow_exe()
+    if not exe.exists():
+        return "not installed in ./bin"
+    h = hashlib.sha256()
+    with open(exe, "rb") as f:
+        for block in iter(lambda: f.read(1 << 20), b""):
+            h.update(block)
+    return h.hexdigest()
+
+
+def modflow_release() -> str:
+    """The executables release `make setup` pins, read from the Makefile that pins it."""
+    m = re.search(r"^MF6_RELEASE\s*\??=\s*(\S+)",
+                  (ROOT / "Makefile").read_text(encoding="utf-8"), re.M)
+    return m.group(1) if m else "not pinned in the Makefile"
 
 
 # Distributions that ship no licence field, no licence expression and no licence
@@ -104,8 +135,12 @@ def main() -> None:
         f"# distributions     {len(rows)}",
         "#",
         "# MODFLOW 6 and the rest of the USGS executables are fetched by `make setup`",
-        "# from the MODFLOW-ORG/executables release. Pass --release-id to",
-        "# flopy.utils.get_modflow to pin that download to one release.",
+        "# from one pinned MODFLOW-ORG/executables release, not from `latest`, so the",
+        "# solver is pinned the way the Python packages are. The hash below is measured",
+        "# from the ./bin binary the published runs were made with.",
+        "#",
+        f"# mf6 release-id    {modflow_release()}",
+        f"# mf6 sha256        {modflow_sha256()}",
         "",
     ]
     lock = "\n".join(header + [f"{n}=={v}" for n, v, _ in rows]) + "\n"
