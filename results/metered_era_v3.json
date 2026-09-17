@@ -1,0 +1,710 @@
+{
+  "_meta": {
+    "tag": "_v3",
+    "era_year0": 2009,
+    "ne_converged": 249,
+    "counties": [
+      "CN",
+      "RA",
+      "DC",
+      "SH",
+      "TH",
+      "SD"
+    ],
+    "years": [
+      2000,
+      2024
+    ]
+  },
+  "audit": {
+    "note": "share of the block's reported irrigation volume whose WIMAS report carries a meter code (A, M, I), by year; the rest is code G, hours of pump operation times a rate",
+    "metered_share_by_year": {
+      "2000": 0.23592841897294706,
+      "2001": 0.23171424536029767,
+      "2002": 0.24984205739033458,
+      "2003": 0.2547391175082247,
+      "2004": 0.26764337569830904,
+      "2005": 0.2871303406341595,
+      "2006": 0.5207033488788527,
+      "2007": 0.6873054789190347,
+      "2008": 0.8641338855802039,
+      "2009": 0.9882331105864215,
+      "2010": 0.9913187667033229,
+      "2011": 0.9938567313694309,
+      "2012": 0.9924981462805043,
+      "2013": 0.9946974955136643,
+      "2014": 0.9931661975153535,
+      "2015": 0.9960989828855809,
+      "2016": 0.995675706257787,
+      "2017": 0.9958720413629338,
+      "2018": 0.9977303044371391,
+      "2019": 0.9995947918947476,
+      "2020": 0.9997045148208857,
+      "2021": 0.9988279477506493,
+      "2022": 0.9997927726356199,
+      "2023": 0.9990876877219987,
+      "2024": 0.9996977679224032
+    },
+    "min_county_metered_share_by_year": {
+      "2000": 0.1369895031463235,
+      "2001": 0.13599321952625382,
+      "2002": 0.1510590482881747,
+      "2003": 0.14871022336417825,
+      "2004": 0.15889186351628537,
+      "2005": 0.15531962321145518,
+      "2006": 0.41482961515461036,
+      "2007": 0.6286512430525057,
+      "2008": 0.8310864888891086,
+      "2009": 0.9803050277159086,
+      "2010": 0.9585114277983426,
+      "2011": 0.9886949141933513,
+      "2012": 0.9873944050109712,
+      "2013": 0.9915912552037266,
+      "2014": 0.987002495328106,
+      "2015": 0.9858636511956907,
+      "2016": 0.9887353592872271,
+      "2017": 0.9927753676427324,
+      "2018": 0.9944699354845037,
+      "2019": 0.9989379740193319,
+      "2020": 0.994113552861708,
+      "2021": 0.9958070859096471,
+      "2022": 0.9982939969407529,
+      "2023": 0.9973923918254516,
+      "2024": 0.9984229724615629
+    },
+    "metered_share_by_county_2000_2008": {
+      "CN": 0.37853267918064687,
+      "RA": 0.5025686588633838,
+      "DC": 0.8646191712540465,
+      "SH": 0.3001737401577627,
+      "TH": 0.362447511337776,
+      "SD": 0.4654931153969567
+    },
+    "metered_share_by_county_era": {
+      "CN": 0.9953711754729606,
+      "RA": 0.9947157762851394,
+      "DC": 0.9928541342206738,
+      "SH": 0.9960205706845356,
+      "TH": 0.996670178841634,
+      "SD": 0.9959064970331178
+    },
+    "reported_over_published_truth_by_year": {
+      "2000": 1.0689343376570053,
+      "2001": 1.0705797209783285,
+      "2002": 1.0712297670276638,
+      "2003": 1.0806438921780936,
+      "2004": 1.073522774414648,
+      "2005": 1.081217870973081,
+      "2006": 1.0766452604271026,
+      "2007": 1.083313450973023,
+      "2008": 1.0873411184529065,
+      "2009": 1.0894502931190466,
+      "2010": 1.0863106052939506,
+      "2011": 1.0834843920325568,
+      "2012": 1.0844712769646212,
+      "2013": 1.0846475995057439,
+      "2014": 1.0857824821938948,
+      "2015": 1.093801317945923,
+      "2016": 1.0873070983592201,
+      "2017": 1.0977457452032096,
+      "2018": 1.0961432858846702,
+      "2019": 1.0956145648076874,
+      "2020": 1.087870102005412,
+      "2021": 1.0920139578850756,
+      "2022": 1.0878150019030894,
+      "2023": 1.095526208970426,
+      "2024": 1.088044696835961
+    },
+    "reported_over_published_truth_by_county": {
+      "CN": 1.1163354426783814,
+      "RA": 1.120622622022942,
+      "DC": 1.1619041138735193,
+      "SH": 1.138193621866194,
+      "TH": 1.041388793517431,
+      "SD": 1.0207334510176809
+    },
+    "n_reports_metered_era": 48240,
+    "first_year_every_later_year_above_98pct": 2009
+  },
+  "level": {
+    "published_truth_all_years": {
+      "CLOSURE": {
+        "mae_mcm": 16.570181909463248,
+        "bias_mcm": -5.477760862510717,
+        "rmse_mcm": 21.790585926636904,
+        "mape_pct": 25.35874371388362,
+        "basin_bias_pct": -7.443237094416272,
+        "cover_50": 0.5933333333333334,
+        "cover_80": 0.8933333333333333,
+        "cover_90": 0.9533333333333334,
+        "width90_mcm": 89.69342593731383,
+        "crps_mcm": 12.36524028617831
+      },
+      "FLAT": {
+        "mae_mcm": 14.778559116624594,
+        "bias_mcm": -4.757892873508519,
+        "rmse_mcm": 20.77822320185712,
+        "mape_pct": 21.670322146894677,
+        "basin_bias_pct": -6.4650731596788695
+      },
+      "WATERBAL": {
+        "mae_mcm": 11.479216096699446,
+        "bias_mcm": -4.87642552950852,
+        "rmse_mcm": 15.646422211826744,
+        "mape_pct": 16.766674823802028,
+        "basin_bias_pct": -6.626136536519033
+      },
+      "OPENLOOP": {
+        "mae_mcm": 22.5172786962633,
+        "bias_mcm": -15.43705583856368,
+        "rmse_mcm": 29.440180544343736,
+        "mape_pct": 42.178178845966045,
+        "basin_bias_pct": -20.976028258653763
+      }
+    },
+    "reported_truth_all_years": {
+      "CLOSURE": {
+        "mae_mcm": 20.47210330537679,
+        "bias_mcm": -11.65831696939208,
+        "rmse_mcm": 27.65589145026403,
+        "mape_pct": 26.767320378976304,
+        "basin_bias_pct": -14.614116426762836,
+        "cover_50": 0.4866666666666667,
+        "cover_80": 0.7733333333333333,
+        "cover_90": 0.9266666666666666,
+        "width90_mcm": 89.69342593731383,
+        "crps_mcm": 15.257033177579242
+      },
+      "FLAT": {
+        "mae_mcm": 18.24886943155277,
+        "bias_mcm": -10.938448980389882,
+        "rmse_mcm": 26.11277424183279,
+        "mape_pct": 23.596632050328452,
+        "basin_bias_pct": -13.711736209206752
+      },
+      "WATERBAL": {
+        "mae_mcm": 15.668900816857567,
+        "bias_mcm": -11.056981636389883,
+        "rmse_mcm": 21.78654975884556,
+        "mape_pct": 20.601438476156687,
+        "basin_bias_pct": -13.860321124139608
+      },
+      "OPENLOOP": {
+        "mae_mcm": 26.734094282636082,
+        "bias_mcm": -21.61761194544505,
+        "rmse_mcm": 35.15576243649723,
+        "mape_pct": 44.33981546435279,
+        "basin_bias_pct": -27.098448143822118
+      }
+    },
+    "reported_truth_metered_era": {
+      "CLOSURE": {
+        "mae_mcm": 21.21958896168774,
+        "bias_mcm": -11.520220831066997,
+        "rmse_mcm": 28.75887466616147,
+        "mape_pct": 28.613972436745915,
+        "basin_bias_pct": -15.451666452460067,
+        "cover_50": 0.5,
+        "cover_80": 0.7708333333333334,
+        "cover_90": 0.90625,
+        "width90_mcm": 84.88823530503358,
+        "crps_mcm": 15.496889086854276
+      },
+      "FLAT": {
+        "mae_mcm": 16.618189169397326,
+        "bias_mcm": -5.9518881353214415,
+        "rmse_mcm": 24.94787860521382,
+        "mape_pct": 23.03715831187003,
+        "basin_bias_pct": -7.9830579272692255
+      },
+      "WATERBAL": {
+        "mae_mcm": 13.753923773732826,
+        "bias_mcm": -7.195173342686025,
+        "rmse_mcm": 20.270082451891867,
+        "mape_pct": 19.110724740319807,
+        "basin_bias_pct": -9.650632586747
+      },
+      "OPENLOOP": {
+        "mae_mcm": 28.282257809675098,
+        "bias_mcm": -21.996224109031573,
+        "rmse_mcm": 36.446913233878924,
+        "mape_pct": 49.27457134314019,
+        "basin_bias_pct": -29.502760678836502
+      },
+      "ET": {
+        "mae_mcm": 17.385833088387162,
+        "bias_mcm": -10.149074650788744,
+        "rmse_mcm": 26.35275763990251,
+        "mape_pct": 20.423065752895244,
+        "basin_bias_pct": -13.61259637334406,
+        "cover_50": 0.6770833333333334,
+        "cover_80": 0.9479166666666666,
+        "cover_90": 0.9895833333333334,
+        "width90_mcm": 111.30160674975717
+      },
+      "H": {
+        "mae_mcm": 22.74284263815345,
+        "bias_mcm": -4.70915222354111,
+        "rmse_mcm": 31.904324284465066,
+        "mape_pct": 31.722394028619878,
+        "basin_bias_pct": -6.316220018612128,
+        "cover_50": 0.5416666666666666,
+        "cover_80": 0.7708333333333334,
+        "cover_90": 0.8645833333333334,
+        "width90_mcm": 97.20710471212844
+      }
+    }
+  },
+  "anomaly_metered_era": {
+    "CLOSURE": {
+      "r": 0.6897815746576267,
+      "raw_skill": 0.22982629655855413,
+      "loco_skill": 0.21779640947995327,
+      "oracle_skill": 0.23757715255265233,
+      "loco_factors": [
+        0.85,
+        0.85,
+        0.85,
+        0.71,
+        0.97,
+        0.85
+      ],
+      "dispersion": 0.6223759073975511
+    },
+    "ET": {
+      "r": 0.6923852516647322,
+      "raw_skill": 0.2208501910791244,
+      "loco_skill": 0.21232692097137262,
+      "oracle_skill": 0.2605744837480344,
+      "loco_factors": [
+        0.77,
+        0.77,
+        0.77,
+        0.59,
+        0.8300000000000001,
+        0.8300000000000001
+      ],
+      "dispersion": 0.8162460528744673
+    },
+    "H": {
+      "r": 0.19295787537916925,
+      "raw_skill": -0.13915273431545194,
+      "loco_skill": -0.020611212026500292,
+      "oracle_skill": 0.0,
+      "loco_factors": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.29,
+        0.0
+      ],
+      "dispersion": 0.5793501968422
+    },
+    "OPENLOOP": {
+      "r": 0.6598373104258136,
+      "raw_skill": -0.04636633166443227,
+      "loco_skill": 0.1321491175431304,
+      "oracle_skill": 0.2104507061087103,
+      "loco_factors": [
+        0.54,
+        0.46,
+        0.46,
+        0.34,
+        0.35000000000000003,
+        0.54
+      ],
+      "dispersion": 1.3240255317544913
+    }
+  },
+  "anomaly_published": {
+    "CLOSURE": {
+      "r": 0.6398118049399467,
+      "raw_skill": 0.1450657350708625,
+      "loco_skill": 0.17787588919585196,
+      "oracle_skill": 0.18305764106569034,
+      "loco_factors": [
+        0.7000000000000001,
+        0.7000000000000001,
+        0.7000000000000001,
+        0.6900000000000001,
+        0.75,
+        0.68
+      ],
+      "dispersion": 0.8386291780389769
+    }
+  },
+  "contrasts_metered_era": {
+    "GMD4": {
+      "why": "the district-wide GMD4 LEMA period against the five years before it",
+      "baseline_years": [
+        2013,
+        2017
+      ],
+      "period_years": [
+        2018,
+        2022
+      ],
+      "metered_pct": -6.019098888031193,
+      "CLOSURE": {
+        "pct": -15.520416534451057,
+        "sd": 9.404727291980363,
+        "ci90": [
+          -30.73277195630552,
+          0.16481098654143234
+        ],
+        "contains_truth": true,
+        "excludes_zero": false,
+        "abs_error_pts": 9.501317646419864
+      },
+      "FLAT": {
+        "pct": -1.4907201739793097,
+        "abs_error_pts": 4.528378714051883
+      },
+      "WATERBAL": {
+        "pct": 12.18020823588548,
+        "abs_error_pts": 18.199307123916675
+      },
+      "OPENLOOP": {
+        "pct": -12.245855197589893,
+        "abs_error_pts": 6.2267563095587
+      }
+    },
+    "ERA": {
+      "why": "the last five years of the metered era against its first five",
+      "baseline_years": [
+        2009,
+        2013
+      ],
+      "period_years": [
+        2020,
+        2024
+      ],
+      "metered_pct": -5.768994464097443,
+      "CLOSURE": {
+        "pct": -21.33624285333689,
+        "sd": 9.51062135604257,
+        "ci90": [
+          -36.724641702938364,
+          -5.847952384700175
+        ],
+        "contains_truth": false,
+        "excludes_zero": true,
+        "abs_error_pts": 15.567248389239449
+      },
+      "FLAT": {
+        "pct": -4.999076834276517,
+        "abs_error_pts": 0.7699176298209265
+      },
+      "WATERBAL": {
+        "pct": 5.9038478776241465,
+        "abs_error_pts": 11.67284234172159
+      },
+      "OPENLOOP": {
+        "pct": -30.317557856332655,
+        "abs_error_pts": 24.548563392235213
+      }
+    }
+  },
+  "sweep_5yr": {
+    "metered_era_reported_truth": {
+      "n_pairs": 28,
+      "mean_abs_error_pts": {
+        "CLOSURE": 9.35340540445023,
+        "FLAT": 14.711150837674989,
+        "WATERBAL": 13.507085912311494,
+        "OPENLOOP": 12.291114361987999
+      },
+      "median_abs_error_pts": {
+        "CLOSURE": 6.805595616362577,
+        "FLAT": 14.581434450904979,
+        "WATERBAL": 14.710330179966924,
+        "OPENLOOP": 8.675094542384105
+      },
+      "closure_beats_pct": {
+        "FLAT": 64.28571428571429,
+        "WATERBAL": 67.85714285714286,
+        "OPENLOOP": 75.0
+      },
+      "coverage_90": 0.8571428571428571,
+      "n_declared_change": 22,
+      "n_declared_change_sign_correct": 22,
+      "n_metered_change_negative": 24,
+      "declaration_auc_vs_metered_magnitude": 0.7348484848484849,
+      "metered_pct_where_declared": 18.973621236927166,
+      "metered_pct_where_not_declared": 12.428178637483049,
+      "change_r": 0.7904804331785916
+    },
+    "all_years_reported_truth": {
+      "n_pairs": 136,
+      "mean_abs_error_pts": {
+        "CLOSURE": 8.629027815843576,
+        "FLAT": 14.489604266654142,
+        "WATERBAL": 10.785663462419942,
+        "OPENLOOP": 10.194949088181614
+      },
+      "median_abs_error_pts": {
+        "CLOSURE": 7.228565873021546,
+        "FLAT": 13.863327149659682,
+        "WATERBAL": 11.072291611370577,
+        "OPENLOOP": 8.675094542384105
+      },
+      "closure_beats_pct": {
+        "FLAT": 71.32352941176471,
+        "WATERBAL": 58.82352941176471,
+        "OPENLOOP": 63.23529411764706
+      },
+      "coverage_90": 0.8676470588235294,
+      "n_declared_change": 79,
+      "n_declared_change_sign_correct": 76,
+      "n_metered_change_negative": 118,
+      "declaration_auc_vs_metered_magnitude": 0.7659338218965135,
+      "metered_pct_where_declared": 18.991214466416896,
+      "metered_pct_where_not_declared": 10.71145875545277,
+      "change_r": 0.5524468323673273
+    },
+    "all_years_published_truth": {
+      "n_pairs": 136,
+      "mean_abs_error_pts": {
+        "CLOSURE": 8.678085083596356,
+        "FLAT": 15.022780178352363,
+        "WATERBAL": 11.396073998339158,
+        "OPENLOOP": 9.929010737003226
+      },
+      "median_abs_error_pts": {
+        "CLOSURE": 7.419801281583821,
+        "FLAT": 14.582560111683302,
+        "WATERBAL": 11.849683849795968,
+        "OPENLOOP": 8.36122213424846
+      },
+      "closure_beats_pct": {
+        "FLAT": 72.05882352941177,
+        "WATERBAL": 63.970588235294116,
+        "OPENLOOP": 58.82352941176471
+      },
+      "coverage_90": 0.8897058823529411,
+      "n_declared_change": 79,
+      "n_declared_change_sign_correct": 76,
+      "n_metered_change_negative": 119,
+      "declaration_auc_vs_metered_magnitude": 0.7661558960692871,
+      "metered_pct_where_declared": 19.670859341497465,
+      "metered_pct_where_not_declared": 11.2320766101351,
+      "change_r": 0.5475425629350514
+    }
+  },
+  "window_curve_metered_era": {
+    "by_window_years": {
+      "2": {
+        "n_pairs": 91,
+        "mean_abs_error_pts": {
+          "CLOSURE": 15.194511718236084,
+          "FLAT": 20.986461330371004,
+          "WATERBAL": 11.73978241612817,
+          "OPENLOOP": 20.762206592948345
+        },
+        "median_abs_error_pts": {
+          "CLOSURE": 12.009630454685217,
+          "FLAT": 18.971977977504054,
+          "WATERBAL": 11.705955591938661,
+          "OPENLOOP": 15.23139946334804
+        },
+        "closure_beats_pct": {
+          "FLAT": 61.53846153846154,
+          "WATERBAL": 42.857142857142854,
+          "OPENLOOP": 58.24175824175825
+        },
+        "coverage_90": 0.9010989010989011,
+        "n_declared_change": 20,
+        "n_declared_change_sign_correct": 19,
+        "n_metered_change_negative": 56,
+        "declaration_auc_vs_metered_magnitude": 0.6873239436619718,
+        "metered_pct_where_declared": 28.088510059364488,
+        "metered_pct_where_not_declared": 19.8927773903664,
+        "change_r": 0.7813725532818748
+      },
+      "3": {
+        "n_pairs": 66,
+        "mean_abs_error_pts": {
+          "CLOSURE": 13.874856448559575,
+          "FLAT": 18.809565697667818,
+          "WATERBAL": 11.729119804426094,
+          "OPENLOOP": 16.535699929362046
+        },
+        "median_abs_error_pts": {
+          "CLOSURE": 10.268297647470511,
+          "FLAT": 17.89090285883818,
+          "WATERBAL": 11.802677987554716,
+          "OPENLOOP": 10.76715961926379
+        },
+        "closure_beats_pct": {
+          "FLAT": 59.09090909090909,
+          "WATERBAL": 46.96969696969697,
+          "OPENLOOP": 54.54545454545454
+        },
+        "coverage_90": 0.7878787878787878,
+        "n_declared_change": 26,
+        "n_declared_change_sign_correct": 26,
+        "n_metered_change_negative": 43,
+        "declaration_auc_vs_metered_magnitude": 0.7096153846153846,
+        "metered_pct_where_declared": 25.041552657101793,
+        "metered_pct_where_not_declared": 17.346565115645365,
+        "change_r": 0.7860448697263095
+      },
+      "4": {
+        "n_pairs": 45,
+        "mean_abs_error_pts": {
+          "CLOSURE": 11.631281747640294,
+          "FLAT": 16.283745496239547,
+          "WATERBAL": 12.257411666545018,
+          "OPENLOOP": 12.782643906625797
+        },
+        "median_abs_error_pts": {
+          "CLOSURE": 9.73431317852576,
+          "FLAT": 14.400877457446894,
+          "WATERBAL": 13.77133872437989,
+          "OPENLOOP": 8.29557227207156
+        },
+        "closure_beats_pct": {
+          "FLAT": 60.0,
+          "WATERBAL": 55.55555555555556,
+          "OPENLOOP": 57.77777777777777
+        },
+        "coverage_90": 0.8444444444444444,
+        "n_declared_change": 29,
+        "n_declared_change_sign_correct": 29,
+        "n_metered_change_negative": 36,
+        "declaration_auc_vs_metered_magnitude": 0.6443965517241379,
+        "metered_pct_where_declared": 20.63016877141674,
+        "metered_pct_where_not_declared": 15.325356157565974,
+        "change_r": 0.7960523172217151
+      },
+      "5": {
+        "n_pairs": 28,
+        "mean_abs_error_pts": {
+          "CLOSURE": 9.35340540445023,
+          "FLAT": 14.711150837674989,
+          "WATERBAL": 13.507085912311494,
+          "OPENLOOP": 12.291114361987999
+        },
+        "median_abs_error_pts": {
+          "CLOSURE": 6.805595616362577,
+          "FLAT": 14.581434450904979,
+          "WATERBAL": 14.710330179966924,
+          "OPENLOOP": 8.675094542384105
+        },
+        "closure_beats_pct": {
+          "FLAT": 64.28571428571429,
+          "WATERBAL": 67.85714285714286,
+          "OPENLOOP": 75.0
+        },
+        "coverage_90": 0.8571428571428571,
+        "n_declared_change": 22,
+        "n_declared_change_sign_correct": 22,
+        "n_metered_change_negative": 24,
+        "declaration_auc_vs_metered_magnitude": 0.7348484848484849,
+        "metered_pct_where_declared": 18.973621236927166,
+        "metered_pct_where_not_declared": 12.428178637483049,
+        "change_r": 0.7904804331785916
+      },
+      "6": {
+        "n_pairs": 15,
+        "mean_abs_error_pts": {
+          "CLOSURE": 6.056352271625044,
+          "FLAT": 12.972239886521843,
+          "WATERBAL": 14.252527886342007,
+          "OPENLOOP": 12.97867194721688
+        },
+        "median_abs_error_pts": {
+          "CLOSURE": 4.8972150469208096,
+          "FLAT": 13.266231963608243,
+          "WATERBAL": 14.072193459060811,
+          "OPENLOOP": 13.919585580454388
+        },
+        "closure_beats_pct": {
+          "FLAT": 80.0,
+          "WATERBAL": 93.33333333333333,
+          "OPENLOOP": 100.0
+        },
+        "coverage_90": 1.0,
+        "n_declared_change": 14,
+        "n_declared_change_sign_correct": 14,
+        "n_metered_change_negative": 14,
+        "declaration_auc_vs_metered_magnitude": 1.0,
+        "metered_pct_where_declared": 17.14893920647702,
+        "metered_pct_where_not_declared": 1.4159312730379625,
+        "change_r": 0.583029270067051
+      },
+      "7": {
+        "n_pairs": 6,
+        "mean_abs_error_pts": {
+          "CLOSURE": 5.951491330325975,
+          "FLAT": 11.945637875463227,
+          "WATERBAL": 14.053622646948213,
+          "OPENLOOP": 14.931449871839007
+        },
+        "median_abs_error_pts": {
+          "CLOSURE": 5.900714853296451,
+          "FLAT": 11.403851098613144,
+          "WATERBAL": 13.859791429325663,
+          "OPENLOOP": 15.383745230251158
+        },
+        "closure_beats_pct": {
+          "FLAT": 83.33333333333334,
+          "WATERBAL": 100.0,
+          "OPENLOOP": 100.0
+        },
+        "coverage_90": 1.0,
+        "n_declared_change": 6,
+        "n_declared_change_sign_correct": 6,
+        "n_metered_change_negative": 6,
+        "change_r": 0.5703358778186939
+      },
+      "8": {
+        "n_pairs": 1,
+        "mean_abs_error_pts": {
+          "CLOSURE": 6.978070527426921,
+          "FLAT": 10.11239517911956,
+          "WATERBAL": 11.613193347155981,
+          "OPENLOOP": 15.802949986031988
+        },
+        "median_abs_error_pts": {
+          "CLOSURE": 6.978070527426921,
+          "FLAT": 10.11239517911956,
+          "WATERBAL": 11.613193347155981,
+          "OPENLOOP": 15.802949986031988
+        },
+        "closure_beats_pct": {
+          "FLAT": 100.0,
+          "WATERBAL": 100.0,
+          "OPENLOOP": 100.0
+        },
+        "coverage_90": 1.0,
+        "n_declared_change": 1,
+        "n_declared_change_sign_correct": 1,
+        "n_metered_change_negative": 1
+      }
+    },
+    "crossover_window_years": 4
+  },
+  "closure_error_by_metered_share": {
+    "both_windows_metered": {
+      "n_pairs": 28,
+      "closure_mean_abs_error_pts": 9.35340540445023,
+      "openloop_mean_abs_error_pts": 12.291114361987999
+    },
+    "mixed": {
+      "n_pairs": 105,
+      "closure_mean_abs_error_pts": 8.081784505142686,
+      "openloop_mean_abs_error_pts": 9.419882170713294
+    },
+    "both_windows_pre_meter": {
+      "n_pairs": 3,
+      "closure_mean_abs_error_pts": 21.021686196712633,
+      "openloop_mean_abs_error_pts": 17.758081977379913
+    }
+  },
+  "resolution": {
+    "posterior_sd_pts": 9.404727291980363,
+    "one_sided_90pct_detectable_pct": 12.053098497402035
+  }
+}

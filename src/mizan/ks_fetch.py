@@ -3,8 +3,12 @@
 Three sources, none of which needs a credential:
 
 * **WIMAS** (Kansas Department of Agriculture, Division of Water Resources, served by
-  the Kansas Geological Survey). Per-water-right annual **metered** pumping. This is the
-  withheld truth: the only abstraction ground truth at this density anywhere.
+  the Kansas Geological Survey). Per-water-right annual **reported** water use, one
+  report per point of diversion, each carrying the code that records how the volume was
+  measured (KGS OFR 2005-30). Codes A, M and I are meter readings; G is hours of pump
+  operation times a rate. In these six counties the meter-coded share of the volume is
+  a quarter in 2000 and 98.8 per cent or more from 2009. This is the withheld truth,
+  and only the years from 2009 are called metered.
 * **WIZARD** (Kansas Geological Survey). Annual winter water levels at observation and
   irrigation wells.
 * **SSEBop** (USGS EROS). Annual actual evapotranspiration for the conterminous United
@@ -194,8 +198,44 @@ def wimas_use(sess: Session, pdiv_id: int) -> dict:
     return out
 
 
+USE_FILE = "download.cfm?type=wuse&syear={y0}&eyear={y1}&active=no"
+
+
+def fetch_county_use(county: str, out_dir: Path, y0: int = 1990, y1: int = 2025,
+                     log=print) -> Path:
+    """The WIMAS water-use file for one county: one row per right, point and year.
+
+    This is the complete record the history page summarises. It carries `af_used`, the
+    measurement code `wur_code`, the metered quantity and its unit, hours pumped and
+    pump rate, and the county of the point of diversion. The site writes the file to a
+    download area and hands back its link.
+    """
+    out_dir.mkdir(parents=True, exist_ok=True)
+    dest = out_dir / "wimas_wuse_{}.txt".format(county)
+    if dest.exists():
+        log("  {}: use file cached".format(county))
+        return dest
+    sess = Session()
+    sess.accept_wimas()
+    _select_county(sess, county)
+    page = sess.get(WIMAS + USE_FILE.format(y0=y0, y1=y1), timeout=900)
+    links = re.findall(r'href="(https://maps\.kgs\.ku\.edu/[^"]+\.txt)"', page)
+    if not links:
+        raise RuntimeError("WIMAS returned no use file for " + county)
+    raw = urllib.request.urlopen(
+        urllib.request.Request(links[0], headers={"User-Agent": UA}), timeout=900).read()
+    dest.write_bytes(raw)
+    log("  {}: use file, {} rows".format(county, raw.count(b"\n")))
+    return dest
+
+
 def fetch_county(county: str, out_dir: Path, workers: int = 4, log=print) -> dict:
-    """Points of diversion and per-water-right metered annual use for one county."""
+    """Points of diversion and per-water-right reported annual use for one county.
+
+    The history page reports one point of diversion per water right. Rights with
+    several reporting points are under-counted here, by 7 to 10 per cent of the block
+    volume; `fetch_county_use` retrieves the complete per-point record.
+    """
     out_dir.mkdir(parents=True, exist_ok=True)
     dest = out_dir / "wimas_{}.json".format(county)
     if dest.exists():

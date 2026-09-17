@@ -190,6 +190,85 @@ def metered_annual() -> tuple[np.ndarray, dict]:
                "years": years.tolist()}
 
 
+# The per-report measurement code WIMAS carries on every water-use record, from the
+# code table in KGS Open-File Report 2005-30. Three codes mean a meter was read: A (or
+# 7), metered acre-feet; M (or 8), metered gallons; I, metered acre-inches. G is a
+# quantity computed from hours of pump operation and a pump rate; F is a field
+# inspection. Every other code is a non-use or administrative report and carries no
+# volume. The lower-case forms occur three times in the six counties.
+METER_CODES = frozenset({"A", "7", "M", "8", "I", "a", "m"})
+HOURS_CODES = frozenset({"G"})
+FIELD_CODES = frozenset({"F"})
+
+# The first year every report in the block is meter-coded, to within 1.2 per cent of
+# the volume. GMD4 records 2009 as the first year all of its wells were metered.
+METERED_ERA_YEAR0 = 2009
+
+
+def _use_records(county: str) -> list[dict]:
+    """One row per (water right, point of diversion, year) from the WIMAS use file.
+
+    The file joins one row per aquifer code, so a report can appear twice with
+    everything else equal; five pairs in the six counties pair a filed report with a
+    blank one. Each (right, point, year) keeps the row carrying the largest volume.
+    """
+    import csv
+    rows = list(csv.reader((DATA / f"wimas_wuse_{county}.txt").open(
+        newline="", encoding="latin-1")))
+    head = [x.strip() for x in rows[0]]
+    best: dict[tuple, dict] = {}
+    for r in rows[1:]:
+        if len(r) != len(head):
+            continue
+        d = dict(zip(head, [x.strip() for x in r]))
+        try:
+            d["af"] = float(d["af_used"])
+        except ValueError:
+            d["af"] = 0.0
+        k = (d["wr_id"], d["pdiv_id"], d["wua_year"])
+        if k not in best or d["af"] > best[k]["af"]:
+            best[k] = d
+    return list(best.values())
+
+
+def reported_annual() -> tuple[np.ndarray, np.ndarray, dict]:
+    """County-annual reported irrigation pumping, m3/yr, split by how it was measured.
+
+    Returns `(q, share, meta)`: `q` has shape (3, 6, nyear) with the volume that is
+    meter-coded, hours-times-rate coded, and field-inspection coded on the first axis;
+    `share[c, y]` is the metered fraction of the county-year total. Every point of
+    diversion files its own report, and the row carries the point's county, so a right
+    whose points fall in two counties is attributed by where each report was filed.
+
+    This is the whole record. `metered_annual()` above read one point of diversion per
+    right from the history page and so under-counts rights with several reporting
+    points; it is kept because the published `_v3` scores were computed against it.
+    """
+    years = np.arange(YEAR0, YEAR1 + 1)
+    q = np.zeros((3, len(COUNTIES), years.size))
+    n = np.zeros((3, len(COUNTIES), years.size), dtype=int)
+    other = 0.0
+    for ci, c in enumerate(COUNTIES):
+        for d in _use_records(c):
+            y = int(d["wua_year"])
+            if not (YEAR0 <= y <= YEAR1) or d["af"] <= 0.0:
+                continue
+            code = d["wur_code"]
+            k = (0 if code in METER_CODES else 1 if code in HOURS_CODES
+                 else 2 if code in FIELD_CODES else -1)
+            if k < 0:
+                other += d["af"]
+                continue
+            cj = COUNTIES.index(d["county"]) if d["county"] in COUNTIES else ci
+            q[k, cj, y - YEAR0] += d["af"] * AF_TO_M3
+            n[k, cj, y - YEAR0] += 1
+    tot = q.sum(axis=0)
+    share = np.where(tot > 0, q[0] / np.where(tot > 0, tot, 1.0), np.nan)
+    return q, share, {"years": years.tolist(), "n_reports": n.tolist(),
+                      "volume_on_other_codes_af": other,
+                      "metered_era_year0": METERED_ERA_YEAR0}
+
+
 def diversion_weights(region: Region) -> np.ndarray:
     """Per-cell share of each county's pumping, from the licensed diversion points.
 

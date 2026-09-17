@@ -578,3 +578,42 @@ taken from a gridded product, before this can be retried.
 The code stays and is reachable under `KTAG=_v4`; the published rung stays `_v3`. This is
 recorded rather than removed because the prediction was written down before the run
 finished, and a prediction that fails is worth exactly as much as one that does not.
+
+### The Kansas truth, labelled metered over the whole record. Corrected to the metered era
+
+Reviewed 17 September 2026. The withheld series was read from the WIMAS history page
+and described everywhere as per-water-right metered annual pumping, 2000 to 2024. The
+page reports use; it does not say how the use was measured. WIMAS does, on every
+report: the water-use file the site writes on request carries a code from the table in
+KGS OFR 2005-30, where A, M and I are meter readings and G is hours of pump operation
+times a rate. Read against that code, the meter-coded share of the block's reported
+volume is 23.6 per cent in 2000, 28.7 in 2005, 52.1 in 2006, 68.7 in 2007, 86.4 in
+2008, and 98.8 per cent or more in every year from 2009, which is the year GMD4 records
+as the first with every well metered. So 2000 to 2008 was never metered truth, and the
+label was wrong for nine of the twenty-five years.
+
+The same file showed a second defect. The history page reports one point of diversion
+at a time and the fetcher read one point per water right; use is filed per point, so a
+right with several reporting points was under-counted. The complete per-point record
+runs 6.9 to 9.8 per cent above the series first read in every year, and 2 to 16 per
+cent by county.
+
+**What was done.** `ks_fetch.fetch_county_use` retrieves the use file, `ks_data.reported_annual`
+builds the truth from it with the code on each report, and `scripts/27_metered_era.py`
+scores every published Kansas quantity again on 2009 to 2024, against the complete
+record. Nothing on the estimate side was re-run: the posteriors are the published ones
+and never saw a meter. A guard holds the era to the code shares, and its corruption,
+the era started in 2008, fails it.
+
+**What it did to the numbers.** The five-year change, the headline, moves from 8.7
+points on 136 pairs to 9.4 on the 28 pairs the era admits; the best meter-free bar
+moves from 9.9 to 12.3, so the margin widens from 1.2 to 2.9 points, the closure is
+closer than the open loop on 75 per cent of pairs against 59, its interval covers 86 per
+cent of the metered changes against 89, and the crossover stays at four years. The
+interannual skill moves from +0.19 to +0.22. The level moves the other way: with the
+truth 7 to 10 per cent higher the closure's basin bias goes from -7.4 to -15.5 per cent
+and its relative error from 25.4 to 28.6, and every other account moves down with it.
+Both named contrasts inside the era have the closure overstating the decline, -15.5
+against a metered -6.0 on the GMD4 LEMA and -21.3 against -5.8 on the era's endpoints,
+with the area-times-depth bar closer on both. The `_v3` results files are kept as they
+were produced; `results/metered_era_v3.json` is the scoring to quote against meters.

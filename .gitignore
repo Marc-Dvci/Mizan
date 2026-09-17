@@ -11,6 +11,7 @@ results/voi.npz
 # Retrieved by `scripts/10_kansas_fetch.py` from public hosts.
 data/kansas/ssebop/
 data/kansas/wimas_*.json
+data/kansas/wimas_wuse_*.txt
 data/kansas/wizard_levels.json
 data/kansas/precip_annual.json
 data/kansas/mirad/

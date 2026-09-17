@@ -560,6 +560,152 @@ def main():
               f"resolves, and the resolution analysis said so before the meters were "
               f"opened.\n")
 
+    me = load(f"metered_era{KTAG}.json")
+    if me:
+        au = me["audit"]
+        y0 = me["_meta"]["era_year0"]
+        section(f"The same scores on the metered era, {y0} to 2024")
+        print("WIMAS records on every water-use report the code that says how its "
+              "volume was measured (KGS OFR 2005-30): A, M and I are meter readings, "
+              "G is hours of pump operation times a rate. The scores above are computed "
+              "against the whole 2000 to 2024 record. This section computes them on the "
+              "years the record is fully metered, and against the truth rebuilt from "
+              "the per-point use file, which the history page under-counts.\n")
+        print("| year | meter-coded share of reported volume, block | lowest county | "
+              "complete record over the series first read |")
+        print("|---:|---:|---:|---:|")
+        for y in range(2000, 2025):
+            s = au["metered_share_by_year"][str(y)]
+            m = au["min_county_metered_share_by_year"][str(y)]
+            r = au["reported_over_published_truth_by_year"][str(y)]
+            b = "**" if y >= y0 else ""
+            print(f"| {b}{y}{b} | {100 * s:.1f}% | {100 * m:.1f}% | {r:.3f} |")
+        print(f"\nThe first year from which every later year is above 98 per cent is "
+              f"**{au['first_year_every_later_year_above_98pct']}**, the year GMD4 "
+              f"records as the first with every well metered. The series first read "
+              f"took one point of diversion per water right from the history page; the "
+              f"use file carries one report per point, and rights with several points "
+              f"are under-counted by that route, so the complete record runs "
+              f"{100 * (min(au['reported_over_published_truth_by_year'].values()) - 1):.0f} "
+              f"to {100 * (max(au['reported_over_published_truth_by_year'].values()) - 1):.0f} "
+              f"per cent above it in every year. The correction is close to uniform in "
+              f"time, so a percentage change between two periods barely moves; a level "
+              f"moves with it.\n")
+
+        L = me["level"]
+        print("**Level, district-year, against the complete record.**\n")
+        print("| account | 2000 to 2024, MAE Mm3/yr | MAPE | basin bias | "
+              f"{y0} to 2024, MAE Mm3/yr | MAPE | basin bias | 90% cover |")
+        print("|---|---:|---:|---:|---:|---:|---:|---:|")
+        names = {"CLOSURE": "**the closure, evapotranspiration and heads**",
+                 "ET": "evapotranspiration only", "H": "heads only",
+                 "FLAT": "mapped irrigated area x one acre-foot per acre",
+                 "WATERBAL": "the same, plus half the year's precipitation deficit",
+                 "OPENLOOP": "unmixed evapotranspiration over a fixed efficiency of 0.80"}
+        for k in ("CLOSURE", "ET", "H", "FLAT", "WATERBAL", "OPENLOOP"):
+            e = L["reported_truth_metered_era"].get(k)
+            f = L["reported_truth_all_years"].get(k)
+            if e is None:
+                continue
+            fa = (f"{f['mae_mcm']:.2f} | {f['mape_pct']:.1f}% | {f['basin_bias_pct']:+.1f}%"
+                  if f else "| |")
+            cv = f"{100 * e['cover_90']:.0f}%" if "cover_90" in e else "none"
+            print(f"| {names[k]} | {fa} | {e['mae_mcm']:.2f} | {e['mape_pct']:.1f}% | "
+                  f"{e['basin_bias_pct']:+.1f}% | {cv} |")
+        c3 = L["published_truth_all_years"]["CLOSURE"]
+        ce = L["reported_truth_metered_era"]["CLOSURE"]
+        print(f"\nAgainst the series first read the closure's basin bias was "
+              f"{c3['basin_bias_pct']:+.1f} per cent; against the complete record on "
+              f"the metered era it is {ce['basin_bias_pct']:+.1f}. The bar a reviewer "
+              f"can compute in a spreadsheet stays below the closure on the level, as "
+              f"reported above, and every account moves down by the same correction.\n")
+
+        A = me["anomaly_metered_era"]
+        print(f"**Interannual anomaly, {y0} to 2024**, skill against a flat estimate, "
+              "the amplitude factor leave-one-county-out as above.\n")
+        print("| estimate | r | raw | LOCO | oracle |")
+        print("|---|---:|---:|---:|---:|")
+        for k in ("CLOSURE", "ET", "H", "OPENLOOP"):
+            v = A[k]
+            b = "**" if k == "CLOSURE" else ""
+            print(f"| {b}{names[k].strip('*')}{b} | {v['r']:.2f} | {v['raw_skill']:+.2f} | "
+                  f"{b}{v['loco_skill']:+.2f}{b} | {v['oracle_skill']:+.2f} |")
+
+        S = me["sweep_5yr"]
+        print(f"\n**The change between two five-year periods, {y0} to 2024.** Every "
+              f"non-overlapping five-year window pair the era admits, "
+              f"{S['metered_era_reported_truth']['n_pairs']} of them, beside the "
+              f"{S['all_years_published_truth']['n_pairs']} of the whole record.\n")
+        print("| account | whole record, series first read | whole record, complete "
+              f"record | metered era {y0} to 2024 |")
+        print("|---|---:|---:|---:|")
+        for k in ("FLAT", "WATERBAL", "OPENLOOP", "CLOSURE"):
+            b = "**" if k == "CLOSURE" else ""
+            print(f"| {b}{names[k].strip('*')}{b} | "
+                  f"{S['all_years_published_truth']['mean_abs_error_pts'][k]:.1f} | "
+                  f"{S['all_years_reported_truth']['mean_abs_error_pts'][k]:.1f} | "
+                  f"{b}{S['metered_era_reported_truth']['mean_abs_error_pts'][k]:.1f}{b} |")
+        se = S["metered_era_reported_truth"]
+        best = min(se["mean_abs_error_pts"][k] for k in ("FLAT", "WATERBAL", "OPENLOOP"))
+        print(f"\nOn the metered era the closure scores "
+              f"{se['mean_abs_error_pts']['CLOSURE']:.1f} points against "
+              f"{best:.1f} for the best meter-free bar; it is closer than the open loop "
+              f"on {se['closure_beats_pct']['OPENLOOP']:.0f} per cent of pairs, its 90 "
+              f"per cent interval covers the metered change in "
+              f"{100 * se['coverage_90']:.0f} per cent of them, and it declares a change "
+              f"in {se['n_declared_change']} pairs with the sign right in "
+              f"{se['n_declared_change_sign_correct']}. The metered change is negative in "
+              f"{se['n_metered_change_negative']} of {se['n_pairs']} pairs, so the sign "
+              f"is not a test here either.\n")
+
+        cu = me["window_curve_metered_era"]["by_window_years"]
+        print(f"| averaging window | pairs | closure | best meter-free bar | "
+              f"closure interval covers |")
+        print("|---:|---:|---:|---:|---:|")
+        for w in sorted(cu, key=int):
+            r = cu[w]
+            mm = r["mean_abs_error_pts"]
+            bb = min(mm[k] for k in ("FLAT", "WATERBAL", "OPENLOOP"))
+            b = "**" if mm["CLOSURE"] < bb else ""
+            print(f"| {w} years | {r['n_pairs']} | {b}{mm['CLOSURE']:.1f}{b} | {bb:.1f} | "
+                  f"{100 * r['coverage_90']:.0f}% |")
+        print(f"\nThe crossover stays at a "
+              f"{me['window_curve_metered_era']['crossover_window_years']}-year window.\n")
+
+        CT = me["contrasts_metered_era"]
+        print("**The named contrasts inside the era.** The GMD4 LEMA contrast is the "
+              "only one of the three policy contrasts that lies inside it; the era's "
+              "own long contrast is its first five years against its last five, set by "
+              "the era's endpoints.\n")
+        print("| contrast | metered | closure | 90% interval | area x depth | + weather "
+              "| open loop |")
+        print("|---|---:|---:|---:|---:|---:|---:|")
+        for k, row in CT.items():
+            print(f"| {k}: {row['why']} | {row['metered_pct']:+.1f}% | "
+                  f"{row['CLOSURE']['pct']:+.1f}% | [{row['CLOSURE']['ci90'][0]:+.1f}, "
+                  f"{row['CLOSURE']['ci90'][1]:+.1f}] | {row['FLAT']['pct']:+.1f}% | "
+                  f"{row['WATERBAL']['pct']:+.1f}% | {row['OPENLOOP']['pct']:+.1f}% |")
+        print("\nOn both named contrasts the closure overstates the decline and the "
+              "area-times-depth bar is closer; on the era contrast the metered change "
+              "sits just outside the closure's interval. The window sweep is the "
+              "aggregate; the two named contrasts are reported beside it because a "
+              "reader will compute them.\n")
+
+        G = me["closure_error_by_metered_share"]
+        print("**Does the closure's error depend on how metered its truth was?** The "
+              "whole-record five-year pairs, grouped by the smaller of the two windows' "
+              "meter-coded shares.\n")
+        print("| pairs | n | closure | open loop |")
+        print("|---|---:|---:|---:|")
+        lab = {"both_windows_metered": "both windows above 98 per cent metered",
+               "mixed": "one window straddles the transition",
+               "both_windows_pre_meter": "both windows below 90 per cent metered"}
+        for k, v in G.items():
+            print(f"| {lab[k]} | {v['n_pairs']} | "
+                  f"{v['closure_mean_abs_error_pts']:.1f} | "
+                  f"{v['openloop_mean_abs_error_pts']:.1f} |")
+        print("")
+
     al = load("aljawf.json")
     if al:
         section("L3 Al Jawf: how far apart the published instruments are on the Saq")

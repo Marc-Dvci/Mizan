@@ -298,6 +298,103 @@ The posterior spread on a basin-wide five-year-against-five-year contrast is 9.4
 **Where it runs out.** The Sheridan-6 Local Enhanced Management Area covers 256 km2 inside a 2,331 km2 county. Against the four clean neighbouring counties the meters give a difference in differences of -8.7 points; the closure gives +13.4 plus or minus 18.0, with the wrong sign and a 90 per cent interval of [-15.1, +41.9]. A policy on a tenth of a county is below what this observing system resolves, and the resolution analysis said so before the meters were opened.
 
 
+## The same scores on the metered era, 2009 to 2024
+
+WIMAS records on every water-use report the code that says how its volume was measured (KGS OFR 2005-30): A, M and I are meter readings, G is hours of pump operation times a rate. The scores above are computed against the whole 2000 to 2024 record. This section computes them on the years the record is fully metered, and against the truth rebuilt from the per-point use file, which the history page under-counts.
+
+| year | meter-coded share of reported volume, block | lowest county | complete record over the series first read |
+|---:|---:|---:|---:|
+| 2000 | 23.6% | 13.7% | 1.069 |
+| 2001 | 23.2% | 13.6% | 1.071 |
+| 2002 | 25.0% | 15.1% | 1.071 |
+| 2003 | 25.5% | 14.9% | 1.081 |
+| 2004 | 26.8% | 15.9% | 1.074 |
+| 2005 | 28.7% | 15.5% | 1.081 |
+| 2006 | 52.1% | 41.5% | 1.077 |
+| 2007 | 68.7% | 62.9% | 1.083 |
+| 2008 | 86.4% | 83.1% | 1.087 |
+| **2009** | 98.8% | 98.0% | 1.089 |
+| **2010** | 99.1% | 95.9% | 1.086 |
+| **2011** | 99.4% | 98.9% | 1.083 |
+| **2012** | 99.2% | 98.7% | 1.084 |
+| **2013** | 99.5% | 99.2% | 1.085 |
+| **2014** | 99.3% | 98.7% | 1.086 |
+| **2015** | 99.6% | 98.6% | 1.094 |
+| **2016** | 99.6% | 98.9% | 1.087 |
+| **2017** | 99.6% | 99.3% | 1.098 |
+| **2018** | 99.8% | 99.4% | 1.096 |
+| **2019** | 100.0% | 99.9% | 1.096 |
+| **2020** | 100.0% | 99.4% | 1.088 |
+| **2021** | 99.9% | 99.6% | 1.092 |
+| **2022** | 100.0% | 99.8% | 1.088 |
+| **2023** | 99.9% | 99.7% | 1.096 |
+| **2024** | 100.0% | 99.8% | 1.088 |
+
+The first year from which every later year is above 98 per cent is **2009**, the year GMD4 records as the first with every well metered. The series first read took one point of diversion per water right from the history page; the use file carries one report per point, and rights with several points are under-counted by that route, so the complete record runs 7 to 10 per cent above it in every year. The correction is close to uniform in time, so a percentage change between two periods barely moves; a level moves with it.
+
+**Level, district-year, against the complete record.**
+
+| account | 2000 to 2024, MAE Mm3/yr | MAPE | basin bias | 2009 to 2024, MAE Mm3/yr | MAPE | basin bias | 90% cover |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| **the closure, evapotranspiration and heads** | 20.47 | 26.8% | -14.6% | 21.22 | 28.6% | -15.5% | 91% |
+| evapotranspiration only | | | | 17.39 | 20.4% | -13.6% | 99% |
+| heads only | | | | 22.74 | 31.7% | -6.3% | 86% |
+| mapped irrigated area x one acre-foot per acre | 18.25 | 23.6% | -13.7% | 16.62 | 23.0% | -8.0% | none |
+| the same, plus half the year's precipitation deficit | 15.67 | 20.6% | -13.9% | 13.75 | 19.1% | -9.7% | none |
+| unmixed evapotranspiration over a fixed efficiency of 0.80 | 26.73 | 44.3% | -27.1% | 28.28 | 49.3% | -29.5% | none |
+
+Against the series first read the closure's basin bias was -7.4 per cent; against the complete record on the metered era it is -15.5. The bar a reviewer can compute in a spreadsheet stays below the closure on the level, as reported above, and every account moves down by the same correction.
+
+**Interannual anomaly, 2009 to 2024**, skill against a flat estimate, the amplitude factor leave-one-county-out as above.
+
+| estimate | r | raw | LOCO | oracle |
+|---|---:|---:|---:|---:|
+| **the closure, evapotranspiration and heads** | 0.69 | +0.23 | **+0.22** | +0.24 |
+| evapotranspiration only | 0.69 | +0.22 | +0.21 | +0.26 |
+| heads only | 0.19 | -0.14 | -0.02 | +0.00 |
+| unmixed evapotranspiration over a fixed efficiency of 0.80 | 0.66 | -0.05 | +0.13 | +0.21 |
+
+**The change between two five-year periods, 2009 to 2024.** Every non-overlapping five-year window pair the era admits, 28 of them, beside the 136 of the whole record.
+
+| account | whole record, series first read | whole record, complete record | metered era 2009 to 2024 |
+|---|---:|---:|---:|
+| mapped irrigated area x one acre-foot per acre | 15.0 | 14.5 | 14.7 |
+| the same, plus half the year's precipitation deficit | 11.4 | 10.8 | 13.5 |
+| unmixed evapotranspiration over a fixed efficiency of 0.80 | 9.9 | 10.2 | 12.3 |
+| **the closure, evapotranspiration and heads** | 8.7 | 8.6 | **9.4** |
+
+On the metered era the closure scores 9.4 points against 12.3 for the best meter-free bar; it is closer than the open loop on 75 per cent of pairs, its 90 per cent interval covers the metered change in 86 per cent of them, and it declares a change in 22 pairs with the sign right in 22. The metered change is negative in 24 of 28 pairs, so the sign is not a test here either.
+
+| averaging window | pairs | closure | best meter-free bar | closure interval covers |
+|---:|---:|---:|---:|---:|
+| 2 years | 91 | 15.2 | 11.7 | 90% |
+| 3 years | 66 | 13.9 | 11.7 | 79% |
+| 4 years | 45 | **11.6** | 12.3 | 84% |
+| 5 years | 28 | **9.4** | 12.3 | 86% |
+| 6 years | 15 | **6.1** | 13.0 | 100% |
+| 7 years | 6 | **6.0** | 11.9 | 100% |
+| 8 years | 1 | **7.0** | 10.1 | 100% |
+
+The crossover stays at a 4-year window.
+
+**The named contrasts inside the era.** The GMD4 LEMA contrast is the only one of the three policy contrasts that lies inside it; the era's own long contrast is its first five years against its last five, set by the era's endpoints.
+
+| contrast | metered | closure | 90% interval | area x depth | + weather | open loop |
+|---|---:|---:|---:|---:|---:|---:|
+| GMD4: the district-wide GMD4 LEMA period against the five years before it | -6.0% | -15.5% | [-30.7, +0.2] | -1.5% | +12.2% | -12.2% |
+| ERA: the last five years of the metered era against its first five | -5.8% | -21.3% | [-36.7, -5.8] | -5.0% | +5.9% | -30.3% |
+
+On both named contrasts the closure overstates the decline and the area-times-depth bar is closer; on the era contrast the metered change sits just outside the closure's interval. The window sweep is the aggregate; the two named contrasts are reported beside it because a reader will compute them.
+
+**Does the closure's error depend on how metered its truth was?** The whole-record five-year pairs, grouped by the smaller of the two windows' meter-coded shares.
+
+| pairs | n | closure | open loop |
+|---|---:|---:|---:|
+| both windows above 98 per cent metered | 28 | 9.4 | 12.3 |
+| one window straddles the transition | 105 | 8.1 | 9.4 |
+| both windows below 90 per cent metered | 3 | 21.0 | 17.8 |
+
+
 ## L3 Al Jawf: how far apart the published instruments are on the Saq
 
 No metered abstraction exists for this basin, so nothing here is scored. What is reported is the disagreement between the instruments a regulator would reach for today, over one aquifer, from public data.

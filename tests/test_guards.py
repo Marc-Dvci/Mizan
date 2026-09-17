@@ -248,6 +248,7 @@ def test_kansas_meters_do_not_reach_the_estimator():
 
     src = inspect.getsource(R)
     assert "metered_annual" not in src
+    assert "reported_annual" not in src
     assert "wimas_" not in src.replace("ks_fetch", "")
 
     driver = (Path(__file__).resolve().parents[1] / "scripts" / "11_kansas_run.py"
@@ -255,6 +256,39 @@ def test_kansas_meters_do_not_reach_the_estimator():
     before, after = driver.split("q_true, meta = K.metered_annual()")
     assert "q_true" not in before
     assert "K.metered_annual" not in after
+    assert "reported_annual" not in driver
+
+
+def test_every_year_called_metered_is_meter_coded_and_the_year_before_is_not():
+    """A year is called metered only if WIMAS says so on the reports themselves.
+
+    Every report carries the code that records how its volume was measured. The
+    metered era is the run of years over which the meter-coded share of the block's
+    reported volume stays above 98 per cent, and above 95 in every county. The
+    corruption is the same era started one year earlier: 2008 is 86 per cent metered
+    block-wide and 83 in its lowest county, and the same check has to reject it.
+    """
+    from mizan import ks_data as K
+
+    if not (K.DATA / "wimas_wuse_SD.txt").exists():
+        pytest.skip("WIMAS use files not retrieved (make kansas-data)")
+    q, share, meta = K.reported_annual()
+    years = np.array(meta["years"])
+    block = q[0].sum(axis=0) / q.sum(axis=(0, 1))
+
+    era = years >= K.METERED_ERA_YEAR0
+    assert (block[era] > 0.98).all()
+    assert (np.nanmin(share[:, era], axis=0) > 0.95).all()
+
+    # The corruption: one more year, and both checks have to fail.
+    early = years >= K.METERED_ERA_YEAR0 - 1
+    assert not (block[early] > 0.98).all()
+    assert not (np.nanmin(share[:, early], axis=0) > 0.95).all()
+
+    # And the era is where the scoring reads it from, not a number typed twice.
+    script = (Path(__file__).resolve().parents[1] / "scripts" / "27_metered_era.py"
+              ).read_text(encoding="utf-8")
+    assert "K.METERED_ERA_YEAR0" in script
 
 
 def test_loco_shrink_never_sees_the_county_it_is_applied_to():

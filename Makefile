@@ -8,7 +8,7 @@ NA ?= 8
 SAQ_SIGMA ?= 20.4
 EE_PROJECT ?= $(EARTHENGINE_PROJECT)
 
-.PHONY: all setup env truth ablation allocation voi detection figures report test clean         robustness null kansas-data kansas kansas-score aljawf verify referee gain saq-gain drift reproduce reproduce-ee
+.PHONY: all setup env truth ablation allocation voi detection figures report test clean         robustness null kansas-data kansas kansas-score metered-era aljawf verify referee gain saq-gain drift reproduce reproduce-ee
 
 all: truth ablation allocation voi detection null figures report
 
@@ -24,6 +24,7 @@ reproduce:
 	$(MAKE) kansas
 	$(MAKE) kansas-score
 	$(MAKE) verify
+	$(MAKE) metered-era
 	$(MAKE) gain
 	$(MAKE) drift
 	$(MAKE) report
@@ -117,6 +118,12 @@ kansas-score: null
 	$(PY) scripts/12_kansas_anomaly.py --tag $(KTAG)
 	$(PY) scripts/14_kansas_resolution.py --tag $(KTAG) --out kansas_resolution$(KTAG).json
 	$(PY) scripts/15_kansas_shrink.py --tag $(KTAG)
+
+# Every Kansas score again, on the years the truth is fully metered. WIMAS codes each
+# report by how it was measured; the block is meter-coded from 2009. The truth is also
+# rebuilt from the per-point use file, which the history page under-counts.
+metered-era:
+	$(PY) scripts/27_metered_era.py --tag $(KTAG)
 
 # L3. Everything is read live from Earth Engine, so this target needs an authenticated
 # project and nothing else: `earthengine authenticate`, then set EARTHENGINE_PROJECT to

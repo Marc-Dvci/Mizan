@@ -39,11 +39,15 @@ per cent intervals cover 99 and 77 per cent of the withheld truth: wider than no
 which is the correct direction to err for a constraint on irreversible loss.
 
 **L2 Kansas, against real meters.** Six counties over the Ogallala, 2000 to 2024, scored
-against 3,545 per-water-right metered annual pumping records the estimator never saw.
+against the per-water-right annual water-use reports of 3,545 rights the estimator never
+saw. WIMAS codes every report by how its volume was measured; the block is meter-coded
+from 2009, so the numbers called metered below are scored on 2009 to 2024, and the
+whole reported record is beside them.
 
 It does not win on every metric, and this repository says where it loses. On the *level*
-of county pumping, mapped irrigated area times one acre-foot per acre scores 14.78 Mm3/yr
-against 16.57 for the closure: arithmetic that needs no aquifer at all is closer. That
+of county pumping, mapped irrigated area times one acre-foot per acre scores 16.62 Mm3/yr
+against 21.22 for the closure on the metered era: arithmetic that needs no aquifer at all
+is closer, and the closure's basin bias there is -15.5 per cent. That
 arithmetic is a weather model, carrying 92 per cent of its own interannual variance from
 precipitation against 56 per cent for the meters, so it sees the half the weather causes
 and is blind to the half a policy changes.
@@ -52,12 +56,14 @@ On the *change* between two periods, which is what a reduction target is written
 
 | Averaging window | Pairs | Closure | Best meter-free bar | Closure interval covers |
 |---:|---:|---:|---:|---:|
-| 4 years | 171 | 10.9 | 11.0 | 84% |
-| 5 years | 136 | **8.7** | 9.9 | 89% |
-| 8 years | 55 | **4.5** | 9.1 | 100% |
+| 4 years | 45 | 11.6 | 12.3 | 84% |
+| 5 years | 28 | **9.4** | 12.3 | 86% |
+| 6 years | 15 | **6.1** | 13.0 | 100% |
 
-The closure beats every meter-free bar from a four-year window upward, the gap widens with
-every year added, and it is the only one of these accounts that states an interval at all.
+That is the metered era, 2009 to 2024. On the whole reported record, 2000 to 2024, the
+five-year figure is 8.6 on 136 pairs against 10.2 for the best bar. The closure beats
+every meter-free bar from a four-year window upward on both, the gap widens with every
+year added, and it is the only one of these accounts that states an interval at all.
 
 **The decision product.** Every cubic kilometre of water taken from the test basin destroys
 about 147 Mm3 of storage capacity permanently, verified in full MODFLOW across the
@@ -86,8 +92,9 @@ make reproduce      # every rung below, in order, ending with the report
 make test           # guards, each paired with a corruption that must break it
 make robustness     # repeat the headline rows across prior ensembles and truths
 make kansas-data    # retrieve the public Kansas records, no account needed
-make kansas         # the L2 rung, scored against metered pumping
+make kansas         # the L2 rung, scored against reported pumping
 make kansas-score   # the anomaly, resolution and amplitude scoring on top of it
+make metered-era    # every Kansas score again on the years the record is metered
 make verify         # the window-pair scoring a reduction target is written in
 make aljawf         # the L3 rung, read live from Earth Engine
 make env            # rewrite the lock and the licence audit from what is installed
@@ -169,14 +176,17 @@ DECISION_LOG.md            what was tried, what failed, and what replaced it
 |---|---|---|
 | **L0** | Whether the inverse problem is identifiable at all, against a truth the estimator never sees | `scripts/00_truth.py` to `scripts/07_report.py` |
 | **L0 robustness** | Whether the result survives three independent prior ensembles, and whether it survives removing the planted spread in the consumptive fraction | `make robustness` |
-| **L2 Kansas** | Whether it recovers **real metered abstraction**, in six counties of the Northwest Kansas groundwater management district over the Ogallala, 2000 to 2024 | `make kansas-data && make kansas && make kansas-score` |
+| **L2 Kansas** | Whether it recovers **real metered abstraction**, in six counties of the Northwest Kansas groundwater management district over the Ogallala, 2000 to 2024, and on the metered era 2009 to 2024 | `make kansas-data && make kansas && make kansas-score && make metered-era` |
 | **L3 Al Jawf** | How far apart the published instruments are over the target basin, from public data. Nothing here is fitted and nothing is scored | `make aljawf` |
 | **The mascon gain** | Whether the gravity leg's gain is identifiable at all, and what its prior costs the absolute scale of the account | `make gain` |
 | **The gain on the Saq** | What that gain is on the target basin, computed from the mascon polygons recovered from the published product rather than assumed | `make saq-gain` |
 | **The external mass trend** | What the other nuisance in the gravity operator costs when its prior is widened to the scale the L3 control boxes measure | `make drift` |
 
-L2 is scored against per-water-right metered annual pumping published by the Kansas
-Department of Agriculture through WIMAS. The meters are read once, at the end, to score.
+L2 is scored against per-water-right annual water-use reports published by the Kansas
+Department of Agriculture through WIMAS, one report per point of diversion, each with
+the code that records how it was measured. From 2009 every report in the block is
+meter-coded; before it, most volumes are hours of pump operation times a rate. The
+reports are read once, at the end, to score.
 Nothing upstream of the scoring touches them. The observations the estimator is allowed
 to see are SSEBop actual evapotranspiration unmixed against the MIrAD-US irrigation map,
 and WIZARD annual water levels. Two of the four legs are absent there and are declared
@@ -199,7 +209,7 @@ free.
 
 | Source | What it provides | Held by |
 |---|---|---|
-| **WIMAS** | Per-water-right metered annual pumping, the withheld truth for L2 | Kansas Department of Agriculture, Division of Water Resources, served by the Kansas Geological Survey |
+| **WIMAS** | Per-water-right annual water-use reports with their measurement code, the withheld truth for L2; meter-coded from 2009 | Kansas Department of Agriculture, Division of Water Resources, served by the Kansas Geological Survey |
 | **WIZARD** | Annual winter water levels at 449 wells | Kansas Geological Survey |
 | **SSEBop** | Annual actual evapotranspiration, CONUS, 1 km | USGS EROS |
 | **MIrAD-US** | Irrigated agriculture, CONUS, 250 m, 2002 to 2017 | USGS EROS |

@@ -24,7 +24,7 @@ DATA = ROOT / "data" / "kansas"
 def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--what", type=str,
-                    default="wizard,ssebop,mirad,hpsat,precip,wimas")
+                    default="wizard,ssebop,mirad,hpsat,precip,wimas,wuse")
     ap.add_argument("--workers", type=int, default=4)
     ap.add_argument("--y0", type=int, default=2000)
     ap.add_argument("--y1", type=int, default=2025)
@@ -55,8 +55,15 @@ def main() -> None:
         print("NOAA nClimDiv annual county precipitation, the recharge forcing")
         K.fetch_precipitation(DATA, y0=args.y0, y1=min(args.y1, 2024))
 
+    if "wuse" in what:
+        print("WIMAS water-use files with the measurement code on every report")
+        for code, name in K.GMD4.items():
+            t = time.time()
+            K.fetch_county_use(code, DATA)
+            print("  {} ({}) {:.0f}s".format(name, code, time.time() - t))
+
     if "wimas" in what:
-        print("WIMAS metered annual pumping, GMD 4 counties")
+        print("WIMAS reported annual pumping by water right, GMD 4 counties")
         for code, name in K.GMD4.items():
             t = time.time()
             K.fetch_county(code, DATA, workers=args.workers)
