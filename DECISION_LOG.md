@@ -884,3 +884,69 @@ number, in the same table as the passes.
 TRANSFER PREDICTIONS COMMITTED FOR BLOCK west
 TRANSFER PREDICTIONS COMMITTED FOR BLOCK gmd3w
 TRANSFER PREDICTIONS COMMITTED FOR BLOCK gmd3e
+
+### The blind transfer, scored. Five of six predictions held, and the headline moves from six counties to twenty-four
+
+Run 18 September 2026. The three blocks were fetched without their use files, run under
+the frozen `_v3` and the `_v5` arm, the posteriors committed unscored (`62a7044`,
+`c3c6373`, `6ae2d8e`), and only then were the meters opened, each block through the
+fetcher's own refusal gate.
+
+**The result.** Over the eighteen counties the method has never seen, the closure removes
+**10.9 ± 5.6 points** of relative error from the published open-loop account, clustered by
+county, which is **2.0 standard errors** and positive in **13 of 18**. Pooled over all
+twenty-four counties it is **13.4 ± 5.1, 2.6 standard errors, 17 of 24**. The published
+block alone gave 20.7 ± 12.1, 1.7 standard errors on six counties. The point estimate is
+smaller off the block it was built on and the claim is better resolved, which is the
+trade the experiment was run to make.
+
+| block | metered era | county-years | closure | ET leg | area x 1 af | + weather | open loop | gain vs open loop |
+|---|---|---:|---:|---:|---:|---:|---:|---:|
+| GMD4 north, the published block | 2009-2024 | 96 | 28.6% | 20.4% | 23.0% | 19.1% | 49.3% | +20.7 ± 12.1 |
+| West Kansas, GMD4 south and GMD1 | 2014-2024 | 66 | 37.3% | 41.5% | 34.9% | 29.3% | 44.9% | +7.6 ± 14.6 |
+| GMD3 west | 2015-2024 | 60 | 24.3% | 22.4% | 32.8% | 38.5% | 38.8% | +14.5 ± 7.5 |
+| GMD3 east | 2009-2024 | 96 | 21.2% | 19.7% | 27.2% | 29.6% | 31.9% | +10.7 ± 6.7 |
+
+**The predictions, as written.**
+
+| | prediction | result | |
+|---|---|---|---|
+| P1 | closure beats the open loop on the level in at least 12 of the 18 new counties | 13 of 18 | held |
+| P2 | 90 per cent interval covers 0.80 to 0.97 of new county-years | 0.982 | **failed** |
+| P3 | closure beats the open loop on the five-year change, mean over new blocks | 7.45 vs 7.55 points | held |
+| P4 | `_v5` beats `_v3` on the five-year change, mean over new blocks | 7.09 vs 7.45 | held |
+| P5 | area x one acre-foot has a larger error in GMD3 than on the published block | 30.0% vs 23.0%; GMD3 meters at 1.48 acre-feet per acre | held |
+| P6 | on the GMD3 blocks the closure beats area x one acre-foot on the level | 22.7% vs 30.0% | held |
+
+**P2 failed in the conservative direction and that is the finding, not an excuse.** The
+interval is too wide off the block it was calibrated on: 0.98 of new county-years fall
+inside a nominal 90 per cent band, against 0.91 on the published block, and the same
+excess appears at the 50 and 80 per cent levels (0.61 and 0.92 on GMD3 east against 0.50
+and 0.77 at home). A posterior that over-covers overstates its own uncertainty, which is
+the safe direction for a regulator and a real defect in the calibration. The two-stage
+error budget reads its structural term from the block's own residual, and on a block with
+sparser levels and larger county volumes that term comes out large; the entry now says
+the interval is conservative off the tuned block rather than calibrated everywhere.
+
+**What P5 and P6 settle.** The two arithmetic bars are calibrated to a place. Northwest
+Kansas irrigates at 1.09 acre-feet per acre, which is why one acre-foot per acre beats the
+closure there; GMD3 meters 1.42 to 1.53, and the same rule loses to the closure by 7.3
+points on those blocks. The rule does not transport and the closure reads the place, which
+is the argument the entry makes for an unmetered basin and now has a measurement behind
+it rather than an assertion.
+
+**What did not transfer.** The west block is the weakest of the four: the closure is out by
+37.3 per cent there, worse than both arithmetic bars, and Logan county alone is -55 points
+against the open loop. It is the thinnest saturated thickness of the four (the published
+USGS surface has a median under seven metres over that block, against 34 in GMD3 east),
+only 187 wells carry a usable record, and the head leg has the least to work with. It is
+reported at the same size as the blocks that went the entry's way.
+
+**The change comparison is still the weaker one.** Pooled over the new blocks the closure
+is 7.45 points against 7.55 for the open loop, a margin of 0.1 points, and it is behind
+the open loop on GMD3 east (6.8 against 5.4). Against the two arithmetic bars it is ahead
+on every block. The level comparison remains the one the record resolves.
+
+**Nothing on the published block changed.** No parameter, prior or procedure was touched
+for the transfer; the published block reproduces `_v3` byte for byte under the block table
+and a guard holds that.
