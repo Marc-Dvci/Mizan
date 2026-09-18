@@ -728,3 +728,49 @@ is the direction the 5.2 against 25.4 per cent gap runs. It does not explain the
 gap and is not claimed to. What it does is put a number on the statement that Kansas is
 the harder of the two basins for this instrument, and the Saq, with recharge near zero,
 sits at the twin's end of that range rather than at Kansas's.
+
+### How large is the margin over the best meter-free bar, and how well is it resolved
+
+Asked 18 September 2026, because the metered-era rescoring doubled the margin and a
+number that moves that much under a change of scoring needs an error bar before it is
+quoted. The margin is the mean absolute error of the best meter-free account minus the
+closure's, over every non-overlapping window pair. Its uncertainty is taken by
+leave-one-year-out: a year is dropped from the record, every window pair is rebuilt from
+what remains, and the margin is recomputed, which is the jackknife over the only unit the
+record has independent copies of.
+
+| window | whole record, 2000-2024 | metered era, 2009-2024 |
+|---:|---|---|
+| 4 years | -0.16 ± 3.23 | +0.63 ± 5.25 |
+| 5 years | **+1.57 ± 3.08** | **+2.94 ± 7.72** |
+| 6 years | +3.19 ± 3.29 | +6.92 ± 11.97 |
+| 7 years | +4.19 ± 4.11 | +5.99 ± 14.11 |
+| 8 years | +4.63 ± 4.46 | 1 pair, not estimable |
+
+**No window on either scoring puts the margin more than about one standard error above
+zero.** On the metered era no window exceeds 0.6, and dropping a single year of the
+sixteen takes the five-year margin from +2.94 to -1.10, so its sign is not robust to one
+year. On the whole record at six years and longer the margin is about one standard error
+and the worst single-year drop stays positive, +1.35 at six years, which is the strongest
+form the comparison takes anywhere in this work.
+
+**Why the pair count was never the sample size.** The submission already says the 136
+pairs are a count of contrasts rather than independent cases. That statement was never
+carried through to the margin itself. The metered era admits exactly **one** pair of
+five-year windows that shares no year with another such pair, so 28 is a count of
+overlapping contrasts drawn from sixteen years.
+
+**What this does not change.** The coverage of the posterior interval, 86 per cent on the
+era and 89 on the record against a nominal 90, is a calibration property of one account
+and needs no comparison. That no meter-free bar states an interval at all is categorical.
+The interannual anomaly skill, +0.22 leave-one-county-out against +0.24 for the oracle, is
+estimated across counties rather than window pairs. Those three claims stand at the
+precision they are stated.
+
+**What it does change.** "The closure is out by 8.7 points against 9.9 for the best
+meter-free bar" is a ranking of two point estimates whose difference this record cannot
+resolve. It stays true as an arithmetic statement about the record and must not be read
+as a demonstration that the closure is the better instrument at five years. The honest
+form is the margin with its jackknife error beside it, and the longer windows, where the
+effect is larger and survives dropping any single year, are where the comparison is
+actually made.
