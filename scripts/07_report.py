@@ -767,6 +767,61 @@ def main():
               f"dropping any single year and grows with the window. The level comparison "
               f"above is the one this record resolves.\n")
 
+    tr = load(f"transfer{KTAG}.json")
+    if tr and tr.get("pooled_new_counties"):
+        section("The same closure, frozen, on county blocks it never saw")
+        new = tr["pooled_new_counties"]
+        print("Three further blocks of six counties each, chosen before any of their "
+              "inputs was fetched and scored blind: the predictions were committed to "
+              "`DECISION_LOG.md` before the fetcher would release the use files, and the "
+              "posteriors were written without a truth in them. Each block is scored on "
+              "its own metered era by the published code rule. The error bars cluster by "
+              "county, and the new counties are pooled on their own, never with the "
+              "block the method was built on.\n")
+        print("| block | counties | metered era | county-years | metered depth, af/acre | "
+              "closure | ET leg | area x 1 af | + weather | open loop | closure 90% cover |")
+        print("|---|---|---|---:|---:|---:|---:|---:|---:|---:|---:|")
+        for blk in ("gmd4a",) + tuple(new["blocks"]):
+            r = tr["blocks"][blk]
+            lv = r["arms"][KTAG]["level"]
+            print(f"| {r['label']} | "
+                  f"{', '.join(r['names'])} | {r['metered_era_year0']}-2024 | "
+                  f"{r['n_county_years']} | {r['metered_depth_m_era'] / 0.3048:.2f} | "
+                  f"**{lv['CLOSURE']['mape_pct']:.1f}%** | "
+                  f"{lv['ET']['mape_pct'] if 'ET' in lv else float('nan'):.1f}% | "
+                  f"{lv['FLAT']['mape_pct']:.1f}% | {lv['WATERBAL']['mape_pct']:.1f}% | "
+                  f"{lv['OPENLOOP']['mape_pct']:.1f}% | {lv['CLOSURE']['cover_90']:.2f} |")
+        print("\nRelative error on the level, county-year mean. The five-year change, mean "
+              "absolute error in points over every non-overlapping window pair of the "
+              "block's era:\n")
+        print("| block | pairs | closure | area x 1 af | + weather | open loop | "
+              "margin over the best bar |")
+        print("|---|---:|---:|---:|---:|---:|---:|")
+        for blk in ("gmd4a",) + tuple(new["blocks"]):
+            c = tr["blocks"][blk]["arms"][KTAG]["change_5yr"]
+            m = c["mean_abs_error_pts"]
+            print(f"| {tr['blocks'][blk]['label']} | {c['n_pairs']} | "
+                  f"**{m['CLOSURE']:.1f}** | {m['FLAT']:.1f} | {m['WATERBAL']:.1f} | "
+                  f"{m['OPENLOOP']:.1f} | {c['margin_over_best_bar_pts']:+.2f} |")
+        print(f"\n**Pooled over the {new['n_counties']} new counties, clustered by "
+              f"county:**\n")
+        print("| against | points the closure removes | se by county | standard errors | "
+              "counties favouring the closure |")
+        print("|---|---:|---:|---:|---:|")
+        for k in ("OPENLOOP", "FLAT", "WATERBAL"):
+            g = new[k]
+            print(f"| {tr['blocks'][new['blocks'][0]]['arms'][KTAG]['level'][k]['label']} | "
+                  f"**{g['points']:+.1f}** | {g['se_by_county']:.1f} | "
+                  f"{g['n_se_by_county']:+.1f} | "
+                  f"{g['n_counties_favouring_closure']}/{g['n_counties']} |")
+        print("\n**The pre-registered predictions, scored as written:**\n")
+        print("| | prediction | result | |")
+        print("|---|---|---|---|")
+        for k, v in tr["predictions"].items():
+            print(f"| {k} | {v['statement']} | {v['value']} | "
+                  f"**{'held' if v['pass'] else 'failed'}** |")
+        print("")
+
     ni = load("net_inflow.json")
     if ni:
         section("How far apart the two rungs are: the share of pumping that is storage")

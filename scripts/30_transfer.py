@@ -81,17 +81,17 @@ def score_block(block: str, tag: str, arms: list, sweep) -> dict:
     years = np.arange(K.YEAR0, K.YEAR1 + 1)
     q_by, share, meta = K.reported_annual()
     q_all = q_by.sum(axis=0)
+    # The era is the pre-registered rule, always. GMD3 was largely metered before the
+    # northwest was, and one county there sits between 86 and 94 per cent for years,
+    # so the rule can start an era late; the relaxed era below, the first year the
+    # block-wide share clears 98 per cent, is reported beside it as a sensitivity and
+    # never replaces it.
     era0 = metered_era_year(q_by, years)
     era = years >= (era0 if era0 is not None else K.YEAR1 + 1)
-    if era.sum() < 2 * W + 1:
-        # A block whose codes never settle is scored on the years its block-wide share
-        # clears the floor, and the report says so.
-        blk_share = q_by[0].sum(axis=0) / q_all.sum(axis=0)
-        era0 = int(next(y for y, s in zip(years, blk_share) if s > 0.98))
-        era = years >= era0
-        era_rule = "block share only"
-    else:
-        era_rule = "block and every county"
+    era_rule = "block above 98 per cent and every county above 95, every later year"
+    blk_share = q_by[0].sum(axis=0) / q_all.sum(axis=0)
+    relaxed0 = int(next(y for y, s in zip(years, blk_share) if s > 0.98))
+    relaxed = years >= relaxed0
     q = q_all[:, era]
 
     P = K.precipitation()
@@ -117,6 +117,8 @@ def score_block(block: str, tag: str, arms: list, sweep) -> dict:
            "irrigated_km2": float(a["irr_area"].mean(axis=1).sum() / 1e6),
            "n_wells": len(a["wl"]["wells"]),
            "metered_era_year0": era0, "metered_era_rule": era_rule,
+           "relaxed_era_year0": relaxed0,
+           "relaxed_era_min_share": float(blk_share[relaxed].min()),
            "n_county_years": int(q.size),
            "metered_share_by_year": {int(y): float(q_by[0, :, i].sum() / q_all[:, i].sum())
                                      for i, y in enumerate(years)},
@@ -164,12 +166,29 @@ def score_block(block: str, tag: str, arms: list, sweep) -> dict:
                             100.0 * (np.abs(acc["CLOSURE"] - q) < np.abs(acc[b] - q)).mean())}
         s5, _, _, _ = sweep(ens, pts, q, years[era], W)
         best_bar = min(s5["mean_abs_error_pts"][b] for b in BARS)
+        # The same level and change on the relaxed era, as a sensitivity.
+        qr = q_all[:, relaxed]
+        er = post[(arm, "ETH")][..., relaxed]
+        accr = {"CLOSURE": er.mean(axis=0), **{k: v[:, relaxed] for k, v in pts_all.items()}}
+        sr, _, _, _ = sweep(er, {k: v[:, relaxed] for k, v in pts_all.items()}, qr,
+                            years[relaxed], W)
+        relaxed_scores = {
+            "n_county_years": int(qr.size),
+            "level_mape_pct": {k: float((np.abs(v - qr) / qr).mean() * 100.0)
+                               for k, v in accr.items()},
+            "cover_90": MT.coverage(er, qr)["cover_90"],
+            "level_gain_vs": {bb: clustered(county_gain(accr, qr, bb)) for bb in BARS},
+            "change_5yr": {"n_pairs": sr["n_pairs"],
+                           "mean_abs_error_pts": sr["mean_abs_error_pts"],
+                           "coverage_90": sr["coverage_90"]},
+        }
         out["arms"][arm] = {
             "level": level, "level_gain_vs": gains,
             "change_5yr": {**s5,
                            "margin_over_best_bar_pts": best_bar
                            - s5["mean_abs_error_pts"]["CLOSURE"]},
             "best_level_account": min(level, key=lambda k: level[k]["mape_pct"]),
+            "relaxed_era": relaxed_scores,
         }
     return out
 
@@ -249,6 +268,16 @@ def predictions(res: dict, tag: str, arms: list) -> dict:
                    "value": f"GMD3 {f3:.1f}% vs GMD4 north {f4:.1f}%; metered depth "
                             f"in GMD3 {d3 / 0.3048:.2f} acre-feet per acre",
                    "pass": bool(f3 > f4)}
+    # P6: on the GMD3 blocks the closure beats area x one acre-foot on the level
+    g3 = [b for b in have if b.startswith("gmd3")]
+    if g3:
+        c3 = np.mean([res[b]["arms"][tag]["level"]["CLOSURE"]["mape_pct"] for b in g3])
+        f3 = np.mean([res[b]["arms"][tag]["level"]["FLAT"]["mape_pct"] for b in g3])
+        P["P6"] = {"statement": "on the GMD3 blocks the closure's relative error on the "
+                                "level is below that of area times one acre-foot, which "
+                                "it loses on the published block",
+                   "value": f"closure {c3:.1f}% vs rule {f3:.1f}%",
+                   "pass": bool(c3 < f3)}
     return P
 
 
@@ -305,6 +334,27 @@ def main() -> None:
                 x += 1
             x += 1
         ax[0].axhline(0, color="k", lw=0.8)
+        # The claim is the pooled mean over the counties the method never saw, with the
+        # error clustered on the unit it generalises over.
+        new = out["pooled_new_counties"]
+        if new:
+            g = new["OPENLOOP"]
+            lo = ticks[6] - 0.6 if len(ticks) > 6 else ticks[0]
+            hi = ticks[-1] + 0.6
+            ax[0].fill_between([lo, hi], g["points"] - g["se_by_county"],
+                               g["points"] + g["se_by_county"], color="#2b6ca3",
+                               alpha=0.12, zorder=0)
+            ax[0].plot([lo, hi], [g["points"]] * 2, color="#2b6ca3", lw=1.4, ls="--",
+                       zorder=1)
+            ax[0].text(0.5 * (lo + hi), -52,
+                       f"{g['n_counties']} counties never seen: "
+                       f"{g['points']:+.1f} ± {g['se_by_county']:.1f} points "
+                       f"({g['n_se_by_county']:.1f} se by county), "
+                       f"{g['n_counties_favouring_closure']} of {g['n_counties']} "
+                       f"positive",
+                       ha="center", fontsize=9, color="#1b4a70",
+                       bbox=dict(facecolor="white", edgecolor="#2b6ca3", pad=3,
+                                 linewidth=0.8))
         ax[0].set_xticks(ticks)
         ax[0].set_xticklabels(labels, rotation=90, fontsize=7.5)
         ax[0].set_ylabel("points of relative error removed\nfrom the open loop, per county")
@@ -340,9 +390,11 @@ def main() -> None:
         print(f"\n{blk}: {r['label']}")
         print(f"  grid {r['grid'][0]}x{r['grid'][1]}, {r['active_cells']} active cells, "
               f"{r['irrigated_km2']:,.0f} km2 irrigated, {r['n_wells']} wells; metered "
-              f"era from {r['metered_era_year0']} ({r['metered_era_rule']}), "
+              f"era from {r['metered_era_year0']} (pre-registered rule), "
               f"{r['n_county_years']} county-years, {r['metered_mcm_yr_era']:,.0f} "
-              f"Mm3/yr, {r['metered_depth_m_era'] / 0.3048:.2f} af/acre")
+              f"Mm3/yr, {r['metered_depth_m_era'] / 0.3048:.2f} af/acre; relaxed era "
+              f"from {r['relaxed_era_year0']} (block share never below "
+              f"{100 * r['relaxed_era_min_share']:.1f}%)")
         for arm, A in r["arms"].items():
             print(f"  {arm}: level MAPE  " + "  ".join(
                 f"{k} {v['mape_pct']:.1f}%" for k, v in A["level"].items())
@@ -355,6 +407,12 @@ def main() -> None:
                 print(f"  {arm}: gain vs {b:8s} {g['points']:+6.1f} +- {g['se_by_county']:4.1f} "
                       f"({g['n_se_by_county']:+.1f} se) {g['n_counties_favouring_closure']}/"
                       f"{g['n_counties']} counties  {g['gain_by_county']}")
+            rx = A["relaxed_era"]
+            print(f"  {arm}: relaxed era, {rx['n_county_years']} county-years: level MAPE "
+                  + "  ".join(f"{k} {v:.1f}%" for k, v in rx["level_mape_pct"].items())
+                  + f"  cover90 {rx['cover_90']:.2f}; change ({rx['change_5yr']['n_pairs']} "
+                  f"pairs) " + "  ".join(f"{k} {v:.1f}" for k, v in
+                                          rx["change_5yr"]["mean_abs_error_pts"].items()))
 
     for key in ("pooled_new_counties", "pooled_all_counties"):
         p = out[key]

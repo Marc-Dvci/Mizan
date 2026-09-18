@@ -424,6 +424,46 @@ A ranking of two point estimates is not a result until the record says how well 
 **No window puts that margin more than about one standard error above zero.** The window pairs overlap, so their count is a count of contrasts rather than a sample size: the metered era admits exactly 1 pair of five-year windows sharing no year with another such pair. What the record does support is that from a six-year window upward the margin survives dropping any single year and grows with the window. The level comparison above is the one this record resolves.
 
 
+## The same closure, frozen, on county blocks it never saw
+
+Three further blocks of six counties each, chosen before any of their inputs was fetched and scored blind: the predictions were committed to `DECISION_LOG.md` before the fetcher would release the use files, and the posteriors were written without a truth in them. Each block is scored on its own metered era by the published code rule. The error bars cluster by county, and the new counties are pooled on their own, never with the block the method was built on.
+
+| block | counties | metered era | county-years | metered depth, af/acre | closure | ET leg | area x 1 af | + weather | open loop | closure 90% cover |
+|---|---|---|---:|---:|---:|---:|---:|---:|---:|---:|
+| Northwest Kansas, GMD4 north (the published block) | Cheyenne, Rawlins, Decatur, Sherman, Thomas, Sheridan | 2009-2024 | 96 | 1.09 | **28.6%** | 20.4% | 23.0% | 19.1% | 49.3% | 0.91 |
+| West Kansas, GMD4 south and GMD1 | Wallace, Logan, Gove, Greeley, Wichita, Scott | 2014-2024 | 66 | 0.90 | **37.3%** | 41.5% | 34.9% | 29.3% | 44.9% | 0.98 |
+| Southwest Kansas, GMD3 west | Hamilton, Kearny, Stanton, Grant, Morton, Stevens | 2015-2024 | 60 | 1.53 | **24.3%** | 22.4% | 32.8% | 38.5% | 38.8% | 0.97 |
+| Southwest Kansas, GMD3 east | Finney, Haskell, Gray, Seward, Meade, Ford | 2009-2024 | 96 | 1.42 | **21.2%** | 19.7% | 27.2% | 29.6% | 31.9% | 0.99 |
+
+Relative error on the level, county-year mean. The five-year change, mean absolute error in points over every non-overlapping window pair of the block's era:
+
+| block | pairs | closure | area x 1 af | + weather | open loop | margin over the best bar |
+|---|---:|---:|---:|---:|---:|---:|
+| Northwest Kansas, GMD4 north (the published block) | 28 | **9.4** | 14.7 | 13.5 | 12.3 | +2.94 |
+| West Kansas, GMD4 south and GMD1 | 3 | **5.2** | 7.4 | 9.9 | 7.6 | +2.19 |
+| Southwest Kansas, GMD3 west | 1 | **10.3** | 17.7 | 9.7 | 9.6 | -0.75 |
+| Southwest Kansas, GMD3 east | 28 | **6.8** | 13.4 | 11.9 | 5.4 | -1.38 |
+
+**Pooled over the 18 new counties, clustered by county:**
+
+| against | points the closure removes | se by county | standard errors | counties favouring the closure |
+|---|---:|---:|---:|---:|
+| unmixed evapotranspiration over a fixed efficiency of 0.80 | **+10.9** | 5.6 | +2.0 | 13/18 |
+| mapped irrigated area x one acre-foot per acre | **+4.1** | 4.0 | +1.0 | 10/18 |
+| the same, plus half the year's precipitation deficit | **+4.9** | 4.5 | +1.1 | 11/18 |
+
+**The pre-registered predictions, scored as written:**
+
+| | prediction | result | |
+|---|---|---|---|
+| P1 | closure has lower relative error than the open loop on the level in at least two thirds of the new counties | 13 of 18 | **held** |
+| P2 | the 90 per cent interval covers the metered value in 0.80 to 0.97 of new county-years | 0.982 | **failed** |
+| P3 | on the five-year change the closure beats the open loop, mean over the new blocks | closure 7.45 vs open loop 7.55 points | **held** |
+| P4 | _v5 beats _v3 on the five-year change, mean over the new blocks | _v5 7.09 vs _v3 7.45 points | **held** |
+| P5 | area x one acre-foot per acre has a larger relative error in GMD3 than on the published block, because the applied depth there is not the northwest's | GMD3 30.0% vs GMD4 north 23.0%; metered depth in GMD3 1.48 acre-feet per acre | **held** |
+| P6 | on the GMD3 blocks the closure's relative error on the level is below that of area times one acre-foot, which it loses on the published block | closure 22.7% vs rule 30.0% | **held** |
+
+
 ## How far apart the two rungs are: the share of pumping that is storage
 
 The closure reads abstraction out of storage, so what the two rungs have in common is not the basin but the method. Net inflow `N = Q + Sy*A*dh` from the withheld meters, the winter water levels and the USGS specific-yield map puts a number on the difference. No model enters it.

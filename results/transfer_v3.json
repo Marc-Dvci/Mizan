@@ -1,0 +1,2331 @@
+{
+  "_meta": {
+    "tag": "_v3",
+    "arms": [
+      "_v5"
+    ],
+    "window_years": 5,
+    "error_bars": "clustered by county, the unit a transfer claim generalises over"
+  },
+  "blocks": {
+    "gmd4a": {
+      "label": "Northwest Kansas, GMD4 north (the published block)",
+      "counties": [
+        "CN",
+        "RA",
+        "DC",
+        "SH",
+        "TH",
+        "SD"
+      ],
+      "names": [
+        "Cheyenne",
+        "Rawlins",
+        "Decatur",
+        "Sherman",
+        "Thomas",
+        "Sheridan"
+      ],
+      "grid": [
+        48,
+        82
+      ],
+      "active_cells": 3888,
+      "irrigated_km2": 1355.0375,
+      "n_wells": 358,
+      "metered_era_year0": 2009,
+      "metered_era_rule": "block above 98 per cent and every county above 95, every later year",
+      "relaxed_era_year0": 2009,
+      "relaxed_era_min_share": 0.9882331105864215,
+      "n_county_years": 96,
+      "metered_share_by_year": {
+        "2000": 0.23592841897294706,
+        "2001": 0.23171424536029767,
+        "2002": 0.24984205739033458,
+        "2003": 0.2547391175082247,
+        "2004": 0.26764337569830904,
+        "2005": 0.2871303406341595,
+        "2006": 0.5207033488788527,
+        "2007": 0.6873054789190347,
+        "2008": 0.8641338855802039,
+        "2009": 0.9882331105864215,
+        "2010": 0.9913187667033229,
+        "2011": 0.9938567313694309,
+        "2012": 0.9924981462805043,
+        "2013": 0.9946974955136643,
+        "2014": 0.9931661975153535,
+        "2015": 0.9960989828855809,
+        "2016": 0.995675706257787,
+        "2017": 0.9958720413629338,
+        "2018": 0.9977303044371391,
+        "2019": 0.9995947918947476,
+        "2020": 0.9997045148208857,
+        "2021": 0.9988279477506493,
+        "2022": 0.9997927726356199,
+        "2023": 0.9990876877219987,
+        "2024": 0.9996977679224032
+      },
+      "metered_mcm_yr_era": 447.3389663119287,
+      "metered_depth_m_era": 0.3311713500511084,
+      "arms": {
+        "_v3": {
+          "level": {
+            "CLOSURE": {
+              "label": "closure, evapotranspiration + heads",
+              "mae_mcm": 21.21958896168774,
+              "bias_mcm": -11.520220831066997,
+              "rmse_mcm": 28.75887466616147,
+              "mape_pct": 28.613972436745915,
+              "basin_bias_pct": -15.451666452460067,
+              "rel_err_by_county": {
+                "CN": 45.3,
+                "RA": 24.9,
+                "DC": 21.0,
+                "SH": 32.6,
+                "TH": 16.6,
+                "SD": 31.3
+              },
+              "cover_50": 0.5,
+              "cover_80": 0.7708333333333334,
+              "cover_90": 0.90625,
+              "width90_mcm": 84.88823530503358,
+              "crps_mcm": 15.496889086854276
+            },
+            "FLAT": {
+              "label": "mapped irrigated area x one acre-foot per acre",
+              "mae_mcm": 16.618189169397326,
+              "bias_mcm": -5.9518881353214415,
+              "rmse_mcm": 24.94787860521382,
+              "mape_pct": 23.03715831187003,
+              "basin_bias_pct": -7.9830579272692255,
+              "rel_err_by_county": {
+                "CN": 18.5,
+                "RA": 17.6,
+                "DC": 31.5,
+                "SH": 22.2,
+                "TH": 22.0,
+                "SD": 26.5
+              }
+            },
+            "WATERBAL": {
+              "label": "the same, plus half the year's precipitation deficit",
+              "mae_mcm": 13.753923773732826,
+              "bias_mcm": -7.195173342686025,
+              "rmse_mcm": 20.270082451891867,
+              "mape_pct": 19.110724740319807,
+              "basin_bias_pct": -9.650632586747,
+              "rel_err_by_county": {
+                "CN": 19.0,
+                "RA": 12.4,
+                "DC": 30.3,
+                "SH": 22.2,
+                "TH": 13.1,
+                "SD": 17.6
+              }
+            },
+            "OPENLOOP": {
+              "label": "unmixed evapotranspiration over a fixed efficiency of 0.80",
+              "mae_mcm": 28.282257809675098,
+              "bias_mcm": -21.996224109031573,
+              "rmse_mcm": 36.446913233878924,
+              "mape_pct": 49.27457134314019,
+              "basin_bias_pct": -29.502760678836502,
+              "rel_err_by_county": {
+                "CN": 30.9,
+                "RA": 76.8,
+                "DC": 81.4,
+                "SH": 42.9,
+                "TH": 34.1,
+                "SD": 29.5
+              }
+            },
+            "ET": {
+              "label": "evapotranspiration leg alone",
+              "mae_mcm": 17.385833088387162,
+              "bias_mcm": -10.149074650788744,
+              "rmse_mcm": 26.35275763990251,
+              "mape_pct": 20.423065752895244,
+              "basin_bias_pct": -13.61259637334406,
+              "rel_err_by_county": {
+                "CN": 16.1,
+                "RA": 15.7,
+                "DC": 17.4,
+                "SH": 34.0,
+                "TH": 17.0,
+                "SD": 22.3
+              },
+              "cover_50": 0.6770833333333334,
+              "cover_80": 0.9479166666666666,
+              "cover_90": 0.9895833333333334,
+              "width90_mcm": 111.30160674975717
+            },
+            "FLAT_ORACLE": {
+              "label": "area x depth, depth fitted to this block's meters (1.02 af/acre)",
+              "mae_mcm": 16.5337999550507,
+              "bias_mcm": -4.331306885321443,
+              "rmse_mcm": 24.532613118353755,
+              "mape_pct": 23.217468729346766,
+              "basin_bias_pct": -5.809429374370074,
+              "rel_err_by_county": {
+                "CN": 18.0,
+                "RA": 17.7,
+                "DC": 31.0,
+                "SH": 21.7,
+                "TH": 22.1,
+                "SD": 28.9
+              }
+            },
+            "OPENLOOP_ORACLE": {
+              "label": "open loop, efficiency fitted to this block's meters (0.63)",
+              "mae_mcm": 24.017401486835706,
+              "bias_mcm": -8.024506693815274,
+              "rmse_mcm": 32.336860103251404,
+              "mape_pct": 46.33635877194841,
+              "basin_bias_pct": -10.762988201058878,
+              "rel_err_by_county": {
+                "CN": 44.7,
+                "RA": 70.6,
+                "DC": 76.4,
+                "SH": 27.8,
+                "TH": 22.6,
+                "SD": 35.8
+              }
+            }
+          },
+          "level_gain_vs": {
+            "FLAT": {
+              "points": -5.576814124875884,
+              "se_by_county": 5.345937758579471,
+              "n_se_by_county": -1.0431872529615385,
+              "n_counties": 6,
+              "n_counties_favouring_closure": 2,
+              "gain_by_county": {
+                "CN": -26.8,
+                "RA": -7.4,
+                "DC": 10.5,
+                "SH": -10.5,
+                "TH": 5.4,
+                "SD": -4.8
+              },
+              "closure_closer_pct_of_county_years": 38.54166666666667
+            },
+            "WATERBAL": {
+              "points": -9.503247696426108,
+              "se_by_county": 4.836189297977133,
+              "n_se_by_county": -1.9650280646378129,
+              "n_counties": 6,
+              "n_counties_favouring_closure": 1,
+              "gain_by_county": {
+                "CN": -26.3,
+                "RA": -12.5,
+                "DC": 9.4,
+                "SH": -10.4,
+                "TH": -3.5,
+                "SD": -13.6
+              },
+              "closure_closer_pct_of_county_years": 35.41666666666667
+            },
+            "OPENLOOP": {
+              "points": 20.66059890639427,
+              "se_by_county": 12.115367957036286,
+              "n_se_by_county": 1.7053216195877188,
+              "n_counties": 6,
+              "n_counties_favouring_closure": 4,
+              "gain_by_county": {
+                "CN": -14.4,
+                "RA": 51.9,
+                "DC": 60.4,
+                "SH": 10.3,
+                "TH": 17.5,
+                "SD": -1.8
+              },
+              "closure_closer_pct_of_county_years": 76.04166666666666
+            }
+          },
+          "change_5yr": {
+            "n_pairs": 28,
+            "mean_abs_error_pts": {
+              "CLOSURE": 9.35340540445023,
+              "FLAT": 14.711150837674989,
+              "WATERBAL": 13.507085912311494,
+              "OPENLOOP": 12.291114361987999
+            },
+            "median_abs_error_pts": {
+              "CLOSURE": 6.805595616362577,
+              "FLAT": 14.581434450904979,
+              "WATERBAL": 14.710330179966924,
+              "OPENLOOP": 8.675094542384105
+            },
+            "closure_beats_pct": {
+              "FLAT": 64.28571428571429,
+              "WATERBAL": 67.85714285714286,
+              "OPENLOOP": 75.0
+            },
+            "coverage_90": 0.8571428571428571,
+            "n_declared_change": 22,
+            "n_declared_change_sign_correct": 22,
+            "n_metered_change_negative": 24,
+            "declaration_auc_vs_metered_magnitude": 0.7348484848484849,
+            "metered_pct_where_declared": 18.973621236927166,
+            "metered_pct_where_not_declared": 12.428178637483049,
+            "change_r": 0.7904804331785916,
+            "margin_over_best_bar_pts": 2.937708957537769
+          },
+          "best_level_account": "WATERBAL",
+          "relaxed_era": {
+            "n_county_years": 96,
+            "level_mape_pct": {
+              "CLOSURE": 28.613972436745915,
+              "FLAT": 23.03715831187003,
+              "WATERBAL": 19.110724740319807,
+              "OPENLOOP": 49.27457134314019
+            },
+            "cover_90": 0.90625,
+            "level_gain_vs": {
+              "FLAT": {
+                "points": -5.576814124875884,
+                "se_by_county": 5.345937758579471,
+                "n_se_by_county": -1.0431872529615385,
+                "n_counties": 6,
+                "n_counties_favouring_closure": 2
+              },
+              "WATERBAL": {
+                "points": -9.503247696426108,
+                "se_by_county": 4.836189297977133,
+                "n_se_by_county": -1.9650280646378129,
+                "n_counties": 6,
+                "n_counties_favouring_closure": 1
+              },
+              "OPENLOOP": {
+                "points": 20.66059890639427,
+                "se_by_county": 12.115367957036286,
+                "n_se_by_county": 1.7053216195877188,
+                "n_counties": 6,
+                "n_counties_favouring_closure": 4
+              }
+            },
+            "change_5yr": {
+              "n_pairs": 28,
+              "mean_abs_error_pts": {
+                "CLOSURE": 9.35340540445023,
+                "FLAT": 14.711150837674989,
+                "WATERBAL": 13.507085912311494,
+                "OPENLOOP": 12.291114361987999
+              },
+              "coverage_90": 0.8571428571428571
+            }
+          }
+        },
+        "_v5": {
+          "level": {
+            "CLOSURE": {
+              "label": "closure, evapotranspiration + heads",
+              "mae_mcm": 18.897002485405427,
+              "bias_mcm": -11.076638585563717,
+              "rmse_mcm": 25.5227503037675,
+              "mape_pct": 26.008220256646435,
+              "basin_bias_pct": -14.856705209767037,
+              "rel_err_by_county": {
+                "CN": 43.1,
+                "RA": 20.8,
+                "DC": 22.6,
+                "SH": 27.8,
+                "TH": 17.1,
+                "SD": 24.6
+              },
+              "cover_50": 0.4895833333333333,
+              "cover_80": 0.8020833333333334,
+              "cover_90": 0.8958333333333334,
+              "width90_mcm": 84.68005467527726,
+              "crps_mcm": 14.06245965324164
+            },
+            "FLAT": {
+              "label": "mapped irrigated area x one acre-foot per acre",
+              "mae_mcm": 16.618189169397326,
+              "bias_mcm": -5.9518881353214415,
+              "rmse_mcm": 24.94787860521382,
+              "mape_pct": 23.03715831187003,
+              "basin_bias_pct": -7.9830579272692255,
+              "rel_err_by_county": {
+                "CN": 18.5,
+                "RA": 17.6,
+                "DC": 31.5,
+                "SH": 22.2,
+                "TH": 22.0,
+                "SD": 26.5
+              }
+            },
+            "WATERBAL": {
+              "label": "the same, plus half the year's precipitation deficit",
+              "mae_mcm": 13.753923773732826,
+              "bias_mcm": -7.195173342686025,
+              "rmse_mcm": 20.270082451891867,
+              "mape_pct": 19.110724740319807,
+              "basin_bias_pct": -9.650632586747,
+              "rel_err_by_county": {
+                "CN": 19.0,
+                "RA": 12.4,
+                "DC": 30.3,
+                "SH": 22.2,
+                "TH": 13.1,
+                "SD": 17.6
+              }
+            },
+            "OPENLOOP": {
+              "label": "unmixed evapotranspiration over a fixed efficiency of 0.80",
+              "mae_mcm": 28.282257809675098,
+              "bias_mcm": -21.996224109031573,
+              "rmse_mcm": 36.446913233878924,
+              "mape_pct": 49.27457134314019,
+              "basin_bias_pct": -29.502760678836502,
+              "rel_err_by_county": {
+                "CN": 30.9,
+                "RA": 76.8,
+                "DC": 81.4,
+                "SH": 42.9,
+                "TH": 34.1,
+                "SD": 29.5
+              }
+            },
+            "ET": {
+              "label": "evapotranspiration leg alone",
+              "mae_mcm": 17.329206791044182,
+              "bias_mcm": -9.603368374666164,
+              "rmse_mcm": 25.819509105528052,
+              "mape_pct": 20.784591129960532,
+              "basin_bias_pct": -12.880659765243536,
+              "rel_err_by_county": {
+                "CN": 18.0,
+                "RA": 15.9,
+                "DC": 18.6,
+                "SH": 33.2,
+                "TH": 17.2,
+                "SD": 21.8
+              },
+              "cover_50": 0.71875,
+              "cover_80": 0.9583333333333334,
+              "cover_90": 0.9791666666666666,
+              "width90_mcm": 110.44977078125464
+            },
+            "FLAT_ORACLE": {
+              "label": "area x depth, depth fitted to this block's meters (1.02 af/acre)",
+              "mae_mcm": 16.5337999550507,
+              "bias_mcm": -4.331306885321443,
+              "rmse_mcm": 24.532613118353755,
+              "mape_pct": 23.217468729346766,
+              "basin_bias_pct": -5.809429374370074,
+              "rel_err_by_county": {
+                "CN": 18.0,
+                "RA": 17.7,
+                "DC": 31.0,
+                "SH": 21.7,
+                "TH": 22.1,
+                "SD": 28.9
+              }
+            },
+            "OPENLOOP_ORACLE": {
+              "label": "open loop, efficiency fitted to this block's meters (0.63)",
+              "mae_mcm": 24.017401486835706,
+              "bias_mcm": -8.024506693815274,
+              "rmse_mcm": 32.336860103251404,
+              "mape_pct": 46.33635877194841,
+              "basin_bias_pct": -10.762988201058878,
+              "rel_err_by_county": {
+                "CN": 44.7,
+                "RA": 70.6,
+                "DC": 76.4,
+                "SH": 27.8,
+                "TH": 22.6,
+                "SD": 35.8
+              }
+            }
+          },
+          "level_gain_vs": {
+            "FLAT": {
+              "points": -2.9710619447764004,
+              "se_by_county": 4.830816847593019,
+              "n_se_by_county": -0.6150226842602713,
+              "n_counties": 6,
+              "n_counties_favouring_closure": 3,
+              "gain_by_county": {
+                "CN": -24.6,
+                "RA": -3.2,
+                "DC": 8.9,
+                "SH": -5.7,
+                "TH": 4.8,
+                "SD": 1.9
+              },
+              "closure_closer_pct_of_county_years": 42.70833333333333
+            },
+            "WATERBAL": {
+              "points": -6.897495516326626,
+              "se_by_county": 4.172939376722877,
+              "n_se_by_county": -1.6529105490488618,
+              "n_counties": 6,
+              "n_counties_favouring_closure": 1,
+              "gain_by_county": {
+                "CN": -24.1,
+                "RA": -8.3,
+                "DC": 7.7,
+                "SH": -5.6,
+                "TH": -4.1,
+                "SD": -7.0
+              },
+              "closure_closer_pct_of_county_years": 39.58333333333333
+            },
+            "OPENLOOP": {
+              "points": 23.266351086493756,
+              "se_by_county": 11.599780997346665,
+              "n_se_by_county": 2.005757789032026,
+              "n_counties": 6,
+              "n_counties_favouring_closure": 5,
+              "gain_by_county": {
+                "CN": -12.2,
+                "RA": 56.0,
+                "DC": 58.8,
+                "SH": 15.1,
+                "TH": 17.0,
+                "SD": 4.9
+              },
+              "closure_closer_pct_of_county_years": 77.08333333333334
+            }
+          },
+          "change_5yr": {
+            "n_pairs": 28,
+            "mean_abs_error_pts": {
+              "CLOSURE": 7.176443930558794,
+              "FLAT": 14.711150837674989,
+              "WATERBAL": 13.507085912311494,
+              "OPENLOOP": 12.291114361987999
+            },
+            "median_abs_error_pts": {
+              "CLOSURE": 7.035160799733349,
+              "FLAT": 14.581434450904979,
+              "WATERBAL": 14.710330179966924,
+              "OPENLOOP": 8.675094542384105
+            },
+            "closure_beats_pct": {
+              "FLAT": 75.0,
+              "WATERBAL": 82.14285714285714,
+              "OPENLOOP": 67.85714285714286
+            },
+            "coverage_90": 0.9642857142857143,
+            "n_declared_change": 6,
+            "n_declared_change_sign_correct": 6,
+            "n_metered_change_negative": 24,
+            "declaration_auc_vs_metered_magnitude": 0.8863636363636364,
+            "metered_pct_where_declared": 25.684525590530658,
+            "metered_pct_where_not_declared": 15.358253886095996,
+            "change_r": 0.8964966637062323,
+            "margin_over_best_bar_pts": 5.114670431429205
+          },
+          "best_level_account": "WATERBAL",
+          "relaxed_era": {
+            "n_county_years": 96,
+            "level_mape_pct": {
+              "CLOSURE": 26.008220256646435,
+              "FLAT": 23.03715831187003,
+              "WATERBAL": 19.110724740319807,
+              "OPENLOOP": 49.27457134314019
+            },
+            "cover_90": 0.8958333333333334,
+            "level_gain_vs": {
+              "FLAT": {
+                "points": -2.9710619447764004,
+                "se_by_county": 4.830816847593019,
+                "n_se_by_county": -0.6150226842602713,
+                "n_counties": 6,
+                "n_counties_favouring_closure": 3
+              },
+              "WATERBAL": {
+                "points": -6.897495516326626,
+                "se_by_county": 4.172939376722877,
+                "n_se_by_county": -1.6529105490488618,
+                "n_counties": 6,
+                "n_counties_favouring_closure": 1
+              },
+              "OPENLOOP": {
+                "points": 23.266351086493756,
+                "se_by_county": 11.599780997346665,
+                "n_se_by_county": 2.005757789032026,
+                "n_counties": 6,
+                "n_counties_favouring_closure": 5
+              }
+            },
+            "change_5yr": {
+              "n_pairs": 28,
+              "mean_abs_error_pts": {
+                "CLOSURE": 7.176443930558794,
+                "FLAT": 14.711150837674989,
+                "WATERBAL": 13.507085912311494,
+                "OPENLOOP": 12.291114361987999
+              },
+              "coverage_90": 0.9642857142857143
+            }
+          }
+        }
+      }
+    },
+    "west": {
+      "label": "West Kansas, GMD4 south and GMD1",
+      "counties": [
+        "WA",
+        "LG",
+        "GO",
+        "GL",
+        "WH",
+        "SC"
+      ],
+      "names": [
+        "Wallace",
+        "Logan",
+        "Gove",
+        "Greeley",
+        "Wichita",
+        "Scott"
+      ],
+      "grid": [
+        49,
+        84
+      ],
+      "active_cells": 3415,
+      "irrigated_km2": 765.9875,
+      "n_wells": 187,
+      "metered_era_year0": 2014,
+      "metered_era_rule": "block above 98 per cent and every county above 95, every later year",
+      "relaxed_era_year0": 2014,
+      "relaxed_era_min_share": 0.9817406886657476,
+      "n_county_years": 66,
+      "metered_share_by_year": {
+        "2000": 0.5298277565056543,
+        "2001": 0.5482362360529929,
+        "2002": 0.5581861911054722,
+        "2003": 0.5578820621861712,
+        "2004": 0.5809056578763985,
+        "2005": 0.6099671529305811,
+        "2006": 0.6311157184434641,
+        "2007": 0.6447132335634593,
+        "2008": 0.6870299065931016,
+        "2009": 0.7099106673583349,
+        "2010": 0.7353415577774687,
+        "2011": 0.7678908758074533,
+        "2012": 0.8108483202322196,
+        "2013": 0.8721220164970801,
+        "2014": 0.9863064978100747,
+        "2015": 0.9817406886657476,
+        "2016": 0.9885307882299933,
+        "2017": 0.9913207657688137,
+        "2018": 0.9963292477376443,
+        "2019": 0.9957649206231005,
+        "2020": 0.9965422061768267,
+        "2021": 0.9963379629743445,
+        "2022": 0.9951454731442811,
+        "2023": 0.9982001940642303,
+        "2024": 0.9978556446148217
+      },
+      "metered_mcm_yr_era": 182.60362636749437,
+      "metered_depth_m_era": 0.2740123769330494,
+      "arms": {
+        "_v3": {
+          "level": {
+            "CLOSURE": {
+              "label": "closure, evapotranspiration + heads",
+              "mae_mcm": 7.557399577345017,
+              "bias_mcm": 5.341921855379955,
+              "rmse_mcm": 9.491211454949255,
+              "mape_pct": 37.311224590820565,
+              "basin_bias_pct": 17.552516217709286,
+              "rel_err_by_county": {
+                "WA": 18.4,
+                "LG": 107.4,
+                "GO": 22.1,
+                "GL": 24.2,
+                "WH": 38.4,
+                "SC": 13.4
+              },
+              "cover_50": 0.7121212121212122,
+              "cover_80": 0.9545454545454546,
+              "cover_90": 0.9848484848484849,
+              "width90_mcm": 52.4694099947865,
+              "crps_mcm": 5.3476885937927365
+            },
+            "FLAT": {
+              "label": "mapped irrigated area x one acre-foot per acre",
+              "mae_mcm": 7.58539014339227,
+              "bias_mcm": 3.35799136299336,
+              "rmse_mcm": 9.560339994551226,
+              "mape_pct": 34.90126980171954,
+              "basin_bias_pct": 11.033706492450431,
+              "rel_err_by_county": {
+                "WA": 14.0,
+                "LG": 67.4,
+                "GO": 15.6,
+                "GL": 61.7,
+                "WH": 36.7,
+                "SC": 14.0
+              }
+            },
+            "WATERBAL": {
+              "label": "the same, plus half the year's precipitation deficit",
+              "mae_mcm": 6.544178893155485,
+              "bias_mcm": 2.2106575255160883,
+              "rmse_mcm": 8.309604038358998,
+              "mape_pct": 29.298399060871265,
+              "basin_bias_pct": 7.26379065791525,
+              "rel_err_by_county": {
+                "WA": 11.0,
+                "LG": 56.3,
+                "GO": 11.4,
+                "GL": 50.5,
+                "WH": 31.4,
+                "SC": 15.1
+              }
+            },
+            "OPENLOOP": {
+              "label": "unmixed evapotranspiration over a fixed efficiency of 0.80",
+              "mae_mcm": 12.772005007092675,
+              "bias_mcm": -9.500949362050651,
+              "rmse_mcm": 18.02730041212394,
+              "mape_pct": 44.867794423297354,
+              "basin_bias_pct": -31.218271677463033,
+              "rel_err_by_county": {
+                "WA": 16.0,
+                "LG": 52.4,
+                "GO": 56.4,
+                "GL": 34.4,
+                "WH": 48.9,
+                "SC": 61.1
+              }
+            },
+            "ET": {
+              "label": "evapotranspiration leg alone",
+              "mae_mcm": 7.7017443191319925,
+              "bias_mcm": 3.2279156927568065,
+              "rmse_mcm": 9.194790727626216,
+              "mape_pct": 41.48869566941713,
+              "basin_bias_pct": 10.606303139655747,
+              "rel_err_by_county": {
+                "WA": 19.3,
+                "LG": 120.4,
+                "GO": 24.8,
+                "GL": 48.7,
+                "WH": 14.3,
+                "SC": 21.3
+              },
+              "cover_50": 0.7575757575757576,
+              "cover_80": 0.9545454545454546,
+              "cover_90": 1.0,
+              "width90_mcm": 60.54155162947381
+            },
+            "FLAT_ORACLE": {
+              "label": "area x depth, depth fitted to this block's meters (0.87 af/acre)",
+              "mae_mcm": 6.784223956958093,
+              "bias_mcm": -1.0544718188248223,
+              "rmse_mcm": 8.971069608295693,
+              "mape_pct": 27.71767901668072,
+              "basin_bias_pct": -3.464789302823607,
+              "rel_err_by_county": {
+                "WA": 15.0,
+                "LG": 45.5,
+                "GO": 21.7,
+                "GL": 40.6,
+                "WH": 19.8,
+                "SC": 23.6
+              }
+            },
+            "OPENLOOP_ORACLE": {
+              "label": "open loop, efficiency fitted to this block's meters (0.78)",
+              "mae_mcm": 12.751788570219366,
+              "bias_mcm": -8.964206070618216,
+              "rmse_mcm": 17.956984451485397,
+              "mape_pct": 44.991695992595616,
+              "basin_bias_pct": -29.454637617910812,
+              "rel_err_by_county": {
+                "WA": 17.0,
+                "LG": 54.0,
+                "GO": 56.2,
+                "GL": 34.6,
+                "WH": 48.0,
+                "SC": 60.1
+              }
+            }
+          },
+          "level_gain_vs": {
+            "FLAT": {
+              "points": -2.4099547891010182,
+              "se_by_county": 10.0514215678048,
+              "n_se_by_county": -0.23976258212273402,
+              "n_counties": 6,
+              "n_counties_favouring_closure": 2,
+              "gain_by_county": {
+                "WA": -4.3,
+                "LG": -40.0,
+                "GO": -6.5,
+                "GL": 37.5,
+                "WH": -1.7,
+                "SC": 0.6
+              },
+              "closure_closer_pct_of_county_years": 39.39393939393939
+            },
+            "WATERBAL": {
+              "points": -8.012825529949295,
+              "se_by_county": 10.21877971561747,
+              "n_se_by_county": -0.7841274352654072,
+              "n_counties": 6,
+              "n_counties_favouring_closure": 2,
+              "gain_by_county": {
+                "WA": -7.4,
+                "LG": -51.0,
+                "GO": -10.7,
+                "GL": 26.3,
+                "WH": -7.0,
+                "SC": 1.7
+              },
+              "closure_closer_pct_of_county_years": 40.909090909090914
+            },
+            "OPENLOOP": {
+              "points": 7.5565698324767965,
+              "se_by_county": 14.55610777369491,
+              "n_se_by_county": 0.519133957370985,
+              "n_counties": 6,
+              "n_counties_favouring_closure": 4,
+              "gain_by_county": {
+                "WA": -2.4,
+                "LG": -55.0,
+                "GO": 34.3,
+                "GL": 10.2,
+                "WH": 10.4,
+                "SC": 47.8
+              },
+              "closure_closer_pct_of_county_years": 51.515151515151516
+            }
+          },
+          "change_5yr": {
+            "n_pairs": 3,
+            "mean_abs_error_pts": {
+              "CLOSURE": 5.191900807796885,
+              "FLAT": 7.386365793238146,
+              "WATERBAL": 9.905192322709018,
+              "OPENLOOP": 7.623589406912863
+            },
+            "median_abs_error_pts": {
+              "CLOSURE": 2.667722429361378,
+              "FLAT": 5.980388515623579,
+              "WATERBAL": 10.288522773228637,
+              "OPENLOOP": 8.32194647460578
+            },
+            "closure_beats_pct": {
+              "FLAT": 66.66666666666666,
+              "WATERBAL": 66.66666666666666,
+              "OPENLOOP": 66.66666666666666
+            },
+            "coverage_90": 1.0,
+            "n_declared_change": 0,
+            "n_declared_change_sign_correct": 0,
+            "n_metered_change_negative": 2,
+            "change_r": 0.844781300312358,
+            "margin_over_best_bar_pts": 2.194464985441261
+          },
+          "best_level_account": "FLAT_ORACLE",
+          "relaxed_era": {
+            "n_county_years": 66,
+            "level_mape_pct": {
+              "CLOSURE": 37.311224590820565,
+              "FLAT": 34.90126980171954,
+              "WATERBAL": 29.298399060871265,
+              "OPENLOOP": 44.867794423297354
+            },
+            "cover_90": 0.9848484848484849,
+            "level_gain_vs": {
+              "FLAT": {
+                "points": -2.4099547891010182,
+                "se_by_county": 10.0514215678048,
+                "n_se_by_county": -0.23976258212273402,
+                "n_counties": 6,
+                "n_counties_favouring_closure": 2
+              },
+              "WATERBAL": {
+                "points": -8.012825529949295,
+                "se_by_county": 10.21877971561747,
+                "n_se_by_county": -0.7841274352654072,
+                "n_counties": 6,
+                "n_counties_favouring_closure": 2
+              },
+              "OPENLOOP": {
+                "points": 7.5565698324767965,
+                "se_by_county": 14.55610777369491,
+                "n_se_by_county": 0.519133957370985,
+                "n_counties": 6,
+                "n_counties_favouring_closure": 4
+              }
+            },
+            "change_5yr": {
+              "n_pairs": 3,
+              "mean_abs_error_pts": {
+                "CLOSURE": 5.191900807796885,
+                "FLAT": 7.386365793238146,
+                "WATERBAL": 9.905192322709018,
+                "OPENLOOP": 7.623589406912863
+              },
+              "coverage_90": 1.0
+            }
+          }
+        },
+        "_v5": {
+          "level": {
+            "CLOSURE": {
+              "label": "closure, evapotranspiration + heads",
+              "mae_mcm": 7.811725042656319,
+              "bias_mcm": 5.408596113224944,
+              "rmse_mcm": 9.524317252542806,
+              "mape_pct": 38.30258855863176,
+              "basin_bias_pct": 17.77159486090383,
+              "rel_err_by_county": {
+                "WA": 31.9,
+                "LG": 106.3,
+                "GO": 23.1,
+                "GL": 32.1,
+                "WH": 23.8,
+                "SC": 12.5
+              },
+              "cover_50": 0.7121212121212122,
+              "cover_80": 0.9242424242424242,
+              "cover_90": 0.9848484848484849,
+              "width90_mcm": 53.984122869474525,
+              "crps_mcm": 5.369518102297653
+            },
+            "FLAT": {
+              "label": "mapped irrigated area x one acre-foot per acre",
+              "mae_mcm": 7.58539014339227,
+              "bias_mcm": 3.35799136299336,
+              "rmse_mcm": 9.560339994551226,
+              "mape_pct": 34.90126980171954,
+              "basin_bias_pct": 11.033706492450431,
+              "rel_err_by_county": {
+                "WA": 14.0,
+                "LG": 67.4,
+                "GO": 15.6,
+                "GL": 61.7,
+                "WH": 36.7,
+                "SC": 14.0
+              }
+            },
+            "WATERBAL": {
+              "label": "the same, plus half the year's precipitation deficit",
+              "mae_mcm": 6.544178893155485,
+              "bias_mcm": 2.2106575255160883,
+              "rmse_mcm": 8.309604038358998,
+              "mape_pct": 29.298399060871265,
+              "basin_bias_pct": 7.26379065791525,
+              "rel_err_by_county": {
+                "WA": 11.0,
+                "LG": 56.3,
+                "GO": 11.4,
+                "GL": 50.5,
+                "WH": 31.4,
+                "SC": 15.1
+              }
+            },
+            "OPENLOOP": {
+              "label": "unmixed evapotranspiration over a fixed efficiency of 0.80",
+              "mae_mcm": 12.772005007092675,
+              "bias_mcm": -9.500949362050651,
+              "rmse_mcm": 18.02730041212394,
+              "mape_pct": 44.867794423297354,
+              "basin_bias_pct": -31.218271677463033,
+              "rel_err_by_county": {
+                "WA": 16.0,
+                "LG": 52.4,
+                "GO": 56.4,
+                "GL": 34.4,
+                "WH": 48.9,
+                "SC": 61.1
+              }
+            },
+            "FLAT_ORACLE": {
+              "label": "area x depth, depth fitted to this block's meters (0.87 af/acre)",
+              "mae_mcm": 6.784223956958093,
+              "bias_mcm": -1.0544718188248223,
+              "rmse_mcm": 8.971069608295693,
+              "mape_pct": 27.71767901668072,
+              "basin_bias_pct": -3.464789302823607,
+              "rel_err_by_county": {
+                "WA": 15.0,
+                "LG": 45.5,
+                "GO": 21.7,
+                "GL": 40.6,
+                "WH": 19.8,
+                "SC": 23.6
+              }
+            },
+            "OPENLOOP_ORACLE": {
+              "label": "open loop, efficiency fitted to this block's meters (0.78)",
+              "mae_mcm": 12.751788570219366,
+              "bias_mcm": -8.964206070618216,
+              "rmse_mcm": 17.956984451485397,
+              "mape_pct": 44.991695992595616,
+              "basin_bias_pct": -29.454637617910812,
+              "rel_err_by_county": {
+                "WA": 17.0,
+                "LG": 54.0,
+                "GO": 56.2,
+                "GL": 34.6,
+                "WH": 48.0,
+                "SC": 60.1
+              }
+            }
+          },
+          "level_gain_vs": {
+            "FLAT": {
+              "points": -3.4013187569122123,
+              "se_by_county": 9.77253167209492,
+              "n_se_by_county": -0.34804888549244045,
+              "n_counties": 6,
+              "n_counties_favouring_closure": 3,
+              "gain_by_county": {
+                "WA": -17.9,
+                "LG": -38.9,
+                "GO": -7.5,
+                "GL": 29.6,
+                "WH": 12.9,
+                "SC": 1.4
+              },
+              "closure_closer_pct_of_county_years": 45.45454545454545
+            },
+            "WATERBAL": {
+              "points": -9.004189497760487,
+              "se_by_county": 9.982364070655539,
+              "n_se_by_county": -0.9020097277587257,
+              "n_counties": 6,
+              "n_counties_favouring_closure": 3,
+              "gain_by_county": {
+                "WA": -20.9,
+                "LG": -50.0,
+                "GO": -11.6,
+                "GL": 18.4,
+                "WH": 7.6,
+                "SC": 2.5
+              },
+              "closure_closer_pct_of_county_years": 45.45454545454545
+            },
+            "OPENLOOP": {
+              "points": 6.565205864665601,
+              "se_by_county": 15.289206156350343,
+              "n_se_by_county": 0.4294013565863755,
+              "n_counties": 6,
+              "n_counties_favouring_closure": 4,
+              "gain_by_county": {
+                "WA": -16.0,
+                "LG": -53.9,
+                "GO": 33.4,
+                "GL": 2.3,
+                "WH": 25.0,
+                "SC": 48.6
+              },
+              "closure_closer_pct_of_county_years": 54.54545454545454
+            }
+          },
+          "change_5yr": {
+            "n_pairs": 3,
+            "mean_abs_error_pts": {
+              "CLOSURE": 5.685398816869434,
+              "FLAT": 7.386365793238146,
+              "WATERBAL": 9.905192322709018,
+              "OPENLOOP": 7.623589406912863
+            },
+            "median_abs_error_pts": {
+              "CLOSURE": 2.7892558176122058,
+              "FLAT": 5.980388515623579,
+              "WATERBAL": 10.288522773228637,
+              "OPENLOOP": 8.32194647460578
+            },
+            "closure_beats_pct": {
+              "FLAT": 100.0,
+              "WATERBAL": 66.66666666666666,
+              "OPENLOOP": 33.33333333333333
+            },
+            "coverage_90": 1.0,
+            "n_declared_change": 0,
+            "n_declared_change_sign_correct": 0,
+            "n_metered_change_negative": 2,
+            "change_r": 0.7964575630501124,
+            "margin_over_best_bar_pts": 1.7009669763687123
+          },
+          "best_level_account": "FLAT_ORACLE",
+          "relaxed_era": {
+            "n_county_years": 66,
+            "level_mape_pct": {
+              "CLOSURE": 38.30258855863176,
+              "FLAT": 34.90126980171954,
+              "WATERBAL": 29.298399060871265,
+              "OPENLOOP": 44.867794423297354
+            },
+            "cover_90": 0.9848484848484849,
+            "level_gain_vs": {
+              "FLAT": {
+                "points": -3.4013187569122123,
+                "se_by_county": 9.77253167209492,
+                "n_se_by_county": -0.34804888549244045,
+                "n_counties": 6,
+                "n_counties_favouring_closure": 3
+              },
+              "WATERBAL": {
+                "points": -9.004189497760487,
+                "se_by_county": 9.982364070655539,
+                "n_se_by_county": -0.9020097277587257,
+                "n_counties": 6,
+                "n_counties_favouring_closure": 3
+              },
+              "OPENLOOP": {
+                "points": 6.565205864665601,
+                "se_by_county": 15.289206156350343,
+                "n_se_by_county": 0.4294013565863755,
+                "n_counties": 6,
+                "n_counties_favouring_closure": 4
+              }
+            },
+            "change_5yr": {
+              "n_pairs": 3,
+              "mean_abs_error_pts": {
+                "CLOSURE": 5.685398816869434,
+                "FLAT": 7.386365793238146,
+                "WATERBAL": 9.905192322709018,
+                "OPENLOOP": 7.623589406912863
+              },
+              "coverage_90": 1.0
+            }
+          }
+        }
+      }
+    },
+    "gmd3w": {
+      "label": "Southwest Kansas, GMD3 west",
+      "counties": [
+        "HM",
+        "KE",
+        "ST",
+        "GT",
+        "MT",
+        "SV"
+      ],
+      "names": [
+        "Hamilton",
+        "Kearny",
+        "Stanton",
+        "Grant",
+        "Morton",
+        "Stevens"
+      ],
+      "grid": [
+        71,
+        44
+      ],
+      "active_cells": 2962,
+      "irrigated_km2": 1830.7125,
+      "n_wells": 245,
+      "metered_era_year0": 2015,
+      "metered_era_rule": "block above 98 per cent and every county above 95, every later year",
+      "relaxed_era_year0": 2005,
+      "relaxed_era_min_share": 0.9694587401322189,
+      "n_county_years": 60,
+      "metered_share_by_year": {
+        "2000": 0.9470776732261017,
+        "2001": 0.9546764738288606,
+        "2002": 0.968347183302469,
+        "2003": 0.9769474729170103,
+        "2004": 0.9715921069183232,
+        "2005": 0.9808406496892679,
+        "2006": 0.9730873073840052,
+        "2007": 0.9694587401322189,
+        "2008": 0.9752083823408616,
+        "2009": 0.969677260252932,
+        "2010": 0.9817932972867534,
+        "2011": 0.9796054166561252,
+        "2012": 0.9825390165278579,
+        "2013": 0.9853830769411015,
+        "2014": 0.9917776332845518,
+        "2015": 0.9917089233779885,
+        "2016": 0.9937660048797846,
+        "2017": 0.9958206742545321,
+        "2018": 0.9980178981408446,
+        "2019": 0.9992874780668982,
+        "2020": 0.9975137451812768,
+        "2021": 0.9941777992914795,
+        "2022": 0.9968255660325465,
+        "2023": 0.9974298548855131,
+        "2024": 0.9961852362644453
+      },
+      "metered_mcm_yr_era": 754.6741289798857,
+      "metered_depth_m_era": 0.4676529091855207,
+      "arms": {
+        "_v3": {
+          "level": {
+            "CLOSURE": {
+              "label": "closure, evapotranspiration + heads",
+              "mae_mcm": 30.270253618677494,
+              "bias_mcm": -30.060225932440524,
+              "rmse_mcm": 39.078135040203584,
+              "mape_pct": 24.303845670064767,
+              "basin_bias_pct": -23.89923659347416,
+              "rel_err_by_county": {
+                "HM": 42.4,
+                "KE": 33.6,
+                "ST": 14.8,
+                "GT": 16.3,
+                "MT": 14.5,
+                "SV": 24.3
+              },
+              "cover_50": 0.5166666666666667,
+              "cover_80": 0.85,
+              "cover_90": 0.9666666666666667,
+              "width90_mcm": 163.58490276647476,
+              "crps_mcm": 24.69067729642309
+            },
+            "FLAT": {
+              "label": "mapped irrigated area x one acre-foot per acre",
+              "mae_mcm": 43.745959803805,
+              "bias_mcm": -43.740450496647604,
+              "rmse_mcm": 54.76301701447436,
+              "mape_pct": 32.84176182971305,
+              "basin_bias_pct": -34.775632674017444,
+              "rel_err_by_county": {
+                "HM": 34.1,
+                "KE": 51.1,
+                "ST": 35.8,
+                "GT": 21.7,
+                "MT": 22.2,
+                "SV": 32.1
+              }
+            },
+            "WATERBAL": {
+              "label": "the same, plus half the year's precipitation deficit",
+              "mae_mcm": 50.050070571480944,
+              "bias_mcm": -50.050070571480944,
+              "rmse_mcm": 61.23563570502144,
+              "mape_pct": 38.53327032655287,
+              "basin_bias_pct": -39.79206546205713,
+              "rel_err_by_county": {
+                "HM": 40.4,
+                "KE": 54.4,
+                "ST": 39.9,
+                "GT": 28.6,
+                "MT": 27.5,
+                "SV": 40.3
+              }
+            },
+            "OPENLOOP": {
+              "label": "unmixed evapotranspiration over a fixed efficiency of 0.80",
+              "mae_mcm": 49.58255268353078,
+              "bias_mcm": -49.5208972316265,
+              "rmse_mcm": 63.20372812040366,
+              "mape_pct": 38.81394784194777,
+              "basin_bias_pct": -39.37134876895697,
+              "rel_err_by_county": {
+                "HM": 37.2,
+                "KE": 23.0,
+                "ST": 33.2,
+                "GT": 50.9,
+                "MT": 43.3,
+                "SV": 45.3
+              }
+            },
+            "ET": {
+              "label": "evapotranspiration leg alone",
+              "mae_mcm": 33.878427393248245,
+              "bias_mcm": -32.42312797796153,
+              "rmse_mcm": 45.630056645219646,
+              "mape_pct": 22.36142319852272,
+              "basin_bias_pct": -25.777850385666838,
+              "rel_err_by_county": {
+                "HM": 12.4,
+                "KE": 31.1,
+                "ST": 18.1,
+                "GT": 29.4,
+                "MT": 10.9,
+                "SV": 32.3
+              },
+              "cover_50": 0.5,
+              "cover_80": 0.9666666666666667,
+              "cover_90": 1.0,
+              "width90_mcm": 170.03413034154346
+            },
+            "FLAT_ORACLE": {
+              "label": "area x depth, depth fitted to this block's meters (1.47 af/acre)",
+              "mae_mcm": 18.34030640557221,
+              "bias_mcm": -5.466550246647599,
+              "rmse_mcm": 25.72057510693607,
+              "mape_pct": 14.569186756572453,
+              "basin_bias_pct": -4.346154216816921,
+              "rel_err_by_county": {
+                "HM": 7.9,
+                "KE": 28.4,
+                "ST": 8.0,
+                "GT": 15.9,
+                "MT": 18.0,
+                "SV": 9.4
+              }
+            },
+            "OPENLOOP_ORACLE": {
+              "label": "open loop, efficiency fitted to this block's meters (0.51)",
+              "mae_mcm": 26.224666494708007,
+              "bias_mcm": -5.687487221023804,
+              "rmse_mcm": 37.07660580777897,
+              "mape_pct": 22.445125361652565,
+              "basin_bias_pct": -4.521809084971616,
+              "rel_err_by_county": {
+                "HM": 27.5,
+                "KE": 26.1,
+                "ST": 19.5,
+                "GT": 23.6,
+                "MT": 21.1,
+                "SV": 16.9
+              }
+            }
+          },
+          "level_gain_vs": {
+            "FLAT": {
+              "points": 8.537916159648281,
+              "se_by_county": 4.214460613074929,
+              "n_se_by_county": 2.0258621312440974,
+              "n_counties": 6,
+              "n_counties_favouring_closure": 5,
+              "gain_by_county": {
+                "HM": -8.3,
+                "KE": 17.6,
+                "ST": 21.0,
+                "GT": 5.5,
+                "MT": 7.7,
+                "SV": 7.8
+              },
+              "closure_closer_pct_of_county_years": 73.33333333333333
+            },
+            "WATERBAL": {
+              "points": 14.229424656488112,
+              "se_by_county": 3.797319294404975,
+              "n_se_by_county": 3.7472289142116524,
+              "n_counties": 6,
+              "n_counties_favouring_closure": 5,
+              "gain_by_county": {
+                "HM": -2.0,
+                "KE": 20.9,
+                "ST": 25.1,
+                "GT": 12.3,
+                "MT": 13.1,
+                "SV": 16.0
+              },
+              "closure_closer_pct_of_county_years": 83.33333333333334
+            },
+            "OPENLOOP": {
+              "points": 14.510102171882997,
+              "se_by_county": 7.493193354486613,
+              "n_se_by_county": 1.9364377089235192,
+              "n_counties": 6,
+              "n_counties_favouring_closure": 4,
+              "gain_by_county": {
+                "HM": -5.2,
+                "KE": -10.6,
+                "ST": 18.4,
+                "GT": 34.6,
+                "MT": 28.8,
+                "SV": 21.0
+              },
+              "closure_closer_pct_of_county_years": 76.66666666666667
+            }
+          },
+          "change_5yr": {
+            "n_pairs": 1,
+            "mean_abs_error_pts": {
+              "CLOSURE": 10.320849359592511,
+              "FLAT": 17.669478524927996,
+              "WATERBAL": 9.691212771420332,
+              "OPENLOOP": 9.573256781683213
+            },
+            "median_abs_error_pts": {
+              "CLOSURE": 10.320849359592511,
+              "FLAT": 17.669478524927996,
+              "WATERBAL": 9.691212771420332,
+              "OPENLOOP": 9.573256781683213
+            },
+            "closure_beats_pct": {
+              "FLAT": 100.0,
+              "WATERBAL": 0.0,
+              "OPENLOOP": 0.0
+            },
+            "coverage_90": 1.0,
+            "n_declared_change": 0,
+            "n_declared_change_sign_correct": 0,
+            "n_metered_change_negative": 0,
+            "margin_over_best_bar_pts": -0.7475925779092982
+          },
+          "best_level_account": "FLAT_ORACLE",
+          "relaxed_era": {
+            "n_county_years": 120,
+            "level_mape_pct": {
+              "CLOSURE": 23.012810215340505,
+              "FLAT": 32.004997201749404,
+              "WATERBAL": 33.26952783926663,
+              "OPENLOOP": 32.228178349330875
+            },
+            "cover_90": 0.9666666666666667,
+            "level_gain_vs": {
+              "FLAT": {
+                "points": 8.992186986408905,
+                "se_by_county": 4.218864182013411,
+                "n_se_by_county": 2.1314236719792845,
+                "n_counties": 6,
+                "n_counties_favouring_closure": 5
+              },
+              "WATERBAL": {
+                "points": 10.256717623926123,
+                "se_by_county": 3.9738294180230094,
+                "n_se_by_county": 2.581066408489388,
+                "n_counties": 6,
+                "n_counties_favouring_closure": 5
+              },
+              "OPENLOOP": {
+                "points": 9.215368133990372,
+                "se_by_county": 4.957422307010188,
+                "n_se_by_county": 1.8589031886509066,
+                "n_counties": 6,
+                "n_counties_favouring_closure": 5
+              }
+            },
+            "change_5yr": {
+              "n_pairs": 66,
+              "mean_abs_error_pts": {
+                "CLOSURE": 4.4919176479417215,
+                "FLAT": 6.308270413883973,
+                "WATERBAL": 10.070858105618976,
+                "OPENLOOP": 15.723195052191533
+              },
+              "coverage_90": 1.0
+            }
+          }
+        },
+        "_v5": {
+          "level": {
+            "CLOSURE": {
+              "label": "closure, evapotranspiration + heads",
+              "mae_mcm": 33.025463727977744,
+              "bias_mcm": -33.00682152548381,
+              "rmse_mcm": 41.37364590046174,
+              "mape_pct": 27.09325694036958,
+              "basin_bias_pct": -26.24191310501134,
+              "rel_err_by_county": {
+                "HM": 37.8,
+                "KE": 29.3,
+                "ST": 23.5,
+                "GT": 16.7,
+                "MT": 28.2,
+                "SV": 27.1
+              },
+              "cover_50": 0.3333333333333333,
+              "cover_80": 0.8666666666666667,
+              "cover_90": 0.9833333333333333,
+              "width90_mcm": 148.64832680978483,
+              "crps_mcm": 25.013323141650506
+            },
+            "FLAT": {
+              "label": "mapped irrigated area x one acre-foot per acre",
+              "mae_mcm": 43.745959803805,
+              "bias_mcm": -43.740450496647604,
+              "rmse_mcm": 54.76301701447436,
+              "mape_pct": 32.84176182971305,
+              "basin_bias_pct": -34.775632674017444,
+              "rel_err_by_county": {
+                "HM": 34.1,
+                "KE": 51.1,
+                "ST": 35.8,
+                "GT": 21.7,
+                "MT": 22.2,
+                "SV": 32.1
+              }
+            },
+            "WATERBAL": {
+              "label": "the same, plus half the year's precipitation deficit",
+              "mae_mcm": 50.050070571480944,
+              "bias_mcm": -50.050070571480944,
+              "rmse_mcm": 61.23563570502144,
+              "mape_pct": 38.53327032655287,
+              "basin_bias_pct": -39.79206546205713,
+              "rel_err_by_county": {
+                "HM": 40.4,
+                "KE": 54.4,
+                "ST": 39.9,
+                "GT": 28.6,
+                "MT": 27.5,
+                "SV": 40.3
+              }
+            },
+            "OPENLOOP": {
+              "label": "unmixed evapotranspiration over a fixed efficiency of 0.80",
+              "mae_mcm": 49.58255268353078,
+              "bias_mcm": -49.5208972316265,
+              "rmse_mcm": 63.20372812040366,
+              "mape_pct": 38.81394784194777,
+              "basin_bias_pct": -39.37134876895697,
+              "rel_err_by_county": {
+                "HM": 37.2,
+                "KE": 23.0,
+                "ST": 33.2,
+                "GT": 50.9,
+                "MT": 43.3,
+                "SV": 45.3
+              }
+            },
+            "FLAT_ORACLE": {
+              "label": "area x depth, depth fitted to this block's meters (1.47 af/acre)",
+              "mae_mcm": 18.34030640557221,
+              "bias_mcm": -5.466550246647599,
+              "rmse_mcm": 25.72057510693607,
+              "mape_pct": 14.569186756572453,
+              "basin_bias_pct": -4.346154216816921,
+              "rel_err_by_county": {
+                "HM": 7.9,
+                "KE": 28.4,
+                "ST": 8.0,
+                "GT": 15.9,
+                "MT": 18.0,
+                "SV": 9.4
+              }
+            },
+            "OPENLOOP_ORACLE": {
+              "label": "open loop, efficiency fitted to this block's meters (0.51)",
+              "mae_mcm": 26.224666494708007,
+              "bias_mcm": -5.687487221023804,
+              "rmse_mcm": 37.07660580777897,
+              "mape_pct": 22.445125361652565,
+              "basin_bias_pct": -4.521809084971616,
+              "rel_err_by_county": {
+                "HM": 27.5,
+                "KE": 26.1,
+                "ST": 19.5,
+                "GT": 23.6,
+                "MT": 21.1,
+                "SV": 16.9
+              }
+            }
+          },
+          "level_gain_vs": {
+            "FLAT": {
+              "points": 5.748504889343468,
+              "se_by_county": 4.203874216109695,
+              "n_se_by_county": 1.3674302783167447,
+              "n_counties": 6,
+              "n_counties_favouring_closure": 4,
+              "gain_by_county": {
+                "HM": -3.7,
+                "KE": 21.8,
+                "ST": 12.3,
+                "GT": 5.0,
+                "MT": -6.0,
+                "SV": 5.0
+              },
+              "closure_closer_pct_of_county_years": 71.66666666666667
+            },
+            "WATERBAL": {
+              "points": 11.440013386183296,
+              "se_by_county": 3.816140728918332,
+              "n_se_by_county": 2.99779651717035,
+              "n_counties": 6,
+              "n_counties_favouring_closure": 5,
+              "gain_by_county": {
+                "HM": 2.7,
+                "KE": 25.1,
+                "ST": 16.4,
+                "GT": 11.9,
+                "MT": -0.6,
+                "SV": 13.2
+              },
+              "closure_closer_pct_of_county_years": 76.66666666666667
+            },
+            "OPENLOOP": {
+              "points": 11.720690901578179,
+              "se_by_county": 5.889380724018995,
+              "n_se_by_county": 1.9901397873255198,
+              "n_counties": 6,
+              "n_counties_favouring_closure": 4,
+              "gain_by_county": {
+                "HM": -0.6,
+                "KE": -6.3,
+                "ST": 9.7,
+                "GT": 34.2,
+                "MT": 15.2,
+                "SV": 18.2
+              },
+              "closure_closer_pct_of_county_years": 71.66666666666667
+            }
+          },
+          "change_5yr": {
+            "n_pairs": 1,
+            "mean_abs_error_pts": {
+              "CLOSURE": 6.100610249486552,
+              "FLAT": 17.669478524927996,
+              "WATERBAL": 9.691212771420332,
+              "OPENLOOP": 9.573256781683213
+            },
+            "median_abs_error_pts": {
+              "CLOSURE": 6.100610249486552,
+              "FLAT": 17.669478524927996,
+              "WATERBAL": 9.691212771420332,
+              "OPENLOOP": 9.573256781683213
+            },
+            "closure_beats_pct": {
+              "FLAT": 100.0,
+              "WATERBAL": 100.0,
+              "OPENLOOP": 100.0
+            },
+            "coverage_90": 1.0,
+            "n_declared_change": 0,
+            "n_declared_change_sign_correct": 0,
+            "n_metered_change_negative": 0,
+            "margin_over_best_bar_pts": 3.472646532196661
+          },
+          "best_level_account": "FLAT_ORACLE",
+          "relaxed_era": {
+            "n_county_years": 120,
+            "level_mape_pct": {
+              "CLOSURE": 25.05450452766464,
+              "FLAT": 32.004997201749404,
+              "WATERBAL": 33.26952783926663,
+              "OPENLOOP": 32.228178349330875
+            },
+            "cover_90": 0.9833333333333333,
+            "level_gain_vs": {
+              "FLAT": {
+                "points": 6.950492674084767,
+                "se_by_county": 5.177093439365372,
+                "n_se_by_county": 1.342547272033936,
+                "n_counties": 6,
+                "n_counties_favouring_closure": 4
+              },
+              "WATERBAL": {
+                "points": 8.215023311601987,
+                "se_by_county": 4.788908990457786,
+                "n_se_by_county": 1.7154269016118195,
+                "n_counties": 6,
+                "n_counties_favouring_closure": 4
+              },
+              "OPENLOOP": {
+                "points": 7.1736738216662355,
+                "se_by_county": 3.930744079719072,
+                "n_se_by_county": 1.8250167592134194,
+                "n_counties": 6,
+                "n_counties_favouring_closure": 4
+              }
+            },
+            "change_5yr": {
+              "n_pairs": 66,
+              "mean_abs_error_pts": {
+                "CLOSURE": 4.736223789560636,
+                "FLAT": 6.308270413883973,
+                "WATERBAL": 10.070858105618976,
+                "OPENLOOP": 15.723195052191533
+              },
+              "coverage_90": 1.0
+            }
+          }
+        }
+      }
+    },
+    "gmd3e": {
+      "label": "Southwest Kansas, GMD3 east",
+      "counties": [
+        "FI",
+        "HS",
+        "GY",
+        "SW",
+        "ME",
+        "FO"
+      ],
+      "names": [
+        "Finney",
+        "Haskell",
+        "Gray",
+        "Seward",
+        "Meade",
+        "Ford"
+      ],
+      "grid": [
+        71,
+        69
+      ],
+      "active_cells": 3559,
+      "irrigated_km2": 3024.2,
+      "n_wells": 321,
+      "metered_era_year0": 2009,
+      "metered_era_rule": "block above 98 per cent and every county above 95, every later year",
+      "relaxed_era_year0": 2004,
+      "relaxed_era_min_share": 0.9744350746796345,
+      "n_county_years": 96,
+      "metered_share_by_year": {
+        "2000": 0.9569521519238888,
+        "2001": 0.9635696520299306,
+        "2002": 0.9786698010962647,
+        "2003": 0.9766537954468131,
+        "2004": 0.9835612437720795,
+        "2005": 0.9826959553170191,
+        "2006": 0.9785347443362431,
+        "2007": 0.9744350746796345,
+        "2008": 0.9781893989376894,
+        "2009": 0.9803117282378518,
+        "2010": 0.9803205894958014,
+        "2011": 0.9853563190982088,
+        "2012": 0.9891405481529295,
+        "2013": 0.992953768112967,
+        "2014": 0.9945627430868141,
+        "2015": 0.9946945262274167,
+        "2016": 0.9964975063182069,
+        "2017": 0.9944900621378154,
+        "2018": 0.9967051722047414,
+        "2019": 0.9979581757089073,
+        "2020": 0.9966385413108405,
+        "2021": 0.9980695797206696,
+        "2022": 0.9979902219423405,
+        "2023": 0.9978884330724882,
+        "2024": 0.9980003470254671
+      },
+      "metered_mcm_yr_era": 1284.8634156577589,
+      "metered_depth_m_era": 0.4331550757405774,
+      "arms": {
+        "_v3": {
+          "level": {
+            "CLOSURE": {
+              "label": "closure, evapotranspiration + heads",
+              "mae_mcm": 49.18260963987034,
+              "bias_mcm": -45.478246911880525,
+              "rmse_mcm": 64.1736017217781,
+              "mape_pct": 21.15273117981106,
+              "basin_bias_pct": -21.237236436652154,
+              "rel_err_by_county": {
+                "FI": 34.8,
+                "HS": 17.9,
+                "GY": 10.6,
+                "SW": 40.2,
+                "ME": 10.5,
+                "FO": 12.9
+              },
+              "cover_50": 0.6145833333333334,
+              "cover_80": 0.9166666666666666,
+              "cover_90": 0.9895833333333334,
+              "width90_mcm": 291.7922323726234,
+              "crps_mcm": 42.77934020928103
+            },
+            "FLAT": {
+              "label": "mapped irrigated area x one acre-foot per acre",
+              "mae_mcm": 64.27128808943961,
+              "bias_mcm": -63.782331984626495,
+              "rmse_mcm": 78.64552795442602,
+              "mape_pct": 27.162016938397738,
+              "basin_bias_pct": -29.784799477059327,
+              "rel_err_by_county": {
+                "FI": 22.8,
+                "HS": 29.9,
+                "GY": 26.3,
+                "SW": 39.2,
+                "ME": 36.6,
+                "FO": 8.1
+              }
+            },
+            "WATERBAL": {
+              "label": "the same, plus half the year's precipitation deficit",
+              "mae_mcm": 65.37714682921806,
+              "bias_mcm": -65.06135995292857,
+              "rmse_mcm": 76.06716454627843,
+              "mape_pct": 29.59041556706683,
+              "basin_bias_pct": -30.38207446491349,
+              "rel_err_by_county": {
+                "FI": 23.8,
+                "HS": 33.0,
+                "GY": 29.9,
+                "SW": 41.3,
+                "ME": 39.0,
+                "FO": 10.5
+              }
+            },
+            "OPENLOOP": {
+              "label": "unmixed evapotranspiration over a fixed efficiency of 0.80",
+              "mae_mcm": 63.24813231540201,
+              "bias_mcm": -55.46347554398873,
+              "rmse_mcm": 72.83181238133398,
+              "mape_pct": 31.88508917495299,
+              "basin_bias_pct": -25.90009562172583,
+              "rel_err_by_county": {
+                "FI": 15.9,
+                "HS": 30.5,
+                "GY": 37.9,
+                "SW": 44.9,
+                "ME": 29.0,
+                "FO": 33.0
+              }
+            },
+            "ET": {
+              "label": "evapotranspiration leg alone",
+              "mae_mcm": 44.62500206682468,
+              "bias_mcm": -41.61994867472258,
+              "rmse_mcm": 54.89884069309428,
+              "mape_pct": 19.713650830920574,
+              "basin_bias_pct": -19.435504895319678,
+              "rel_err_by_county": {
+                "FI": 13.3,
+                "HS": 17.8,
+                "GY": 20.4,
+                "SW": 35.2,
+                "ME": 22.1,
+                "FO": 9.5
+              },
+              "cover_50": 0.6458333333333334,
+              "cover_80": 1.0,
+              "cover_90": 1.0,
+              "width90_mcm": 322.8300231833783
+            },
+            "FLAT_ORACLE": {
+              "label": "area x depth, depth fitted to this block's meters (1.42 af/acre)",
+              "mae_mcm": 36.31686959199194,
+              "bias_mcm": -0.5397028700431553,
+              "rmse_mcm": 44.558096442467935,
+              "mape_pct": 18.287339556568323,
+              "basin_bias_pct": -0.25202812849963324,
+              "rel_err_by_county": {
+                "FI": 18.6,
+                "HS": 15.3,
+                "GY": 15.1,
+                "SW": 14.9,
+                "ME": 11.1,
+                "FO": 34.8
+              }
+            },
+            "OPENLOOP_ORACLE": {
+              "label": "open loop, efficiency fitted to this block's meters (0.62)",
+              "mae_mcm": 51.47763852793908,
+              "bias_mcm": -10.053321174722614,
+              "rmse_mcm": 67.69211966284135,
+              "mape_pct": 24.5395360420379,
+              "basin_bias_pct": -4.694656748200415,
+              "rel_err_by_county": {
+                "FI": 25.0,
+                "HS": 15.0,
+                "GY": 22.3,
+                "SW": 30.0,
+                "ME": 30.2,
+                "FO": 24.7
+              }
+            }
+          },
+          "level_gain_vs": {
+            "FLAT": {
+              "points": 6.0092857585866755,
+              "se_by_county": 5.847971696682399,
+              "n_se_by_county": 1.02758461741458,
+              "n_counties": 6,
+              "n_counties_favouring_closure": 3,
+              "gain_by_county": {
+                "FI": -12.0,
+                "HS": 12.0,
+                "GY": 15.7,
+                "SW": -0.9,
+                "ME": 26.2,
+                "FO": -4.8
+              },
+              "closure_closer_pct_of_county_years": 64.58333333333334
+            },
+            "WATERBAL": {
+              "points": 8.43768438725577,
+              "se_by_county": 6.088350382091519,
+              "n_se_by_county": 1.3858736534077707,
+              "n_counties": 6,
+              "n_counties_favouring_closure": 4,
+              "gain_by_county": {
+                "FI": -11.0,
+                "HS": 15.1,
+                "GY": 19.3,
+                "SW": 1.2,
+                "ME": 28.5,
+                "FO": -2.4
+              },
+              "closure_closer_pct_of_county_years": 64.58333333333334
+            },
+            "OPENLOOP": {
+              "points": 10.73235799514193,
+              "se_by_county": 6.687451410988592,
+              "n_se_by_county": 1.6048502389874393,
+              "n_counties": 6,
+              "n_counties_favouring_closure": 5,
+              "gain_by_county": {
+                "FI": -18.9,
+                "HS": 12.6,
+                "GY": 27.3,
+                "SW": 4.8,
+                "ME": 18.6,
+                "FO": 20.1
+              },
+              "closure_closer_pct_of_county_years": 66.66666666666666
+            }
+          },
+          "change_5yr": {
+            "n_pairs": 28,
+            "mean_abs_error_pts": {
+              "CLOSURE": 6.822911872432618,
+              "FLAT": 13.441995424867647,
+              "WATERBAL": 11.897790019051541,
+              "OPENLOOP": 5.439786990081694
+            },
+            "median_abs_error_pts": {
+              "CLOSURE": 7.467089230240102,
+              "FLAT": 14.662082691834538,
+              "WATERBAL": 9.938332290149404,
+              "OPENLOOP": 4.999883664027593
+            },
+            "closure_beats_pct": {
+              "FLAT": 75.0,
+              "WATERBAL": 67.85714285714286,
+              "OPENLOOP": 35.714285714285715
+            },
+            "coverage_90": 1.0,
+            "n_declared_change": 18,
+            "n_declared_change_sign_correct": 18,
+            "n_metered_change_negative": 25,
+            "declaration_auc_vs_metered_magnitude": 1.0,
+            "metered_pct_where_declared": 22.546495273005615,
+            "metered_pct_where_not_declared": 6.806214976248076,
+            "change_r": 0.973488805330959,
+            "margin_over_best_bar_pts": -1.3831248823509243
+          },
+          "best_level_account": "FLAT_ORACLE",
+          "relaxed_era": {
+            "n_county_years": 126,
+            "level_mape_pct": {
+              "CLOSURE": 20.657181065285705,
+              "FLAT": 27.08286818784783,
+              "WATERBAL": 29.442269500660533,
+              "OPENLOOP": 28.86519196062793
+            },
+            "cover_90": 0.9920634920634921,
+            "level_gain_vs": {
+              "FLAT": {
+                "points": 6.425687122562131,
+                "se_by_county": 5.796448911428209,
+                "n_se_by_county": 1.108555810764298,
+                "n_counties": 6,
+                "n_counties_favouring_closure": 3
+              },
+              "WATERBAL": {
+                "points": 8.785088435374831,
+                "se_by_county": 5.953874009107279,
+                "n_se_by_county": 1.4755247460622807,
+                "n_counties": 6,
+                "n_counties_favouring_closure": 4
+              },
+              "OPENLOOP": {
+                "points": 8.20801089534222,
+                "se_by_county": 6.26997022837167,
+                "n_se_by_county": 1.3090988627347702,
+                "n_counties": 6,
+                "n_counties_favouring_closure": 5
+              }
+            },
+            "change_5yr": {
+              "n_pairs": 78,
+              "mean_abs_error_pts": {
+                "CLOSURE": 5.958481446339775,
+                "FLAT": 10.904827250963235,
+                "WATERBAL": 8.468956161416017,
+                "OPENLOOP": 7.350726227359032
+              },
+              "coverage_90": 1.0
+            }
+          }
+        },
+        "_v5": {
+          "level": {
+            "CLOSURE": {
+              "label": "closure, evapotranspiration + heads",
+              "mae_mcm": 50.932781537780436,
+              "bias_mcm": -41.646068310301565,
+              "rmse_mcm": 66.4409947807389,
+              "mape_pct": 22.167624046603997,
+              "basin_bias_pct": -19.447702130571624,
+              "rel_err_by_county": {
+                "FI": 34.3,
+                "HS": 16.4,
+                "GY": 12.4,
+                "SW": 46.3,
+                "ME": 9.6,
+                "FO": 14.0
+              },
+              "cover_50": 0.625,
+              "cover_80": 0.8333333333333334,
+              "cover_90": 0.9583333333333334,
+              "width90_mcm": 285.02332606321784,
+              "crps_mcm": 42.89895201823243
+            },
+            "FLAT": {
+              "label": "mapped irrigated area x one acre-foot per acre",
+              "mae_mcm": 64.27128808943961,
+              "bias_mcm": -63.782331984626495,
+              "rmse_mcm": 78.64552795442602,
+              "mape_pct": 27.162016938397738,
+              "basin_bias_pct": -29.784799477059327,
+              "rel_err_by_county": {
+                "FI": 22.8,
+                "HS": 29.9,
+                "GY": 26.3,
+                "SW": 39.2,
+                "ME": 36.6,
+                "FO": 8.1
+              }
+            },
+            "WATERBAL": {
+              "label": "the same, plus half the year's precipitation deficit",
+              "mae_mcm": 65.37714682921806,
+              "bias_mcm": -65.06135995292857,
+              "rmse_mcm": 76.06716454627843,
+              "mape_pct": 29.59041556706683,
+              "basin_bias_pct": -30.38207446491349,
+              "rel_err_by_county": {
+                "FI": 23.8,
+                "HS": 33.0,
+                "GY": 29.9,
+                "SW": 41.3,
+                "ME": 39.0,
+                "FO": 10.5
+              }
+            },
+            "OPENLOOP": {
+              "label": "unmixed evapotranspiration over a fixed efficiency of 0.80",
+              "mae_mcm": 63.24813231540201,
+              "bias_mcm": -55.46347554398873,
+              "rmse_mcm": 72.83181238133398,
+              "mape_pct": 31.88508917495299,
+              "basin_bias_pct": -25.90009562172583,
+              "rel_err_by_county": {
+                "FI": 15.9,
+                "HS": 30.5,
+                "GY": 37.9,
+                "SW": 44.9,
+                "ME": 29.0,
+                "FO": 33.0
+              }
+            },
+            "FLAT_ORACLE": {
+              "label": "area x depth, depth fitted to this block's meters (1.42 af/acre)",
+              "mae_mcm": 36.31686959199194,
+              "bias_mcm": -0.5397028700431553,
+              "rmse_mcm": 44.558096442467935,
+              "mape_pct": 18.287339556568323,
+              "basin_bias_pct": -0.25202812849963324,
+              "rel_err_by_county": {
+                "FI": 18.6,
+                "HS": 15.3,
+                "GY": 15.1,
+                "SW": 14.9,
+                "ME": 11.1,
+                "FO": 34.8
+              }
+            },
+            "OPENLOOP_ORACLE": {
+              "label": "open loop, efficiency fitted to this block's meters (0.62)",
+              "mae_mcm": 51.47763852793908,
+              "bias_mcm": -10.053321174722614,
+              "rmse_mcm": 67.69211966284135,
+              "mape_pct": 24.5395360420379,
+              "basin_bias_pct": -4.694656748200415,
+              "rel_err_by_county": {
+                "FI": 25.0,
+                "HS": 15.0,
+                "GY": 22.3,
+                "SW": 30.0,
+                "ME": 30.2,
+                "FO": 24.7
+              }
+            }
+          },
+          "level_gain_vs": {
+            "FLAT": {
+              "points": 4.99439289179374,
+              "se_by_county": 6.241699308985589,
+              "n_se_by_county": 0.8001655710334814,
+              "n_counties": 6,
+              "n_counties_favouring_closure": 3,
+              "gain_by_county": {
+                "FI": -11.4,
+                "HS": 13.5,
+                "GY": 13.8,
+                "SW": -7.1,
+                "ME": 27.0,
+                "FO": -5.9
+              },
+              "closure_closer_pct_of_county_years": 60.416666666666664
+            },
+            "WATERBAL": {
+              "points": 7.4227915204628365,
+              "se_by_county": 6.467291084818125,
+              "n_se_by_county": 1.1477435332836239,
+              "n_counties": 6,
+              "n_counties_favouring_closure": 3,
+              "gain_by_county": {
+                "FI": -10.4,
+                "HS": 16.6,
+                "GY": 17.4,
+                "SW": -5.0,
+                "ME": 29.4,
+                "FO": -3.4
+              },
+              "closure_closer_pct_of_county_years": 61.458333333333336
+            },
+            "OPENLOOP": {
+              "points": 9.717465128348994,
+              "se_by_county": 6.729314606812542,
+              "n_se_by_county": 1.4440497578328921,
+              "n_counties": 6,
+              "n_counties_favouring_closure": 4,
+              "gain_by_county": {
+                "FI": -18.4,
+                "HS": 14.1,
+                "GY": 25.4,
+                "SW": -1.4,
+                "ME": 19.4,
+                "FO": 19.1
+              },
+              "closure_closer_pct_of_county_years": 65.625
+            }
+          },
+          "change_5yr": {
+            "n_pairs": 28,
+            "mean_abs_error_pts": {
+              "CLOSURE": 9.48497369499152,
+              "FLAT": 13.441995424867647,
+              "WATERBAL": 11.897790019051541,
+              "OPENLOOP": 5.439786990081694
+            },
+            "median_abs_error_pts": {
+              "CLOSURE": 10.043667488604617,
+              "FLAT": 14.662082691834538,
+              "WATERBAL": 9.938332290149404,
+              "OPENLOOP": 4.999883664027593
+            },
+            "closure_beats_pct": {
+              "FLAT": 71.42857142857143,
+              "WATERBAL": 64.28571428571429,
+              "OPENLOOP": 21.428571428571427
+            },
+            "coverage_90": 1.0,
+            "n_declared_change": 22,
+            "n_declared_change_sign_correct": 22,
+            "n_metered_change_negative": 25,
+            "declaration_auc_vs_metered_magnitude": 0.9772727272727273,
+            "metered_pct_where_declared": 20.41511796395528,
+            "metered_pct_where_not_declared": 4.127744911594272,
+            "change_r": 0.9537337894497901,
+            "margin_over_best_bar_pts": -4.045186704909827
+          },
+          "best_level_account": "FLAT_ORACLE",
+          "relaxed_era": {
+            "n_county_years": 126,
+            "level_mape_pct": {
+              "CLOSURE": 21.7161937608968,
+              "FLAT": 27.08286818784783,
+              "WATERBAL": 29.442269500660533,
+              "OPENLOOP": 28.86519196062793
+            },
+            "cover_90": 0.9682539682539683,
+            "level_gain_vs": {
+              "FLAT": {
+                "points": 5.366674426951033,
+                "se_by_county": 6.181557184754215,
+                "n_se_by_county": 0.8681751646958868,
+                "n_counties": 6,
+                "n_counties_favouring_closure": 3
+              },
+              "WATERBAL": {
+                "points": 7.726075739763733,
+                "se_by_county": 6.336636738529065,
+                "n_se_by_county": 1.2192707359704513,
+                "n_counties": 6,
+                "n_counties_favouring_closure": 3
+              },
+              "OPENLOOP": {
+                "points": 7.148998199731121,
+                "se_by_county": 6.027880456785055,
+                "n_se_by_county": 1.1859887154338176,
+                "n_counties": 6,
+                "n_counties_favouring_closure": 4
+              }
+            },
+            "change_5yr": {
+              "n_pairs": 78,
+              "mean_abs_error_pts": {
+                "CLOSURE": 7.165984497578711,
+                "FLAT": 10.904827250963235,
+                "WATERBAL": 8.468956161416017,
+                "OPENLOOP": 7.350726227359032
+              },
+              "coverage_90": 1.0
+            }
+          }
+        }
+      }
+    }
+  },
+  "pooled_new_counties": {
+    "blocks": [
+      "west",
+      "gmd3w",
+      "gmd3e"
+    ],
+    "n_counties": 18,
+    "FLAT": {
+      "points": 4.061111111111112,
+      "se_by_county": 4.03748076252637,
+      "n_se_by_county": 1.0058527458022997,
+      "n_counties": 18,
+      "n_counties_favouring_closure": 10
+    },
+    "WATERBAL": {
+      "points": 4.888888888888889,
+      "se_by_county": 4.528153679411933,
+      "n_se_by_county": 1.0796649661245166,
+      "n_counties": 18,
+      "n_counties_favouring_closure": 11
+    },
+    "OPENLOOP": {
+      "points": 10.933333333333332,
+      "se_by_county": 5.581376595955728,
+      "n_se_by_county": 1.95889547056467,
+      "n_counties": 18,
+      "n_counties_favouring_closure": 13
+    },
+    "mean_block_mape_pct": {
+      "CLOSURE": 27.589267146898795,
+      "ET": 27.85458989962014,
+      "FLAT": 31.635016189943443,
+      "WATERBAL": 32.474028318163654,
+      "OPENLOOP": 38.52227714673271
+    },
+    "cover_90_mean": 0.9803661616161617,
+    "change_5yr_mean_abs_error_pts": {
+      "CLOSURE": 7.445220679940671,
+      "FLAT": 12.832613247677928,
+      "WATERBAL": 10.498065037726965,
+      "OPENLOOP": 7.54554439289259
+    }
+  },
+  "pooled_all_counties": {
+    "blocks": [
+      "gmd4a",
+      "west",
+      "gmd3w",
+      "gmd3e"
+    ],
+    "n_counties": 24,
+    "FLAT": {
+      "points": 1.6458333333333333,
+      "se_by_county": 3.3691211771081564,
+      "n_se_by_county": 0.48850523528691064,
+      "n_counties": 24,
+      "n_counties_favouring_closure": 12
+    },
+    "WATERBAL": {
+      "points": 1.2958333333333334,
+      "se_by_county": 3.784471892621036,
+      "n_se_by_county": 0.342407968694377,
+      "n_counties": 24,
+      "n_counties_favouring_closure": 12
+    },
+    "OPENLOOP": {
+      "points": 13.362500000000002,
+      "se_by_county": 5.101057763637951,
+      "n_se_by_county": 2.6195547314230354,
+      "n_counties": 24,
+      "n_counties_favouring_closure": 17
+    },
+    "mean_block_mape_pct": {
+      "CLOSURE": 27.84544346936058,
+      "ET": 25.996708862938917,
+      "FLAT": 29.48555172042509,
+      "WATERBAL": 29.13320242370269,
+      "OPENLOOP": 41.21035069583457
+    },
+    "cover_90_mean": 0.9618371212121213,
+    "change_5yr_mean_abs_error_pts": {
+      "CLOSURE": 7.922266861068062,
+      "FLAT": 13.302247645177195,
+      "WATERBAL": 11.250320256373097,
+      "OPENLOOP": 8.731936885166443
+    }
+  },
+  "predictions": {
+    "P1": {
+      "statement": "closure has lower relative error than the open loop on the level in at least two thirds of the new counties",
+      "value": "13 of 18",
+      "pass": true
+    },
+    "P2": {
+      "statement": "the 90 per cent interval covers the metered value in 0.80 to 0.97 of new county-years",
+      "value": 0.982,
+      "pass": false
+    },
+    "P3": {
+      "statement": "on the five-year change the closure beats the open loop, mean over the new blocks",
+      "value": "closure 7.45 vs open loop 7.55 points",
+      "pass": true
+    },
+    "P4": {
+      "statement": "_v5 beats _v3 on the five-year change, mean over the new blocks",
+      "value": "_v5 7.09 vs _v3 7.45 points",
+      "pass": true
+    },
+    "P5": {
+      "statement": "area x one acre-foot per acre has a larger relative error in GMD3 than on the published block, because the applied depth there is not the northwest's",
+      "value": "GMD3 30.0% vs GMD4 north 23.0%; metered depth in GMD3 1.48 acre-feet per acre",
+      "pass": true
+    },
+    "P6": {
+      "statement": "on the GMD3 blocks the closure's relative error on the level is below that of area times one acre-foot, which it loses on the published block",
+      "value": "closure 22.7% vs rule 30.0%",
+      "pass": true
+    }
+  },
+  "pooled_new_counties_v5": {
+    "blocks": [
+      "west",
+      "gmd3w",
+      "gmd3e"
+    ],
+    "n_counties": 18,
+    "FLAT": {
+      "points": 2.438888888888889,
+      "se_by_county": 3.9895381069070304,
+      "n_se_by_county": 0.6113211162631773,
+      "n_counties": 18,
+      "n_counties_favouring_closure": 10
+    },
+    "WATERBAL": {
+      "points": 3.2944444444444443,
+      "se_by_county": 4.4605934144792405,
+      "n_se_by_county": 0.7385664054810653,
+      "n_counties": 18,
+      "n_counties_favouring_closure": 11
+    },
+    "OPENLOOP": {
+      "points": 9.333333333333334,
+      "se_by_county": 5.569742017705205,
+      "n_se_by_county": 1.675720940694264,
+      "n_counties": 18,
+      "n_counties_favouring_closure": 12
+    },
+    "mean_block_mape_pct": {
+      "CLOSURE": 29.187823181868442,
+      "FLAT": 31.635016189943443,
+      "WATERBAL": 32.474028318163654,
+      "OPENLOOP": 38.52227714673271
+    },
+    "cover_90_mean": 0.9755050505050505,
+    "change_5yr_mean_abs_error_pts": {
+      "CLOSURE": 7.090327587115834,
+      "FLAT": 12.832613247677928,
+      "WATERBAL": 10.498065037726965,
+      "OPENLOOP": 7.54554439289259
+    }
+  }
+}
