@@ -822,6 +822,41 @@ def main():
                   f"**{'held' if v['pass'] else 'failed'}** |")
         print("")
 
+    iv = load(f"interval{KTAG}.json")
+    if iv:
+        section("The interval the transfer found too wide, and what correcting it buys")
+        print("The transfer's one failed prediction was the interval: it covers more "
+              "than it claims on blocks the error budget was not estimated on. The "
+              "factor below is the multiplier on the posterior spread, about its own "
+              "mean and in the log the inversion parameterises, that makes the 90 per "
+              "cent interval nominal. Below one is an interval that was too wide. No "
+              "posterior is rewritten and no shipped score moves.\n")
+        print("| block | factor | covers 50 | 80 | 90 | CRPS Mm3/yr |")
+        print("|---|---:|---:|---:|---:|---:|")
+        for blk, r in iv["per_block"].items():
+            u = r["uncalibrated"]
+            print(f"| {r['label']}"
+                  f"{', where the error budget was estimated' if blk == 'gmd4a' else ''} "
+                  f"| {r['in_sample_factor']:.2f} | {u['cover_50']:.2f} | "
+                  f"{u['cover_80']:.2f} | {u['cover_90']:.2f} | {u['crps_mcm']:.2f} |")
+        fs = [iv["per_block"][b]["in_sample_factor"] for b in iv["leave_one_new_block_out"]]
+        print(f"\n**The block the budget was estimated on wants no correction; the three "
+              f"it was not estimated on want the same one**, {min(fs):.2f} to "
+              f"{max(fs):.2f}. The defect is the two-stage budget read in sample, not a "
+              f"property of any basin.\n")
+        print("| pooled over the county-years never seen | covers 50 | 80 | 90 | CRPS |")
+        print("|---|---:|---:|---:|---:|")
+        for k, lab in (("uncalibrated", "as run"),
+                       ("leave_one_block_out", "leave-one-block-out correction")):
+            v = iv["pooled_new_counties"][k]
+            print(f"| {lab} | {v['cover_50']:.2f} | {v['cover_80']:.2f} | "
+                  f"{v['cover_90']:.2f} | {v['crps_mcm']:.2f} |")
+        print(f"\nThe factor applied to a block is fitted on the other blocks only, so "
+              f"no block enters its own calibration; the in-sample factor reaches "
+              f"nominal coverage by construction and is an oracle. The rule fitted on "
+              f"the published block alone, which is all this repository had before the "
+              f"transfer, is {iv['home_block_rule']['factor']:.2f} and corrects nothing.\n")
+
     ni = load("net_inflow.json")
     if ni:
         section("How far apart the two rungs are: the share of pumping that is storage")

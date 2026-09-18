@@ -464,6 +464,27 @@ Relative error on the level, county-year mean. The five-year change, mean absolu
 | P6 | on the GMD3 blocks the closure's relative error on the level is below that of area times one acre-foot, which it loses on the published block | closure 22.7% vs rule 30.0% | **held** |
 
 
+## The interval the transfer found too wide, and what correcting it buys
+
+The transfer's one failed prediction was the interval: it covers more than it claims on blocks the error budget was not estimated on. The factor below is the multiplier on the posterior spread, about its own mean and in the log the inversion parameterises, that makes the 90 per cent interval nominal. Below one is an interval that was too wide. No posterior is rewritten and no shipped score moves.
+
+| block | factor | covers 50 | 80 | 90 | CRPS Mm3/yr |
+|---|---:|---:|---:|---:|---:|
+| Northwest Kansas, GMD4 north (the published block), where the error budget was estimated | 1.00 | 0.50 | 0.77 | 0.91 | 15.50 |
+| West Kansas, GMD4 south and GMD1 | 0.65 | 0.71 | 0.95 | 0.98 | 5.35 |
+| Southwest Kansas, GMD3 west | 0.84 | 0.52 | 0.85 | 0.97 | 24.69 |
+| Southwest Kansas, GMD3 east | 0.80 | 0.61 | 0.92 | 0.99 | 42.78 |
+
+**The block the budget was estimated on wants no correction; the three it was not estimated on want the same one**, 0.65 to 0.84. The defect is the two-stage budget read in sample, not a property of any basin.
+
+| pooled over the county-years never seen | covers 50 | 80 | 90 | CRPS |
+|---|---:|---:|---:|---:|
+| as run | 0.62 | 0.91 | 0.98 | 26.76 |
+| leave-one-block-out correction | 0.50 | 0.81 | 0.92 | 27.16 |
+
+The factor applied to a block is fitted on the other blocks only, so no block enters its own calibration; the in-sample factor reaches nominal coverage by construction and is an oracle. The rule fitted on the published block alone, which is all this repository had before the transfer, is 1.00 and corrects nothing.
+
+
 ## How far apart the two rungs are: the share of pumping that is storage
 
 The closure reads abstraction out of storage, so what the two rungs have in common is not the basin but the method. Net inflow `N = Q + Sy*A*dh` from the withheld meters, the winter water levels and the USGS specific-yield map puts a number on the difference. No model enters it.
