@@ -85,6 +85,18 @@ LAYOUT = _layout()
 NPAR = LAYOUT["_n"]
 
 
+def set_block(name: str) -> None:
+    """Assemble on one county block: the county list and the parameter layout follow.
+
+    Called by the drivers and by every worker process, which imports this module fresh.
+    """
+    global NDIST, LAYOUT, NPAR
+    K.set_block(name)
+    NDIST = len(K.COUNTIES)
+    LAYOUT = _layout()
+    NPAR = LAYOUT["_n"]
+
+
 # --------------------------------------------------------------------------- context
 @dataclass
 class Context:
@@ -364,6 +376,12 @@ def build(ws: Path, x: np.ndarray, ctx: Context) -> None:
     ghb = []
     edge = np.zeros((nrow, ncol), dtype=bool)
     edge[0], edge[-1], edge[:, 0], edge[:, -1] = True, True, True, True
+    if reg.layout == "polygons":
+        # A polygon block does not fill its bounding box, so its lateral boundary is
+        # every active cell with an inactive neighbour, not the grid edge.
+        pad = np.pad(ctx.active, 1, constant_values=False)
+        inner = (pad[:-2, 1:-1] & pad[2:, 1:-1] & pad[1:-1, :-2] & pad[1:-1, 2:])
+        edge |= ~inner
     for i, j in zip(*np.nonzero(edge & ctx.active)):
         ghb.append([(0, int(i), int(j)), float(ctx.h0[i, j]), p["ghb"] * reg.delr_m])
     flopy.mf6.ModflowGwfghb(gwf, stress_period_data={0: ghb})
@@ -585,7 +603,8 @@ def taper(ctx: Context, radius_km: float = 45.0) -> np.ndarray:
 _W: dict = {}
 
 
-def _init(root, ctx):
+def _init(root, ctx, block):
+    set_block(block)
     _W["ctx"] = ctx
     _W["ws"] = Path(root) / f"w{os.getpid()}"
 
@@ -604,7 +623,7 @@ def run_ensemble(X, root, ctx, workers=6):
     ne = X.shape[1]
     out = [None] * ne
     with ProcessPoolExecutor(max_workers=workers, initializer=_init,
-                             initargs=(str(root), ctx)) as ex:
+                             initargs=(str(root), ctx, K.BLOCK)) as ex:
         for i, r in ex.map(_one, [(i, X[:, i]) for i in range(ne)], chunksize=1):
             out[i] = r
     ok = np.array([r is not None for r in out])

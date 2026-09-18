@@ -12,8 +12,9 @@ results/voi.npz
 data/kansas/ssebop/
 data/kansas/wimas_*.json
 data/kansas/wimas_wuse_*.txt
-data/kansas/wizard_levels.json
-data/kansas/precip_annual.json
+data/kansas/wizard_levels*.json
+data/kansas/precip_annual*.json
+data/kansas/county_polygons*.json
 data/kansas/mirad/
 data/kansas/*.npy
 data/kansas/*_region.npz

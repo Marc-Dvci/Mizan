@@ -26,9 +26,76 @@ import numpy as np
 ROOT = Path(__file__).resolve().parents[2]
 DATA = ROOT / "data" / "kansas"
 
-COUNTIES = ["CN", "RA", "DC", "SH", "TH", "SD"]
-COUNTY_NAME = {"CN": "Cheyenne", "RA": "Rawlins", "DC": "Decatur",
-               "SH": "Sherman", "TH": "Thomas", "SD": "Sheridan"}
+# The county blocks the rung can be assembled on. `gmd4a` is the published block, and
+# it keeps the tier geometry and the file names the published `_v3` results were built
+# from, so that block reproduces them byte for byte. The other three are the transfer
+# blocks: chosen as contiguous groups of six counties before any of their inputs was
+# fetched, scored blind, and never tuned on. Their county map comes from the Census
+# county polygons rather than from tiers, because Finney and Ford are not rectangles.
+#
+# Every code is the two-letter county code WIMAS itself uses; `fips` is the county's
+# FIPS code, which is what WIZARD, nClimDiv and the Census key the county by.
+BLOCKS = {
+    "gmd4a": dict(
+        label="Northwest Kansas, GMD4 north (the published block)",
+        counties=["CN", "RA", "DC", "SH", "TH", "SD"],
+        names={"CN": "Cheyenne", "RA": "Rawlins", "DC": "Decatur",
+               "SH": "Sherman", "TH": "Thomas", "SD": "Sheridan"},
+        fips={"CN": "023", "RA": "153", "DC": "039",
+              "SH": "181", "TH": "193", "SD": "179"},
+        tiers=[["CN", "RA", "DC"], ["SH", "TH", "SD"]]),
+    "west": dict(
+        label="West Kansas, GMD4 south and GMD1",
+        counties=["WA", "LG", "GO", "GL", "WH", "SC"],
+        names={"WA": "Wallace", "LG": "Logan", "GO": "Gove",
+               "GL": "Greeley", "WH": "Wichita", "SC": "Scott"},
+        fips={"WA": "199", "LG": "109", "GO": "063",
+              "GL": "071", "WH": "203", "SC": "171"},
+        tiers=None),
+    "gmd3w": dict(
+        label="Southwest Kansas, GMD3 west",
+        counties=["HM", "KE", "ST", "GT", "MT", "SV"],
+        names={"HM": "Hamilton", "KE": "Kearny", "ST": "Stanton",
+               "GT": "Grant", "MT": "Morton", "SV": "Stevens"},
+        fips={"HM": "075", "KE": "093", "ST": "187",
+              "GT": "067", "MT": "129", "SV": "189"},
+        tiers=None),
+    "gmd3e": dict(
+        label="Southwest Kansas, GMD3 east",
+        counties=["FI", "HS", "GY", "SW", "ME", "FO"],
+        names={"FI": "Finney", "HS": "Haskell", "GY": "Gray",
+               "SW": "Seward", "ME": "Meade", "FO": "Ford"},
+        fips={"FI": "055", "HS": "081", "GY": "069",
+              "SW": "175", "ME": "119", "FO": "057"},
+        tiers=None),
+}
+TRANSFER_BLOCKS = ("west", "gmd3w", "gmd3e")
+
+BLOCK = "gmd4a"
+COUNTIES = list(BLOCKS[BLOCK]["counties"])
+COUNTY_NAME = dict(BLOCKS[BLOCK]["names"])
+
+
+def set_block(name: str) -> None:
+    """Point the module at one county block.
+
+    The county list is mutated in place rather than rebound, so every module that
+    imported it keeps seeing the current block; `ks_run.set_block` recomputes the
+    parameter layout that depends on its length.
+    """
+    global BLOCK
+    if name not in BLOCKS:
+        raise ValueError("unknown block {!r}; one of {}".format(name, sorted(BLOCKS)))
+    BLOCK = name
+    COUNTIES[:] = BLOCKS[name]["counties"]
+    COUNTY_NAME.clear()
+    COUNTY_NAME.update(BLOCKS[name]["names"])
+
+
+def _sfx() -> str:
+    """File-name suffix of the current block; empty for the published one."""
+    return "" if BLOCK == "gmd4a" else "_" + BLOCK
+
 
 DELR_KM = 2.0
 YEAR0, YEAR1 = 2000, 2024
@@ -51,6 +118,10 @@ class Region:
     ncol: int
     delr_m: float
     county: np.ndarray          # (nrow, ncol) index into COUNTIES, -1 outside
+    # "tiers": the published rectangle, whose lateral boundary is the grid edge.
+    # "polygons": a Census-polygon block, whose lateral boundary is wherever an active
+    # cell meets an inactive one, because the block need not fill its bounding box.
+    layout: str = "tiers"
 
     @property
     def kx(self) -> float:
@@ -101,7 +172,7 @@ def county_boxes(points: dict) -> dict:
         box[c] = dict(w=lon.min(), e=lon.max(), s=lat.min(), n=lat.max())
 
     # Share the edges between neighbours so the block tiles without gaps.
-    tiers = [["CN", "RA", "DC"], ["SH", "TH", "SD"]]
+    tiers = BLOCKS[BLOCK]["tiers"]
     for tier in tiers:
         for a, b in zip(tier, tier[1:]):
             m = 0.5 * (box[a]["e"] + box[b]["w"])
@@ -121,8 +192,46 @@ def county_boxes(points: dict) -> dict:
     return box
 
 
-def build_region(points: dict, delr_km: float = DELR_KM) -> Region:
-    box = county_boxes(points)
+def load_polygons() -> dict:
+    """The Census county polygons of the current block, lon/lat rings per county."""
+    return json.loads((DATA / f"county_polygons{_sfx()}.json").read_text())
+
+
+def build_region_polygons(delr_km: float = DELR_KM) -> Region:
+    """The grid and county map of a block from the Census county polygons.
+
+    The grid is the bounding box of the block's polygons; a cell belongs to the county
+    whose polygon contains its centre and is inactive where none does. The same local
+    equirectangular frame and cell size as the published block.
+    """
+    from matplotlib.path import Path as MPath
+
+    polys = load_polygons()
+    rings = {c: [np.asarray(r, dtype=float) for r in polys[c]] for c in COUNTIES}
+    allpts = np.concatenate([r for c in COUNTIES for r in rings[c]])
+    lon0, lat0 = allpts[:, 0].min(), allpts[:, 1].min()
+    lon1, lat1 = allpts[:, 0].max(), allpts[:, 1].max()
+    kx = 111_320.0 * np.cos(np.deg2rad(lat0))
+    ncol = int(np.ceil((lon1 - lon0) * kx / (delr_km * 1000.0)))
+    nrow = int(np.ceil((lat1 - lat0) * 110_574.0 / (delr_km * 1000.0)))
+    r = Region(lon0, lat0, nrow, ncol, delr_km * 1000.0, np.full((nrow, ncol), -1),
+               layout="polygons")
+    LON, LAT = r.centers_lonlat()
+    pts = np.column_stack([LON.ravel(), LAT.ravel()])
+    cty = np.full(nrow * ncol, -1)
+    for i, c in enumerate(COUNTIES):
+        inside = np.zeros(nrow * ncol, dtype=bool)
+        for ring in rings[c]:
+            inside |= MPath(ring).contains_points(pts)
+        cty[inside & (cty < 0)] = i
+    return Region(lon0, lat0, nrow, ncol, delr_km * 1000.0, cty.reshape(nrow, ncol),
+                  layout="polygons")
+
+
+def build_region(points: dict = None, delr_km: float = DELR_KM) -> Region:
+    if BLOCKS[BLOCK]["tiers"] is None:
+        return build_region_polygons(delr_km)
+    box = county_boxes(points if points is not None else load_points())
     lon0 = min(box[c]["w"] for c in COUNTIES)
     lat0 = min(box[c]["s"] for c in COUNTIES)
     lon1 = max(box[c]["e"] for c in COUNTIES)
@@ -146,6 +255,12 @@ def build_region(points: dict, delr_km: float = DELR_KM) -> Region:
 def load_points() -> dict:
     return {c: json.loads((DATA / f"wimas_{c}.json").read_text())["points"]
             for c in COUNTIES}
+
+
+def points_only() -> bool:
+    """True when the block's point records carry no use table (a blind block)."""
+    return any(json.loads((DATA / f"wimas_{c}.json").read_text()).get("points_only")
+               for c in COUNTIES)
 
 
 def metered_annual() -> tuple[np.ndarray, dict]:
@@ -296,7 +411,7 @@ def water_levels(region: Region) -> dict:
     season. Only measurements from December to March are kept, and a year is dated by
     the January it belongs to, so one value per well per year enters.
     """
-    rec = json.loads((DATA / "wizard_levels.json").read_text())
+    rec = json.loads((DATA / f"wizard_levels{_sfx()}.json").read_text())
     years = np.arange(YEAR0, YEAR1 + 1)
     wells = []
     for w in rec["wells"]:
@@ -376,7 +491,7 @@ def _save_cache(path: Path, region: Region, arr: np.ndarray) -> None:
 def evapotranspiration(region: Region) -> np.ndarray:
     """Annual actual evapotranspiration on the model grid, mm/yr, shape (nyear, r, c)."""
     years = np.arange(YEAR0, YEAR1 + 1)
-    cache = DATA / "ssebop_region.npz"
+    cache = DATA / f"ssebop_region{_sfx()}.npz"
     hit = _load_cache(cache, region, (years.size, region.nrow, region.ncol))
     if hit is not None:
         return hit
@@ -426,7 +541,7 @@ def irrigated_fraction(region: Region) -> np.ndarray:
     MIrAD-US publishes 2002, 2007, 2012 and 2017. Irrigated extent changes slowly, so
     the intervening years are interpolated linearly and the ends are held.
     """
-    cache = DATA / "mirad_region.npz"
+    cache = DATA / f"mirad_region{_sfx()}.npz"
     years = np.arange(YEAR0, YEAR1 + 1)
     hit = _load_cache(cache, region, (years.size, region.nrow, region.ncol))
     if hit is not None:
@@ -556,7 +671,7 @@ def saturated_thickness(region: Region) -> np.ndarray:
     county, and a county with none is filled with the block median, because a zero is
     "not mapped here" and not "no aquifer here" as far as a 2 km cell is concerned.
     """
-    cache = DATA / "hpsat_region.npz"
+    cache = DATA / f"hpsat_region{_sfx()}.npz"
     hit = _load_cache(cache, region, (region.nrow, region.ncol))
     if hit is not None:
         return hit
@@ -670,7 +785,7 @@ def usgs_field(region: Region, which: str) -> np.ndarray:
     from rasterio import features
     from rasterio.transform import from_origin
 
-    cache = DATA / f"usgs_{which}_region.npz"
+    cache = DATA / f"usgs_{which}_region{_sfx()}.npz"
     hit = _load_cache(cache, region, (region.nrow, region.ncol))
     if hit is not None:
         return hit
@@ -708,7 +823,7 @@ def usgs_field(region: Region, which: str) -> np.ndarray:
 
 def precipitation() -> np.ndarray:
     """Annual county precipitation, mm/yr, shape (6, nyear), from NOAA nClimDiv."""
-    d = json.loads((DATA / "precip_annual.json").read_text())
+    d = json.loads((DATA / f"precip_annual{_sfx()}.json").read_text())
     years = np.arange(YEAR0, YEAR1 + 1)
     return np.array([[d[c][str(y)] for y in years] for c in COUNTIES])
 

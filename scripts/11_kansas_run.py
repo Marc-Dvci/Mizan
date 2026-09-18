@@ -24,7 +24,9 @@ RES = ROOT / "results"
 
 
 def assemble(pool: bool = True, forced_recharge: bool = False,
-             config: str = "v3") -> dict:
+             config: str = "v3", block: str = None) -> dict:
+    if block is not None:
+        R.set_block(block)
     pts = K.load_points()
     region = K.build_region(pts)
     et = K.evapotranspiration(region)
@@ -64,13 +66,17 @@ def main() -> None:
                     help="v5 puts specific yield on the USGS map, centres the "
                          "conductivity prior on the USGS map, and frees the "
                          "deep-percolation share")
+    ap.add_argument("--block", type=str, default="gmd4a", choices=sorted(K.BLOCKS),
+                    help="county block to assemble; a transfer block carries no "
+                         "truth until its use files are fetched, and the run then "
+                         "writes the posterior unscored")
     ap.add_argument("--budget-from", type=str, default="",
                     help="posterior npz of a converged first-stage inversion, whose "
                          "residual supplies the structural and dependence terms")
     args = ap.parse_args()
 
     a = assemble(pool=not args.no_pool_unmix, forced_recharge=args.forced_recharge,
-                 config=args.config)
+                 config=args.config, block=args.block)
     region, ctx = a["region"], a["ctx"]
     n_et = R.NDIST * R.NYEAR
     obs = np.concatenate([a["et_obs"].ravel(), R.head_anomaly(a["wl"], ctx)])
@@ -118,17 +124,33 @@ def main() -> None:
                   f"lag1 {v['lag1']:.2f}  inflation {v['independence_inflation']:.2f}  "
                   f"total {v['total']:8.3f}")
 
-    q_true, meta = K.metered_annual()
-    print(f"withheld truth: {meta['n_rights']} water rights, "
-          f"{meta['n_missing']} unreadable, "
-          f"{q_true.sum(axis=0).mean()/1e6:,.0f} Mm3/yr over the block")
+    # A transfer block is run blind: its point records carry no use table, and the
+    # use files are fetched only after the predictions are committed. The run then
+    # writes its posterior and every account it can compute without the meters, and
+    # `30_transfer.py` scores it later.
+    blind = K.points_only()
+    if not blind:
+        q_true, meta = K.metered_annual()
+        print(f"withheld truth: {meta['n_rights']} water rights, "
+              f"{meta['n_missing']} unreadable, "
+              f"{q_true.sum(axis=0).mean()/1e6:,.0f} Mm3/yr over the block")
+    else:
+        q_true, meta = None, {"n_rights": 0, "n_missing": 0,
+                              "years": list(range(K.YEAR0, K.YEAR1 + 1))}
+        print("blind block: no truth on disk; the posterior is written unscored")
+
+    def scored(q_hat):
+        return MT.point_scores(q_hat, q_true) if not blind else {}
 
     take = {"ETH": np.arange(obs.size),
             "ET": np.arange(n_et),
             "H": np.arange(n_et, obs.size)}
 
     res = json.loads((RES / args.out).read_text()) if (RES / args.out).exists() else {}
-    res["_meta"] = {"seed": args.seed, "ne": args.ne, "na": args.na,
+    res["_meta"] = {"seed": args.seed, "ne": args.ne, "na": args.na, "block": args.block,
+                    "blind": bool(blind), "layout": region.layout,
+                    "grid": [region.nrow, region.ncol],
+                    "active_cells": int((region.county >= 0).sum()),
                     "irrigated_km2": irr_km2, "n_wells": len(a["wl"]["wells"]),
                     "n_obs_head": int(obs.size - n_et), "counties": K.COUNTIES,
                     "years": [K.YEAR0, K.YEAR1],
@@ -140,26 +162,27 @@ def main() -> None:
 
     # The published open-loop account, on the same evapotranspiration the closure sees.
     ol = a["et_obs"] / 0.80
-    res["BASELINE"] = {"label": "open loop, efficiency fixed at 0.80",
-                       **MT.point_scores(ol, q_true)}
-    # The same oracle definition as L0: the single constant that minimises absolute
-    # error against the answer. No practitioner has it; it exists so the comparison is
-    # against the best the open-loop form can do rather than against its constant.
-    grid = np.linspace(0.20, 1.60, 1401)
-    err = np.array([np.abs(a["et_obs"] / g - q_true).mean() for g in grid])
-    e_star = float(grid[int(err.argmin())])
-    res["BASELINE_ORACLE"] = {
-        "label": f"open loop, efficiency fitted to the meters at {e_star:.3f}",
-        **MT.point_scores(a["et_obs"] / e_star, q_true)}
+    res["BASELINE"] = {"label": "open loop, efficiency fixed at 0.80", **scored(ol)}
+    if not blind:
+        # The same oracle definition as L0: the single constant that minimises absolute
+        # error against the answer. No practitioner has it; it exists so the comparison
+        # is against the best the open-loop form can do rather than against its
+        # constant.
+        grid = np.linspace(0.20, 1.60, 1401)
+        err = np.array([np.abs(a["et_obs"] / g - q_true).mean() for g in grid])
+        e_star = float(grid[int(err.argmin())])
+        res["BASELINE_ORACLE"] = {
+            "label": f"open loop, efficiency fitted to the meters at {e_star:.3f}",
+            **MT.point_scores(a["et_obs"] / e_star, q_true)}
     # The bar a reviewer can compute in a spreadsheet: mapped irrigated area times the
     # one published applied depth, with no aquifer, no satellite and no inversion. It is
     # a harder bar than the prior ensemble mean, whose log-normal spread inflates it, and
     # both are reported because the deterministic one is the one that has to be beaten.
     res["PRIOR_FLAT"] = {
         "label": "mapped irrigated area times one acre-foot per acre, no data at all",
-        **MT.point_scores(a["irr_area"] * R.PRIOR_DEPTH_M, q_true)}
-    ps = MT.point_scores(np.array([R.decode(X0[:, i])["q"]
-                                   for i in np.nonzero(ok0)[0]]).mean(axis=0), q_true)
+        **scored(a["irr_area"] * R.PRIOR_DEPTH_M)}
+    ps = scored(np.array([R.decode(X0[:, i])["q"]
+                          for i in np.nonzero(ok0)[0]]).mean(axis=0))
     res["PRIOR"] = {"label": "the same prior drawn as an ensemble, no data at all", **ps}
 
     for key in args.rows.split(","):
@@ -181,9 +204,11 @@ def main() -> None:
         hist.append(float((r[:, ok] ** 2).mean()))
 
         ens = np.array([R.decode(X[:, i])["q"] for i in np.nonzero(ok)[0]])
-        sc = MT.point_scores(ens.mean(axis=0), q_true)
-        sc.update(MT.coverage(ens, q_true))
-        sc["crps_mcm"] = MT.crps(ens, q_true)
+        sc = scored(ens.mean(axis=0))
+        if not blind:
+            sc.update(MT.coverage(ens, q_true))
+            sc["crps_mcm"] = MT.crps(ens, q_true)
+        sc["basin_mcm_yr"] = float(ens.mean(axis=0).sum(axis=0).mean() / 1e6)
         res[key] = {"label": {"ETH": "evapotranspiration + heads, closure",
                               "ET": "evapotranspiration only",
                               "H": "heads only"}[key],
@@ -201,18 +226,23 @@ def main() -> None:
                     "rch_hat": float((10.0 ** X[R.LAYOUT["log_rch"]][:, ok]).mean()),
                     "seconds": time.time() - t}
         np.savez_compressed(RES / f"kansas_posterior_{key}{args.tag}.npz",
-                            X=X, ok=ok, ens=ens, q_true=q_true, et_obs=a["et_obs"],
+                            X=X, ok=ok, ens=ens, et_obs=a["et_obs"],
                             county=region.county, frac=a["frac"],
-                            et_se=a["et_se"], irr_area=a["irr_area"])
-        print(f"  {key:4s} MAE {sc['mae_mcm']:7.2f} Mm3/yr  MAPE {sc['mape_pct']:5.1f}%  "
-              f"cover90 {sc.get('cover_90', float('nan')):.2f}  ({time.time()-t:.0f}s)")
+                            et_se=a["et_se"], irr_area=a["irr_area"],
+                            **({} if blind else {"q_true": q_true}))
+        if blind:
+            print(f"  {key:4s} basin {sc['basin_mcm_yr']:8.1f} Mm3/yr, unscored  "
+                  f"({time.time()-t:.0f}s)")
+        else:
+            print(f"  {key:4s} MAE {sc['mae_mcm']:7.2f} Mm3/yr  MAPE {sc['mape_pct']:5.1f}%  "
+                  f"cover90 {sc.get('cover_90', float('nan')):.2f}  ({time.time()-t:.0f}s)")
         # Written after every row, so an interrupted run leaves the rows it finished.
         (RES / args.out).write_text(json.dumps(res, indent=2))
 
     (RES / args.out).write_text(json.dumps(res, indent=2))
     print(f"\nwrote results/{args.out}")
     for k, v in res.items():
-        if k.startswith("_"):
+        if k.startswith("_") or "mae_mcm" not in v:
             continue
         print(f"{k:5s} {v['label']:44s} {v['mae_mcm']:8.2f} {v['mape_pct']:6.1f}%")
 

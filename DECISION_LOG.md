@@ -810,3 +810,77 @@ and it is smaller than the first reading said.
 accurate than the technique in use, on meters, with the direction holding in four of six
 counties; six counties of one climate cannot establish a seventh; and what licenses the
 transfer argument is the mechanism and the ablation grid, not the width of this gap.
+
+### Blind transfer to eighteen counties the closure has never seen. Predictions written before the meters were opened
+
+**Why.** Every real-data error bar in the entry clusters by county, and the published
+block has six. The gain over the open-loop account, 20.7 points, is 1.7 standard errors
+on that unit; the change margin never clears one. Six counties of one climate cannot
+establish a seventh, and no amount of rescoring the same six changes that. Every Kansas
+input is a statewide or national public record keyed by county, and one block costs
+about twenty minutes of solver time, so the constraint on the headline is bought with
+compute and with a protocol that keeps the new counties blind.
+
+**The blocks, chosen before any of their inputs was fetched.** Three contiguous groups
+of six counties, each the size of the published block: `west` (Wallace, Logan, Gove,
+Greeley, Wichita, Scott: GMD4 south and GMD1, the same aquifer, adjacent), `gmd3w`
+(Hamilton, Kearny, Stanton, Grant, Morton, Stevens: GMD3 west, drier, deeper pumping,
+larger declines) and `gmd3e` (Finney, Haskell, Gray, Seward, Meade, Ford: GMD3 east,
+the heaviest abstraction in the state). Their county map comes from the Census county
+polygons, because Finney and Ford are not rectangles; the published block keeps its tier
+geometry and reproduces `_v3` exactly (the assembled observation vector, county map,
+irrigated area and unmixing standard errors are byte-identical to the stored `_v3`
+posterior inputs, checked before this entry was written).
+
+**What is frozen.** The primary arm is `_v3` exactly as published: same prior, same
+error budget procedure, same ensemble size, same localisation, same two-stage run. The
+secondary arms are `_v5` (the map-based storage coefficient, rejected on the published
+block by its own prediction) and the evapotranspiration leg alone. Nothing is tuned on
+any new block, and nothing from the new blocks feeds back into the published one.
+
+**How the blindness is held by the code.** `10_kansas_fetch.py --block <new>` fetches
+the estimator's inputs only: diversion-point locations (licence data, used as spatial
+weights), WIZARD levels, the rasters, county precipitation and the polygons. The WIMAS
+use files are refused for a transfer block until the committed `DECISION_LOG.md`
+carries the marker below for that block and the working copy of the log is clean, so
+the meters cannot be opened in the same breath as the prediction is written. The runs
+write their posteriors unscored (`11_kansas_run.py --block`), and `30_transfer.py`
+scores them once the use files exist.
+
+**Scoring rule, fixed now.** Each block is scored on its own metered era, found from the
+WIMAS measurement codes by the rule of `27_metered_era.py`: the first year from which
+every later year, block-wide and in every county, is at least 98 per cent meter-coded
+by volume. The truth is the per-point use file. The accounts are the same five as the
+headline: the closure, the evapotranspiration leg, area times one acre-foot per acre,
+the same plus the precipitation deficit, and the open loop at 0.80. The headline
+statistic is the gain over the open loop pooled over the eighteen new counties,
+clustered by county, reported beside the published block and never mixed with it.
+
+**Predictions, derived from the six-county results and scored as written.**
+
+- P1. On the level, the closure has lower relative error than the published open loop in
+  at least two thirds of the new counties (twelve of eighteen). On the published block
+  it is four of six.
+- P2. The 90 per cent interval covers the metered value in 0.80 to 0.97 of the new
+  county-years. On the published block it is 0.91.
+- P3. On the five-year change, the closure beats the open loop, mean over the new
+  blocks. On the published block it is 9.4 against 12.3 points.
+- P4. `_v5` beats `_v3` on the five-year change, mean over the new blocks. On the
+  published block it did, 7.2 against 9.4, and was rejected on the level and recharge
+  gates; this settles the change question on counties whose meters nobody has seen.
+- P5. Area times one acre-foot per acre has a larger relative error in GMD3 than on the
+  published block (23.0 per cent), because the applied depth in the southwest is not
+  the northwest's. The rule of thumb is calibrated to a place; the closure reads the
+  place.
+- P6, stated as an expectation and scored: on the GMD3 blocks the closure's relative
+  error on the level is below that of area times one acre-foot. On the published block
+  the rule wins that comparison, 23.0 against 28.6, and the entry says so; if the
+  southwest's depth runs at 1.4 acre-feet per acre or more the rule's bias alone
+  exceeds the closure's whole error.
+
+Whatever comes out is reported. A failed prediction is recorded as failed, with its
+number, in the same table as the passes.
+
+TRANSFER PREDICTIONS COMMITTED FOR BLOCK west
+TRANSFER PREDICTIONS COMMITTED FOR BLOCK gmd3w
+TRANSFER PREDICTIONS COMMITTED FOR BLOCK gmd3e

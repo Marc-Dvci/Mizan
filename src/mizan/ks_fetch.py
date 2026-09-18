@@ -229,6 +229,28 @@ def fetch_county_use(county: str, out_dir: Path, y0: int = 1990, y1: int = 2025,
     return dest
 
 
+def fetch_county_points(county: str, out_dir: Path, log=print) -> dict:
+    """The licensed irrigation diversion points of one county, and nothing else.
+
+    This is what a transfer block fetches before its predictions are committed: the
+    point locations are licence data and enter the estimator as spatial weights. No
+    use history is read. The record is written in the shape `fetch_county` writes, with
+    an empty use table, so that every reader of `wimas_{county}.json` works unchanged.
+    """
+    out_dir.mkdir(parents=True, exist_ok=True)
+    dest = out_dir / "wimas_{}.json".format(county)
+    if dest.exists():
+        log("  {}: cached".format(county))
+        return json.loads(dest.read_text())
+    sess = Session()
+    pts = wimas_points(sess, county)
+    log("  {}: {} point-of-diversion rows, {} water rights, no use read".format(
+        county, len(pts), len({p["wr"] for p in pts})))
+    rec = {"county": county, "points": pts, "use": {}, "points_only": True}
+    dest.write_text(json.dumps(rec))
+    return rec
+
+
 def fetch_county(county: str, out_dir: Path, workers: int = 4, log=print) -> dict:
     """Points of diversion and per-water-right reported annual use for one county.
 
@@ -359,26 +381,33 @@ def wizard_levels(sess: Session, usgs_id: str) -> dict:
             "levels": levels}
 
 
-def fetch_wizard(out_dir: Path, counties=None, workers: int = 4, log=print) -> dict:
-    """Every water-level record in the counties of the study region."""
+def fetch_wizard(out_dir: Path, counties=None, workers: int = 4, log=print,
+                 fips: dict = None, names: dict = None, suffix: str = "") -> dict:
+    """Every water-level record in the counties of the study region.
+
+    WIZARD numbers a county by its FIPS code without the leading zero. `fips`, `names`
+    and `suffix` default to the published block, whose file keeps its published name.
+    """
     out_dir.mkdir(parents=True, exist_ok=True)
-    dest = out_dir / "wizard_levels.json"
+    dest = out_dir / "wizard_levels{}.json".format(suffix)
     if dest.exists():
         log("  wizard: cached")
         return json.loads(dest.read_text())
 
     counties = counties or list(GMD4)
+    fips = fips or COUNTY_FIPS
+    names = names or GMD4
     wells, seen = [], set()
     for code in counties:
         s = Session()
-        got = wizard_wells(s, county=WIZARD_COUNTY[code])
+        got = wizard_wells(s, county=str(int(fips[code])))
         for w in got:
             if w["usgs_id"] not in seen:
                 seen.add(w["usgs_id"])
                 w["county_code"] = code
                 wells.append(w)
-        log("  wizard: {} {} wells".format(GMD4[code], len(got)))
-    log("  wizard: {} wells over the six counties".format(len(wells)))
+        log("  wizard: {} {} wells".format(names[code], len(got)))
+    log("  wizard: {} wells over the {} counties".format(len(wells), len(counties)))
 
     def job(w):
         s = Session()
@@ -506,7 +535,8 @@ COUNTY_FIPS = {"CN": "023", "RA": "153", "DC": "039",
                "SH": "181", "TH": "193", "SD": "179"}
 
 
-def fetch_precipitation(out_dir: Path, y0: int = 2000, y1: int = 2024, log=print) -> None:
+def fetch_precipitation(out_dir: Path, y0: int = 2000, y1: int = 2024, log=print,
+                        fips: dict = None, suffix: str = "") -> None:
     """Annual county precipitation from NOAA nClimDiv, via Climate at a Glance.
 
     The forward model needs an observed driver for recharge. Precipitation over these
@@ -515,13 +545,13 @@ def fetch_precipitation(out_dir: Path, y0: int = 2000, y1: int = 2024, log=print
     is the authoritative United States county series, it carries no water-use term, and
     it needs no credential.
     """
-    dest = out_dir / "precip_annual.json"
+    dest = out_dir / "precip_annual{}.json".format(suffix)
     if dest.exists():
         log("  precipitation: cached")
         return
     out = {}
-    for c, fips in COUNTY_FIPS.items():
-        url = NCEI.format(fips=fips, y0=y0, y1=y1)
+    for c, f in (fips or COUNTY_FIPS).items():
+        url = NCEI.format(fips=f, y0=y0, y1=y1)
         raw = urllib.request.urlopen(
             urllib.request.Request(url, headers={"User-Agent": UA}), timeout=180).read()
         d = json.loads(raw)["data"]
@@ -529,3 +559,38 @@ def fetch_precipitation(out_dir: Path, y0: int = 2000, y1: int = 2024, log=print
         log("  precipitation {}: {} years".format(c, len(out[c])))
         time.sleep(0.2)
     dest.write_text(json.dumps(out, indent=1))
+
+
+# --------------------------------------------------------------------------- Census
+TIGER = ("https://tigerweb.geo.census.gov/arcgis/rest/services/TIGERweb/State_County/"
+         "MapServer/1/query?")
+
+
+def fetch_polygons(out_dir: Path, fips: dict, suffix: str, log=print) -> None:
+    """County boundary polygons from the Census Bureau's TIGERweb service, WGS84.
+
+    The published block is a rectangle of Public Land Survey tiers and its county map
+    is recovered from the diversion points. Finney and Ford are not rectangles, so the
+    transfer blocks take the county map from the published boundaries instead. The
+    file holds, per county, a list of outer rings as lon/lat pairs. Boundaries carry
+    no water-use information.
+    """
+    dest = out_dir / "county_polygons{}.json".format(suffix)
+    if dest.exists():
+        log("  polygons: cached")
+        return
+    out = {}
+    for code, f in fips.items():
+        url = TIGER + urllib.parse.urlencode({
+            "where": "GEOID='20{}'".format(f), "outFields": "NAME",
+            "returnGeometry": "true", "outSR": "4326", "f": "geojson"})
+        g = json.loads(urllib.request.urlopen(
+            urllib.request.Request(url, headers={"User-Agent": UA}), timeout=120).read())
+        geom = g["features"][0]["geometry"]
+        rings = ([geom["coordinates"][0]] if geom["type"] == "Polygon"
+                 else [p[0] for p in geom["coordinates"]])
+        out[code] = rings
+        log("  polygons: {} {} ring(s), {} vertices".format(
+            code, len(rings), sum(len(r) for r in rings)))
+        time.sleep(0.2)
+    dest.write_text(json.dumps(out))
