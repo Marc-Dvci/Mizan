@@ -1,0 +1,153 @@
+{
+  "_meta": {
+    "seed": 5,
+    "ne": 250,
+    "na": 6,
+    "block": "gmd3e",
+    "blind": true,
+    "layout": "polygons",
+    "grid": [
+      71,
+      69
+    ],
+    "active_cells": 3559,
+    "irrigated_km2": 3024.2,
+    "n_wells": 321,
+    "n_obs_head": 6265,
+    "counties": [
+      "FI",
+      "HS",
+      "GY",
+      "SW",
+      "ME",
+      "FO"
+    ],
+    "years": [
+      2000,
+      2001,
+      2002,
+      2003,
+      2004,
+      2005,
+      2006,
+      2007,
+      2008,
+      2009,
+      2010,
+      2011,
+      2012,
+      2013,
+      2014,
+      2015,
+      2016,
+      2017,
+      2018,
+      2019,
+      2020,
+      2021,
+      2022,
+      2023,
+      2024
+    ],
+    "nominal_error": false,
+    "per_site_error": true,
+    "pooled_unmixing": true,
+    "n_rights": 0,
+    "n_missing": 0
+  },
+  "_error_budget": {
+    "et": {
+      "n": 150,
+      "nominal": 24753318.654935997,
+      "residual_rms": 73638688.59745876,
+      "structural": 69353656.52884282,
+      "structural_site_max": 152150617.9080453,
+      "structural_site_mean": 83153150.09204322,
+      "per_site": true,
+      "lag1": 0.44806296267486106,
+      "independence_inflation": 1.6197535997850483,
+      "total": 149151985.14103052
+    },
+    "head": {
+      "n": 6265,
+      "nominal": 0.5,
+      "residual_rms": 2.5134186518893364,
+      "structural": 2.4631835740896797,
+      "structural_site_max": 9.732767323310954,
+      "structural_site_mean": 2.8769793261798204,
+      "per_site": true,
+      "lag1": 0.751721722062454,
+      "independence_inflation": 2.6562148202048994,
+      "total": 8.15827373313079
+    }
+  },
+  "BASELINE": {
+    "label": "open loop, efficiency fixed at 0.80"
+  },
+  "PRIOR_FLAT": {
+    "label": "mapped irrigated area times one acre-foot per acre, no data at all"
+  },
+  "PRIOR": {
+    "label": "the same prior drawn as an ensemble, no data at all"
+  },
+  "ETH": {
+    "label": "evapotranspiration + heads, closure",
+    "basin_mcm_yr": 1090.9563861067047,
+    "phi_history": [
+      7.6718637972184665,
+      0.3169767707227599,
+      0.24145691857284723,
+      0.1768983059707705,
+      0.13154949394124274,
+      0.12433512374628794,
+      0.11304162985944995
+    ],
+    "eta_hat": [
+      0.8170184749818986,
+      0.7679508178868898,
+      0.7473614511263353,
+      0.8503672625811557,
+      0.7780660328443089,
+      0.7780742737821236
+    ],
+    "sy_hat": 0.12007982097264301,
+    "sy_mult_hat": 0.12007982097264301,
+    "ret_hat": 0.11999997740786918,
+    "config": "v3",
+    "forced_recharge": false,
+    "bmul_hat": 1.3162387376204672,
+    "bsat_hat": 56.79765966125852,
+    "rch_hat": 18.522636718733914,
+    "seconds": 779.2682068347931
+  },
+  "ET": {
+    "label": "evapotranspiration only",
+    "basin_mcm_yr": 1074.8572444407177,
+    "phi_history": [
+      0.9615144696739448,
+      0.909303653181565,
+      0.8423582401779569,
+      0.7499270988332253,
+      0.6377683614209381,
+      0.5258222684596698,
+      0.4258059230110584
+    ],
+    "eta_hat": [
+      0.8070172181002913,
+      0.784307610058836,
+      0.7906576330679546,
+      0.7975779004875438,
+      0.805060741474876,
+      0.7636762050803102
+    ],
+    "sy_hat": 0.1733797349952038,
+    "sy_mult_hat": 0.1733797349952038,
+    "ret_hat": 0.11999999547205338,
+    "config": "v3",
+    "forced_recharge": false,
+    "bmul_hat": 1.1100631619602421,
+    "bsat_hat": 47.900876849666375,
+    "rch_hat": 30.32360695521324,
+    "seconds": 835.4637267589569
+  }
+}
