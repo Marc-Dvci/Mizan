@@ -774,3 +774,39 @@ as a demonstration that the closure is the better instrument at five years. The 
 form is the margin with its jackknife error beside it, and the longer windows, where the
 effect is larger and survives dropping any single year, are where the comparison is
 actually made.
+
+### The headline error bar was computed on the wrong unit, and the claim shrinks
+
+Found 18 September 2026, in the course of restating the headline. The gain over the
+published open-loop account was first quoted as **20.7 ± 3.6 points, 5.7 standard
+errors**, from a leave-one-year-out jackknife. That error bar is real but it answers
+"how would this gain come out in another year, over these same six counties". It is not
+the question the entry asks. The entry claims a method that transfers to a basin it has
+not seen, and the unit that generalises is the **district**, of which this block has six.
+
+| | gain | se by county (n=6) | se by year (n=16) | counties favouring the closure |
+|---|---:|---:|---:|---:|
+| published open loop | +20.7 | 12.1 (**1.7 se**) | 3.6 (5.7 se) | 4 of 6 |
+| the same, efficiency fitted to the meters | +17.7 | 10.6 (**1.7 se**) | 4.3 (4.1 se) | 4 of 6 |
+| mapped area x one acre-foot | -5.6 | 5.3 (-1.0 se) | 1.2 (-4.7 se) | 2 of 6 |
+| the same, plus the precipitation deficit | -9.5 | 4.8 (-2.0 se) | 1.9 (-5.0 se) | 1 of 6 |
+
+Per county the gain is Cheyenne -14.4, Rawlins +51.9, Decatur +60.4, Sherman +10.3,
+Thomas +17.5, Sheridan -1.8. **It is carried by the two counties where the open-loop
+account fails worst, at 77 and 81 per cent relative error, and it is negative in two of
+the six.** So the honest figure is 1.7 standard errors, not 5.7, and the entry now says
+so in the proposal, the technical note, the deck, `RESULTS.md` and the form answers.
+
+A guard holds this: the county error must exceed the year error, the shipped prose must
+carry the county figure, and the corruption, the naive independent error over the 96
+county-years, must come out at less than half the county figure, which is what makes
+quoting it an overclaim.
+
+**Nothing about the point estimates changed.** 49.3 per cent against 28.6 stands, as does
+every number in the level table. What changed is the strength claimed for the difference,
+and it is smaller than the first reading said.
+
+**The defensible form of the result.** Over this block the closure is substantially more
+accurate than the technique in use, on meters, with the direction holding in four of six
+counties; six counties of one climate cannot establish a seventh; and what licenses the
+transfer argument is the mechanism and the ablation grid, not the width of this gap.

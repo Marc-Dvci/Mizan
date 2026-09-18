@@ -706,6 +706,67 @@ def main():
                   f"{v['openloop_mean_abs_error_pts']:.1f} |")
         print("")
 
+    hl = load(f"headline{KTAG}.json")
+    if hl:
+        section("The two comparisons, each with the error its record supports")
+        print("A ranking of two point estimates is not a result until the record says "
+              "how well it resolves the difference. Both comparisons below carry a "
+              "error bar, and which one is right depends on the claim. Over years it "
+              "asks how the gain would come out in another year across these same six "
+              "counties. Over counties it asks whether it would hold in a district this "
+              "record has not seen, which is what a transfer claim asserts, and its "
+              "sample is six. The county figure is the wider and is the one to read.\n")
+        print(f"**The level, on {hl['_meta']['n_county_years']} county-years.**\n")
+        print("| account | relative error | MAE Mm3/yr | points the closure removes | "
+              "se by county (n=6) | se by year (n=16) | counties favouring the closure |")
+        print("|---|---:|---:|---:|---:|---:|---:|")
+        for k in ("OPENLOOP", "OPENLOOP_ORACLE", "WATERBAL", "FLAT"):
+            lv, g = hl["level"][k], hl["level_gain_vs"][k]
+            print(f"| {lv['label']} | {lv['mape_pct']:.1f}% | {lv['mae_mcm']:.2f} | "
+                  f"**{g['points']:+.1f}** | +-{g['se_by_county']:.1f} "
+                  f"({g['n_se_by_county']:+.1f} se) | +-{g['se_by_year']:.1f} "
+                  f"({g['n_se_by_year']:+.1f} se) | "
+                  f"{g['n_counties_favouring_closure']}/{g['n_counties']} |")
+        lv = hl["level"]["CLOSURE"]
+        print(f"| **{lv['label']}** | **{lv['mape_pct']:.1f}%** | "
+              f"**{lv['mae_mcm']:.2f}** | | | | |")
+        g = hl["level_gain_vs"]["OPENLOOP"]
+        go = hl["level_gain_vs"]["OPENLOOP_ORACLE"]
+        print(f"\n**Against the technique in use where wells are not metered, the closure "
+              f"removes {g['points']:.1f} points of relative error**, and is closer on "
+              f"{g['closure_closer_pct_of_county_years']:.0f} per cent of the "
+              f"county-years; against the same method with its efficiency fitted to the "
+              f"meters, {go['points']:.1f}. Clustered by county that gain is "
+              f"{g['n_se_by_county']:.1f} standard errors, not the "
+              f"{g['n_se_by_year']:.1f} the year clustering reports, because it is "
+              f"carried by the two counties where the open-loop account fails worst and "
+              f"is negative in "
+              f"{g['n_counties'] - g['n_counties_favouring_closure']} of "
+              f"{g['n_counties']}: {g['gain_by_county']}. Six counties of one climate do "
+              f"not establish a seventh. Against the two arithmetic bars it loses by "
+              f"{abs(hl['level_gain_vs']['FLAT']['points']):.1f} and "
+              f"{abs(hl['level_gain_vs']['WATERBAL']['points']):.1f} points, as well "
+              f"resolved as the gain and reported at the same size. Those bars need a "
+              f"published applied depth for the basin they are used in; the published "
+              f"account of Al Jawf implies one 6.5 times the Kansas figure, so they do "
+              f"not transport and the open-loop comparison is the one that does.\n")
+        print("**The change between two multi-year periods, over the whole record.**\n")
+        print("| averaging window | window pairs | margin over the best meter-free bar | "
+              "jackknife error | standard errors | sign survives dropping any one year |")
+        print("|---:|---:|---:|---:|---:|---|")
+        for w, v in hl["change_margin"]["whole_record"].items():
+            print(f"| {w} years | {v['n_pairs']} | {v['points']:+.2f} | "
+                  f"+-{v['se_by_year']:.2f} | {v['n_se_by_year']:.1f} | "
+                  f"{'yes' if v['sign_survives_any_single_year_drop'] else 'no'} |")
+        print(f"\n**No window puts that margin more than about one standard error above "
+              f"zero.** The window pairs overlap, so their count is a count of contrasts "
+              f"rather than a sample size: the metered era admits exactly "
+              f"{hl['change_margin']['independent_five_year_pairs_in_era']} pair of "
+              f"five-year windows sharing no year with another such pair. What the record "
+              f"does support is that from a six-year window upward the margin survives "
+              f"dropping any single year and grows with the window. The level comparison "
+              f"above is the one this record resolves.\n")
+
     ni = load("net_inflow.json")
     if ni:
         section("How far apart the two rungs are: the share of pumping that is storage")

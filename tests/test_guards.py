@@ -291,6 +291,54 @@ def test_every_year_called_metered_is_meter_coded_and_the_year_before_is_not():
     assert "K.METERED_ERA_YEAR0" in script
 
 
+def test_the_headline_gain_carries_the_error_bar_its_claim_requires():
+    """A transfer claim generalises over districts, so its error bar counts districts.
+
+    Six counties of one block share a climate, a retrieval and a reporting cycle, so
+    resampling their 96 county-years as if independent, or resampling the 16 years,
+    answers a narrower question than the one the entry asks. Both are computed and the
+    shipped text leads with the county figure, which is the wider.
+
+    The corruption is the naive independent-and-identically-distributed error over
+    county-years: it must come out far tighter than the county clustering, which is
+    exactly why quoting it would be an overclaim.
+    """
+    import json
+
+    hl = ROOT / "results" / "headline_v3.json"
+    if not hl.exists():
+        pytest.skip("headline not computed (make headline)")
+    H = json.loads(hl.read_text())
+    g = H["level_gain_vs"]["OPENLOOP"]
+
+    for key in ("se_by_county", "se_by_year", "n_se_by_county", "n_se_by_year",
+                "gain_by_county", "n_counties_favouring_closure"):
+        assert key in g, key
+    assert g["se_by_county"] > g["se_by_year"], (
+        "clustering on six districts cannot be tighter than clustering on sixteen years")
+    assert g["n_counties"] == 6
+
+    # The shipped prose leads with the county figure and never quotes the year figure
+    # as the headline. Both numbers appear; the county one has to be the claim.
+    prop = (ROOT.parent / "05_PROPOSAL.md").read_text(encoding="utf-8")
+    assert "{:.1f} standard errors".format(g["n_se_by_county"]) in prop
+    assert "effective sample is 6" in prop
+
+    # The corruption: county-years resampled as if independent.
+    from mizan import ks_data as KD
+    years = np.arange(KD.YEAR0, KD.YEAR1 + 1)
+    era = years >= KD.METERED_ERA_YEAR0
+    q = KD.reported_annual()[0].sum(axis=0)[:, era]
+    post = np.load(ROOT / "results" / "kansas_posterior_ETH_v3.npz")
+    hat = post["ens"][..., era].mean(axis=0)
+    ol = (post["et_obs"] / 0.80)[:, era]
+    d = (np.abs(ol - q) / q - np.abs(hat - q) / q) * 100.0
+    se_iid = float(d.std(ddof=1) / np.sqrt(d.size))
+    assert se_iid < g["se_by_county"] / 2.0, (
+        "the iid error over county-years has to look far tighter than the district "
+        "clustering, or this guard is not testing the overclaim it names")
+
+
 def test_net_inflow_is_an_identity_and_not_a_fitted_quantity():
     """N = Q + Sy*A*dh has no free parameter, and a flat water table returns N = Q.
 

@@ -1,0 +1,208 @@
+{
+  "_meta": {
+    "tag": "_v3",
+    "era_year0": 2009,
+    "n_county_years": 96,
+    "n_years": 16,
+    "n_counties": 6,
+    "oracle_efficiency": 0.632,
+    "error_bars": "by county: the unit a transfer claim generalises over, n=6; by year: leave-one-year-out over the metered era, n=16"
+  },
+  "level": {
+    "CLOSURE": {
+      "label": "the closure, evapotranspiration and heads",
+      "mape_pct": 28.613972436745915,
+      "mae_mcm": 21.21958896168774,
+      "basin_bias_pct": -15.451666452460067
+    },
+    "OPENLOOP": {
+      "label": "the published open-loop account, consumptive use over a fixed 0.80",
+      "mape_pct": 49.27457134314019,
+      "mae_mcm": 28.282257809675098,
+      "basin_bias_pct": -29.502760678836502
+    },
+    "OPENLOOP_ORACLE": {
+      "label": "the same, with its efficiency fitted to the withheld meters",
+      "mape_pct": 46.33635877194841,
+      "mae_mcm": 24.017401486835706,
+      "basin_bias_pct": -10.762988201058878
+    },
+    "FLAT": {
+      "label": "mapped irrigated area times one acre-foot per acre",
+      "mape_pct": 23.03715831187003,
+      "mae_mcm": 16.618189169397326,
+      "basin_bias_pct": -7.9830579272692255
+    },
+    "WATERBAL": {
+      "label": "the same, plus half the year's precipitation deficit",
+      "mape_pct": 19.110724740319807,
+      "mae_mcm": 13.753923773732826,
+      "basin_bias_pct": -9.650632586747
+    }
+  },
+  "level_gain_vs": {
+    "OPENLOOP": {
+      "label": "the published open-loop account, consumptive use over a fixed 0.80",
+      "points": 20.660598906394274,
+      "se_by_county": 12.115367957036284,
+      "n_se_by_county": 1.7053216195877192,
+      "se_by_year": 3.6364671477514428,
+      "n_se_by_year": 5.6815029716876335,
+      "worst_year_drop": 18.042627253494892,
+      "best_year_drop": 22.094302289281956,
+      "gain_by_county": {
+        "CN": -14.4,
+        "RA": 51.9,
+        "DC": 60.4,
+        "SH": 10.3,
+        "TH": 17.5,
+        "SD": -1.8
+      },
+      "n_counties_favouring_closure": 4,
+      "n_counties": 6,
+      "closure_closer_pct_of_county_years": 76.04166666666666
+    },
+    "OPENLOOP_ORACLE": {
+      "label": "the same, with its efficiency fitted to the withheld meters",
+      "points": 17.722386335202497,
+      "se_by_county": 10.584490693613054,
+      "n_se_by_county": 1.6743730849417844,
+      "se_by_year": 4.301494317586084,
+      "n_se_by_year": 4.120053410915108,
+      "worst_year_drop": 15.16065397558041,
+      "best_year_drop": 19.99379003038949,
+      "gain_by_county": {
+        "CN": -0.6,
+        "RA": 45.7,
+        "DC": 55.5,
+        "SH": -4.8,
+        "TH": 6.0,
+        "SD": 4.6
+      },
+      "n_counties_favouring_closure": 4,
+      "n_counties": 6,
+      "closure_closer_pct_of_county_years": 60.416666666666664
+    },
+    "FLAT": {
+      "label": "mapped irrigated area times one acre-foot per acre",
+      "points": -5.5768141248758845,
+      "se_by_county": 5.3459377585794705,
+      "n_se_by_county": -1.043187252961539,
+      "se_by_year": 1.1980662824706199,
+      "n_se_by_year": -4.654846068596079,
+      "worst_year_drop": -6.153524163608509,
+      "best_year_drop": -5.104626035581244,
+      "gain_by_county": {
+        "CN": -26.8,
+        "RA": -7.4,
+        "DC": 10.5,
+        "SH": -10.5,
+        "TH": 5.4,
+        "SD": -4.8
+      },
+      "n_counties_favouring_closure": 2,
+      "n_counties": 6,
+      "closure_closer_pct_of_county_years": 38.54166666666667
+    },
+    "WATERBAL": {
+      "label": "the same, plus half the year's precipitation deficit",
+      "points": -9.503247696426108,
+      "se_by_county": 4.836189297977133,
+      "n_se_by_county": -1.9650280646378129,
+      "se_by_year": 1.9143201756849024,
+      "n_se_by_year": -4.964293756673202,
+      "worst_year_drop": -10.087087125732403,
+      "best_year_drop": -8.089479726095306,
+      "gain_by_county": {
+        "CN": -26.3,
+        "RA": -12.5,
+        "DC": 9.4,
+        "SH": -10.4,
+        "TH": -3.5,
+        "SD": -13.6
+      },
+      "n_counties_favouring_closure": 1,
+      "n_counties": 6,
+      "closure_closer_pct_of_county_years": 35.41666666666667
+    }
+  },
+  "change_margin": {
+    "metered_era": {
+      "4": {
+        "n_pairs": 45,
+        "points": 0.6261299189047236,
+        "se_by_year": 5.248905435728105,
+        "n_se_by_year": 0.11928771180421725,
+        "worst_year_drop": -3.223461391824748,
+        "sign_survives_any_single_year_drop": false
+      },
+      "5": {
+        "n_pairs": 28,
+        "points": 2.937708957537769,
+        "se_by_year": 7.715325255653416,
+        "n_se_by_year": 0.3807628142942073,
+        "worst_year_drop": -1.095667886401575,
+        "sign_survives_any_single_year_drop": false
+      },
+      "6": {
+        "n_pairs": 15,
+        "points": 6.915887614896799,
+        "se_by_year": 11.973949837254876,
+        "n_se_by_year": 0.5775778008839831,
+        "worst_year_drop": -3.276393298711218,
+        "sign_survives_any_single_year_drop": false
+      },
+      "7": {
+        "n_pairs": 6,
+        "points": 5.9941465451372515,
+        "se_by_year": 14.108153945628652,
+        "n_se_by_year": 0.42487107585004136,
+        "worst_year_drop": -4.21118661150251,
+        "sign_survives_any_single_year_drop": false
+      }
+    },
+    "whole_record": {
+      "4": {
+        "n_pairs": 171,
+        "points": -0.15549544338927568,
+        "se_by_year": 3.2337131444625324,
+        "n_se_by_year": -0.04808572574087124,
+        "worst_year_drop": -1.9201290497507095,
+        "sign_survives_any_single_year_drop": false
+      },
+      "5": {
+        "n_pairs": 136,
+        "points": 1.5659212723380378,
+        "se_by_year": 3.0757865445783628,
+        "n_se_by_year": 0.5091124659148604,
+        "worst_year_drop": 0.18022158180686798,
+        "sign_survives_any_single_year_drop": true
+      },
+      "6": {
+        "n_pairs": 105,
+        "points": 3.1868857107153774,
+        "se_by_year": 3.28657665706146,
+        "n_se_by_year": 0.9696672383612629,
+        "worst_year_drop": 1.3466704645008871,
+        "sign_survives_any_single_year_drop": true
+      },
+      "7": {
+        "n_pairs": 78,
+        "points": 4.188691754109117,
+        "se_by_year": 4.105320716511887,
+        "n_se_by_year": 1.020308044938342,
+        "worst_year_drop": 1.285162554186849,
+        "sign_survives_any_single_year_drop": true
+      },
+      "8": {
+        "n_pairs": 55,
+        "points": 4.630293587703955,
+        "se_by_year": 4.458480771062072,
+        "n_se_by_year": 1.0385361798030037,
+        "worst_year_drop": 1.5761251408903965,
+        "sign_survives_any_single_year_drop": true
+      }
+    },
+    "independent_five_year_pairs_in_era": 1
+  }
+}

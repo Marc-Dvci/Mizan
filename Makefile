@@ -8,7 +8,7 @@ NA ?= 8
 SAQ_SIGMA ?= 20.4
 EE_PROJECT ?= $(EARTHENGINE_PROJECT)
 
-.PHONY: all setup env truth ablation allocation voi detection figures report test clean         robustness null kansas-data kansas kansas-score kansas-forced kansas-v5 metered-era net-inflow aljawf verify referee gain saq-gain drift reproduce reproduce-ee
+.PHONY: all setup env truth ablation allocation voi detection figures report test clean         robustness null kansas-data kansas kansas-score kansas-forced kansas-v5 metered-era net-inflow headline aljawf verify referee gain saq-gain drift reproduce reproduce-ee
 
 all: truth ablation allocation voi detection null figures report
 
@@ -26,6 +26,7 @@ reproduce:
 	$(MAKE) verify
 	$(MAKE) metered-era
 	$(MAKE) net-inflow
+	$(MAKE) headline
 	$(MAKE) gain
 	$(MAKE) drift
 	$(MAKE) report
@@ -143,6 +144,11 @@ metered-era:
 # which is the size of the difference between the two rungs.
 net-inflow:
 	$(PY) scripts/28_net_inflow.py
+
+# The two comparisons the entry rests on, each with the error bar its claim needs:
+# clustered by county for a transfer claim, by year for a within-block one.
+headline:
+	$(PY) scripts/29_headline.py --tag $(KTAG)
 
 # L3. Everything is read live from Earth Engine, so this target needs an authenticated
 # project and nothing else: `earthengine authenticate`, then set EARTHENGINE_PROJECT to

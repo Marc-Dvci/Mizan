@@ -395,6 +395,35 @@ On both named contrasts the closure overstates the decline and the area-times-de
 | both windows below 90 per cent metered | 3 | 21.0 | 17.8 |
 
 
+## The two comparisons, each with the error its record supports
+
+A ranking of two point estimates is not a result until the record says how well it resolves the difference. Both comparisons below carry a error bar, and which one is right depends on the claim. Over years it asks how the gain would come out in another year across these same six counties. Over counties it asks whether it would hold in a district this record has not seen, which is what a transfer claim asserts, and its sample is six. The county figure is the wider and is the one to read.
+
+**The level, on 96 county-years.**
+
+| account | relative error | MAE Mm3/yr | points the closure removes | se by county (n=6) | se by year (n=16) | counties favouring the closure |
+|---|---:|---:|---:|---:|---:|---:|
+| the published open-loop account, consumptive use over a fixed 0.80 | 49.3% | 28.28 | **+20.7** | +-12.1 (+1.7 se) | +-3.6 (+5.7 se) | 4/6 |
+| the same, with its efficiency fitted to the withheld meters | 46.3% | 24.02 | **+17.7** | +-10.6 (+1.7 se) | +-4.3 (+4.1 se) | 4/6 |
+| the same, plus half the year's precipitation deficit | 19.1% | 13.75 | **-9.5** | +-4.8 (-2.0 se) | +-1.9 (-5.0 se) | 1/6 |
+| mapped irrigated area times one acre-foot per acre | 23.0% | 16.62 | **-5.6** | +-5.3 (-1.0 se) | +-1.2 (-4.7 se) | 2/6 |
+| **the closure, evapotranspiration and heads** | **28.6%** | **21.22** | | | | |
+
+**Against the technique in use where wells are not metered, the closure removes 20.7 points of relative error**, and is closer on 76 per cent of the county-years; against the same method with its efficiency fitted to the meters, 17.7. Clustered by county that gain is 1.7 standard errors, not the 5.7 the year clustering reports, because it is carried by the two counties where the open-loop account fails worst and is negative in 2 of 6: {'CN': -14.4, 'RA': 51.9, 'DC': 60.4, 'SH': 10.3, 'TH': 17.5, 'SD': -1.8}. Six counties of one climate do not establish a seventh. Against the two arithmetic bars it loses by 5.6 and 9.5 points, as well resolved as the gain and reported at the same size. Those bars need a published applied depth for the basin they are used in; the published account of Al Jawf implies one 6.5 times the Kansas figure, so they do not transport and the open-loop comparison is the one that does.
+
+**The change between two multi-year periods, over the whole record.**
+
+| averaging window | window pairs | margin over the best meter-free bar | jackknife error | standard errors | sign survives dropping any one year |
+|---:|---:|---:|---:|---:|---|
+| 4 years | 171 | -0.16 | +-3.23 | -0.0 | no |
+| 5 years | 136 | +1.57 | +-3.08 | 0.5 | yes |
+| 6 years | 105 | +3.19 | +-3.29 | 1.0 | yes |
+| 7 years | 78 | +4.19 | +-4.11 | 1.0 | yes |
+| 8 years | 55 | +4.63 | +-4.46 | 1.0 | yes |
+
+**No window puts that margin more than about one standard error above zero.** The window pairs overlap, so their count is a count of contrasts rather than a sample size: the metered era admits exactly 1 pair of five-year windows sharing no year with another such pair. What the record does support is that from a six-year window upward the margin survives dropping any single year and grows with the window. The level comparison above is the one this record resolves.
+
+
 ## How far apart the two rungs are: the share of pumping that is storage
 
 The closure reads abstraction out of storage, so what the two rungs have in common is not the basin but the method. Net inflow `N = Q + Sy*A*dh` from the withheld meters, the winter water levels and the USGS specific-yield map puts a number on the difference. No model enters it.
