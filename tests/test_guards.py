@@ -291,6 +291,44 @@ def test_every_year_called_metered_is_meter_coded_and_the_year_before_is_not():
     assert "K.METERED_ERA_YEAR0" in script
 
 
+def test_net_inflow_is_an_identity_and_not_a_fitted_quantity():
+    """N = Q + Sy*A*dh has no free parameter, and a flat water table returns N = Q.
+
+    The number is quoted to size the distance between the two rungs, so it has to be
+    arithmetic on published records rather than anything the inversion produced. The
+    corruption is a water table that does not move: net inflow then has to equal
+    pumping exactly, and any term the identity has picked up elsewhere shows as a gap.
+    """
+    from mizan import ks_data as KD
+
+    if not (KD.DATA / "wimas_wuse_SD.txt").exists():
+        pytest.skip("WIMAS use files not retrieved (make kansas-data)")
+
+    region = KD.build_region(KD.load_points())
+    sy = KD.usgs_field(region, "sy")
+    assert 0.02 < float(sy[region.county >= 0].mean()) < 0.35, "specific yield fraction"
+
+    q = KD.reported_annual()[0].sum(axis=0)[:, :-1]
+    area = np.array([(region.county == i).sum() * region.area_m2
+                     for i in range(len(KD.COUNTIES))])
+    sy_c = np.array([float(sy[region.county == i].mean())
+                     for i in range(len(KD.COUNTIES))])
+
+    flat = np.zeros_like(q)
+    n_flat = q + sy_c[:, None] * area[:, None] * flat
+    assert np.allclose(n_flat, q), "a still water table must return N = Q"
+
+    # And a falling one must return less than pumping, or the sign is inverted.
+    drop = np.full_like(q, -0.2)
+    n_drop = q + sy_c[:, None] * area[:, None] * drop
+    assert (n_drop < q).all(), "a falling water table means inflow below pumping"
+
+    # The script quotes the twin from the same two numbers RESULTS.md reports.
+    src = (Path(__file__).resolve().parents[1] / "scripts" / "28_net_inflow.py"
+           ).read_text(encoding="utf-8")
+    assert "31.04" in src and "29.06" in src
+
+
 def test_loco_shrink_never_sees_the_county_it_is_applied_to():
     """The amplitude factor for a county comes from the other counties or it is an oracle.
 
@@ -416,6 +454,25 @@ def test_recharge_is_driven_by_observed_precipitation_and_carries_no_water_use()
     # carry a year-to-year forcing; the scalar it replaced could not.
     body = inspect.getsource(R.build)
     assert "ctx.rmul" in body and "rspd" in body
+
+    # And the forcing is a switch, off for the published `_v3` and on for `_v4`, so
+    # that one tree reproduces both. The corruption is the context built without the
+    # flag: its multiplier has to be one everywhere, or `make kansas` would run the
+    # rejected configuration under the published tag, which is what it did once.
+    pts = KD.load_points()
+    region = KD.build_region(pts)
+    wl = KD.water_levels(region)
+    off = R.make_context(region, wl, forced_recharge=False)
+    on = R.make_context(region, wl, forced_recharge=True)
+    assert np.allclose(off.rmul, 1.0), "the published configuration is unforced"
+    assert np.allclose(on.rmul, w), "the forced configuration reads the record"
+    driver = (ROOT / "scripts" / "11_kansas_run.py").read_text(encoding="utf-8")
+    assert "--forced-recharge" in driver
+    mk = (ROOT / "Makefile").read_text(encoding="utf-8")
+    v3 = [l for l in mk.splitlines() if "--tag _v3" in l]
+    assert v3 and all("--forced-recharge" not in l for l in v3)
+    v4 = [l for l in mk.splitlines() if "--tag _v4" in l]
+    assert v4 and all("--forced-recharge" in l for l in v4)
 
 
 def test_the_direction_of_a_declared_change_is_not_reported_as_a_test():

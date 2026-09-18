@@ -593,6 +593,119 @@ def saturated_thickness(region: Region) -> np.ndarray:
     return b
 
 
+# ------------------------------------------------------------ USGS property maps
+def _e00_polygons(path: Path, table: str):
+    """Polygons and their (MAJOR1, MINOR1) class bounds from an ArcInfo E00 export.
+
+    ARC carries the arcs, PAL the arc list of every polygon, and the polygon attribute
+    table the class each polygon belongs to. Polygon 1 is the universe and is skipped.
+    """
+    import re
+    lines = path.read_text(encoding="latin-1").splitlines()
+    i = next(k for k, l in enumerate(lines) if l.startswith("ARC ")) + 1
+    arcs = {}
+    while True:
+        h = lines[i].split()
+        if len(h) >= 7 and h[0] == "-1":
+            break
+        aid, npt = int(h[1]), int(h[6])
+        i += 1
+        pts = []
+        while len(pts) < npt:
+            nums = re.findall(r"-?\d\.\d+E[+-]\d\d", lines[i])
+            pts += [(float(nums[j]), float(nums[j + 1])) for j in range(0, len(nums), 2)]
+            i += 1
+        arcs[aid] = pts
+    i = next(k for k, l in enumerate(lines) if l.startswith("PAL ")) + 1
+    pals = []
+    while True:
+        n = int(lines[i][:10])
+        if n == -1:
+            break
+        i += 1
+        trip = []
+        while len(trip) < n:
+            nums = [int(x) for x in lines[i].split()]
+            trip += [tuple(nums[j:j + 3]) for j in range(0, len(nums), 3)]
+            i += 1
+        pals.append(trip)
+    i = next(k for k, l in enumerate(lines) if l.startswith(table + ".PAT "))
+    nrec = int(lines[i].split()[-1])
+    i += 1
+    while not re.match(r"^\s*-?\d\.\d+E", lines[i]):
+        i += 1
+    attrs = [(int(lines[i + r][-12:-6]), int(lines[i + r][-6:])) for r in range(nrec)]
+    out = []
+    for pid, pal in enumerate(pals, start=1):
+        if pid == 1:
+            continue
+        rings, cur = [], []
+        for a, _, _ in pal:
+            if a == 0:
+                if cur:
+                    rings.append(cur)
+                cur = []
+                continue
+            pts = arcs[abs(a)]
+            cur += pts if a > 0 else pts[::-1]
+        if cur:
+            rings.append(cur)
+        rings = [r for r in rings if len(r) >= 4]
+        if rings:
+            out.append((rings, attrs[pid - 1]))
+    return out
+
+
+def usgs_field(region: Region, which: str) -> np.ndarray:
+    """A published High Plains property map on the model grid.
+
+    `which` is "sy", the specific yield of Cederstrand and Becker (1998, OFR 98-414),
+    returned as a fraction, or "k", their hydraulic conductivity (OFR 98-548), returned
+    in m/d. Both are class maps; a cell takes the midpoint of its class. They are
+    observations of the aquifer's material into which no water-use report enters, so the
+    inversion can put its storage coefficient and its conductivity prior on them rather
+    than estimate a single block-wide value of each.
+    """
+    import pyproj
+    from rasterio import features
+    from rasterio.transform import from_origin
+
+    cache = DATA / f"usgs_{which}_region.npz"
+    hit = _load_cache(cache, region, (region.nrow, region.ncol))
+    if hit is not None:
+        return hit
+    src = {"sy": ("ofr98-414.e00", "SY", 0.01), "k": ("ofr98-548.e00", "COND", FT_TO_M)}
+    fname, table, scale = src[which]
+    polys = _e00_polygons(DATA / "usgs_fields" / fname, table)
+    albers = pyproj.CRS.from_proj4("+proj=aea +lat_1=29.5 +lat_2=45.5 +lat_0=23 "
+                                   "+lon_0=-96 +x_0=0 +y_0=0 +datum=NAD83 +units=m")
+    tr = pyproj.Transformer.from_crs("EPSG:4269", albers, always_xy=True)
+    LON, LAT = region.centers_lonlat()
+    X, Y = tr.transform(LON, LAT)
+    res = 500.0
+    x0, y1 = X.min() - 5e3, Y.max() + 5e3
+    W = int((X.max() + 5e3 - x0) / res) + 1
+    H = int((y1 - Y.min() + 5e3) / res) + 1
+    shapes = [({"type": "Polygon",
+                "coordinates": [[list(q) for q in r] + [list(r[0])] for r in rings]},
+               0.5 * (maj + mino) * scale) for rings, (maj, mino) in polys]
+    grid = features.rasterize(shapes, out_shape=(H, W),
+                              transform=from_origin(x0, y1, res, res),
+                              fill=np.nan, dtype="float64")
+    out = grid[((y1 - Y) / res).astype(int), ((X - x0) / res).astype(int)]
+    # A class of zero is the map's "not mapped"; fill it and the unmapped cells from
+    # the county's own median, as the saturated-thickness field is filled.
+    out[out <= 0] = np.nan
+    for i in range(len(COUNTIES)):
+        m = region.county == i
+        if np.isnan(out[m]).all():
+            continue
+        out[m & np.isnan(out)] = np.nanmedian(out[m])
+    out[np.isnan(out)] = np.nanmedian(out)
+    _save_cache(cache, region, out)
+    return out
+
+
 def precipitation() -> np.ndarray:
     """Annual county precipitation, mm/yr, shape (6, nyear), from NOAA nClimDiv."""
     d = json.loads((DATA / "precip_annual.json").read_text())

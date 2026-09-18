@@ -395,6 +395,23 @@ On both named contrasts the closure overstates the decline and the area-times-de
 | both windows below 90 per cent metered | 3 | 21.0 | 17.8 |
 
 
+## How far apart the two rungs are: the share of pumping that is storage
+
+The closure reads abstraction out of storage, so what the two rungs have in common is not the basin but the method. Net inflow `N = Q + Sy*A*dh` from the withheld meters, the winter water levels and the USGS specific-yield map puts a number on the difference. No model enters it.
+
+| county | pumping, Mm3/yr | water-level change, m/yr | net inflow, Mm3/yr | N/Q |
+|---|---:|---:|---:|---:|
+| CN | 64.3 | -0.08 | 24.9 | 0.39 |
+| RA | 22.2 | -0.04 | 1.3 | 0.06 |
+| DC | 12.5 | +0.01 | 16.5 | 1.32 |
+| SH | 145.9 | -0.23 | 16.3 | 0.11 |
+| TH | 114.7 | -0.13 | 43.4 | 0.38 |
+| SD | 84.3 | -0.10 | 49.8 | 0.59 |
+| **block** | **444** | | **152** | **0.34** |
+
+Storage supplies 66 per cent of what Northwest Kansas pumps over 2009 to 2023 and 94 per cent of what the twin pumps, a factor of 1.4 on the share of pumping the closure's own signal carries. The synthetic error rate is therefore not a prediction for this basin, and the basin the method is built for, where recharge is a rounding error, sits at the twin's end of that range.
+
+
 ## L3 Al Jawf: how far apart the published instruments are on the Saq
 
 No metered abstraction exists for this basin, so nothing here is scored. What is reported is the disagreement between the instruments a regulator would reach for today, over one aquifer, from public data.

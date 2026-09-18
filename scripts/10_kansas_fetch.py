@@ -24,7 +24,7 @@ DATA = ROOT / "data" / "kansas"
 def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--what", type=str,
-                    default="wizard,ssebop,mirad,hpsat,precip,wimas,wuse")
+                    default="wizard,ssebop,mirad,hpsat,usgs,precip,wimas,wuse")
     ap.add_argument("--workers", type=int, default=4)
     ap.add_argument("--y0", type=int, default=2000)
     ap.add_argument("--y1", type=int, default=2025)
@@ -50,6 +50,10 @@ def main() -> None:
     if "hpsat" in what:
         print("USGS High Plains saturated thickness, 2009, 500 m")
         K.fetch_hpsat(DATA)
+
+    if "usgs" in what:
+        print("USGS High Plains specific-yield and hydraulic-conductivity maps, 1998")
+        K.fetch_usgs_fields(DATA)
 
     if "precip" in what:
         print("NOAA nClimDiv annual county precipitation, the recharge forcing")

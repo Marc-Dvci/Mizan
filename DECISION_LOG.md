@@ -617,3 +617,114 @@ Both named contrasts inside the era have the closure overstating the decline, -1
 against a metered -6.0 on the GMD4 LEMA and -21.3 against -5.8 on the era's endpoints,
 with the area-times-depth bar closer on both. The `_v3` results files are kept as they
 were produced; `results/metered_era_v3.json` is the scoring to quote against meters.
+
+### The published rung was not reproducible from the committed code
+
+Found 18 September 2026 while preparing the next configuration. The commit that drove
+recharge from the county precipitation record changed `ks_run.build` unconditionally,
+and the commit that rejected that forcing added this log's entry and nothing else. So
+`make kansas` on the published repository ran the rejected forcing under the `_v3` tag,
+and the recharge guard required it to. The `_v3` results files predate the forcing
+commit and are the numbers the submission quotes. **Fix:** the forcing is a driver flag,
+`--forced-recharge`; `make kansas` runs without it and `make kansas-forced` with it, so
+`_v3` and `_v4` are both reachable from one tree, and the guard now checks both
+branches. No number moved.
+
+### `_v5`: the storage coefficient and the conductivity prior from published maps, the deep-percolation share a parameter. Prediction written before the run
+
+**Why.** On the metered era against the complete record, the closure is 15.5 per cent
+low on the level, and the head leg alone is 50 per cent low in Cheyenne and 41 per cent
+high in Sheridan. The `_v3` inversion holds one specific yield for the whole block and
+settles it at 0.25 (heads only: 0.27) with recharge at 4.7 mm/yr, against a published
+prior of 0.15 and 20 mm/yr. The USGS specific-yield map of the High Plains aquifer
+(Cederstrand and Becker 1998, OFR 98-414) averages 0.17 over the block and runs from
+0.13 in Decatur to 0.21 in Sherman. A storage coefficient fifty per cent above the
+published map, with recharge at a quarter of its prior, is a water balance closing on
+the wrong term: the model is short of a source of water and the head leg is buying it
+with storage. The source the model lacks by construction is deep percolation under the
+pivots, fixed at 30 per cent of the non-consumed fifth of pumping, about 6 per cent.
+
+**What changes, all from published sources, no meter read.** Specific yield is the
+USGS map times one multiplier held to about twenty per cent (log10 sd 0.08, bounds 0.6
+to 1.6), as the layer base is already the USGS thickness grid times one multiplier. The
+conductivity pilot-point prior is centred on the USGS conductivity map (OFR 98-548)
+instead of a uniform 20 m/d. The deep-percolation share of pumping becomes a parameter
+with a prior of 12 per cent, a factor of 1.6 either way, bounded at 6 to 24, which is
+the range field studies under centre-pivot irrigation on the Kansas High Plains report.
+Nothing else moves: same observations, same error budget, same ensemble size, same
+localisation, recharge constant in time as in `_v3`.
+
+**Prediction, to be scored against the metered era.** (1) The specific-yield multiplier
+lands inside 0.8 to 1.25 and not on a bound. If it goes to 1.6 the model is still short
+of water and the configuration is rejected, whatever the score. (2) The closure's basin
+bias on the metered era moves toward zero from -15.5 per cent by at least five points,
+and the head leg's county-level spread of bias shrinks from the present 91 points
+(Cheyenne to Sheridan) to below 60. (3) The five-year change error stays within one
+point of 9.4 or improves; a change of model structure that helps the level and costs
+the change is recorded as that. (4) Recharge comes back toward its published prior,
+above 10 mm/yr. Two of the four failing rejects the configuration; the published rung
+stays `_v3` either way and both stay runnable.
+
+### `_v5` scored against its own prediction. Two of four failed, so it is rejected
+
+Run 18 September 2026, both stages, two independent prior ensembles (seeds 5 and 6),
+scored on the metered era against the complete per-point record.
+
+| | `_v3` seed 5 / 6 | `_v5` seed 5 / 6 |
+|---|---|---|
+| specific-yield multiplier | n/a | 1.157 / 1.142 |
+| specific yield used | 0.249 / 0.251 | 0.201 / 0.199 |
+| recharge, mm/yr | 4.7 / 6.2 | 11.0 / 8.0 |
+| deep-percolation share | 0.06 fixed | 0.121 / 0.118 |
+| basin bias, metered era | -15.5 / -14.7 % | -14.9 / -15.1 % |
+| head-leg county spread of bias | 91 pts | 67 pts |
+| level, relative error | 28.6 / 30.3 % | 26.0 / 28.1 % |
+| **five-year change, metered era** | **9.35 / 8.39 pts** | **7.18 / 7.26 pts** |
+| six-year change | 6.06 / 6.61 | 3.74 / 4.03 |
+| interval coverage | 0.86 | 0.96 |
+
+**The gate.** (1) The multiplier landed at 1.15, inside the band and off both bounds:
+**pass**. (2) The basin bias had to improve by five points and the head leg's county
+spread to fall below 60. They moved 0.6 points and to 67: **fail**. (3) The five-year
+change had to stay within a point of 9.4: it improved to 7.2: **pass**. (4) Recharge
+had to come back above 10 mm/yr: 11.0 on one seed and 8.0 on the other, mean 9.5:
+**fail**. Two of four failed, so by the rule written before the run **the published rung
+stays `_v3`**.
+
+**Why that is the right call even though the scored number improved.** The reason given
+for the change was a mechanism: the model is short of a source of water, the head leg is
+buying it with storage, and supplying deep percolation from a published prior will move
+the level bias. The level bias did not move. Adopting the configuration anyway would be
+adopting a structural change on the strength of the metric it was supposed to be
+incidental to, which is the failure mode `18_RESULT_SENSITIVE_CORRECTION_OPTIONS.md`
+exists to prevent, and the meters had already been opened when the run finished.
+
+**What it is evidence for, and what is reported.** The headline is not fragile. A
+structural variant that changes the storage coefficient, the conductivity prior and the
+recharge balance together moves the five-year change from 8.9 to 7.2 points averaged
+over two seeds, against a `_v3` seed spread of 1.0, and never in the wrong direction.
+Both configurations are runnable, `make kansas` and `make kansas-v5`, and both sets of
+results files are kept.
+
+### Why the twin's error rate does not transfer, measured rather than asserted
+
+`scripts/28_net_inflow.py`, `make net-inflow`. The L0 twin abstracts 31.04 km3 and
+depletes 29.06 km3 of storage, so **94 per cent of what it pumps comes out of storage**
+and 6 per cent is replaced within the year. Northwest Kansas is not that basin. From
+the WIMAS meters, the WIZARD winter levels and the USGS specific-yield map,
+
+    N = Q + Sy * A * dh
+
+gives net inflow of **152 Mm3/yr against 444 Mm3/yr pumped over 2009 to 2023, so the
+aquifer replaces 34 per cent of its own abstraction and storage supplies 66**. The
+county values run from 0.06 in Rawlins to 1.32 in Decatur, whose water table is flat.
+This is the same quantity Butler et al. target for sustainability in these counties, and
+it is computed here from the public record with no model in it.
+
+**That is the size of the gap between the rungs.** The closure's information about
+abstraction comes from storage. A basin where storage carries 94 per cent of pumping
+presents the closure with a signal half again as large as one where it carries 66, which
+is the direction the 5.2 against 25.4 per cent gap runs. It does not explain the whole
+gap and is not claimed to. What it does is put a number on the statement that Kansas is
+the harder of the two basins for this instrument, and the Saq, with recharge near zero,
+sits at the twin's end of that range rather than at Kansas's.

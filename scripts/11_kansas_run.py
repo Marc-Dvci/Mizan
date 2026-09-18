@@ -23,7 +23,8 @@ from mizan import inversion as I, ks_data as K, ks_run as R, metrics as MT
 RES = ROOT / "results"
 
 
-def assemble(pool: bool = True) -> dict:
+def assemble(pool: bool = True, forced_recharge: bool = False,
+             config: str = "v3") -> dict:
     pts = K.load_points()
     region = K.build_region(pts)
     et = K.evapotranspiration(region)
@@ -31,7 +32,7 @@ def assemble(pool: bool = True) -> dict:
     et_obs, et_se = K.irrigation_et(et, frac, region, pool=pool)
     irr_area = K.irrigated_area(frac, region)
     wl = K.water_levels(region)
-    ctx = R.make_context(region, wl)
+    ctx = R.make_context(region, wl, forced_recharge=forced_recharge, config=config)
     return dict(region=region, et=et, frac=frac, et_obs=et_obs, et_se=et_se,
                 irr_area=irr_area, wl=wl, ctx=ctx)
 
@@ -56,12 +57,20 @@ def main() -> None:
     ap.add_argument("--no-pool-unmix", action="store_true",
                     help="fit the unmixing slope county by county, instead of shrinking "
                          "each county toward the block-wide endmember contrast")
+    ap.add_argument("--forced-recharge", action="store_true",
+                    help="drive recharge by the county precipitation record (the _v4 "
+                         "configuration, run and rejected; the published _v3 is constant)")
+    ap.add_argument("--config", type=str, default="v3", choices=("v3", "v5"),
+                    help="v5 puts specific yield on the USGS map, centres the "
+                         "conductivity prior on the USGS map, and frees the "
+                         "deep-percolation share")
     ap.add_argument("--budget-from", type=str, default="",
                     help="posterior npz of a converged first-stage inversion, whose "
                          "residual supplies the structural and dependence terms")
     args = ap.parse_args()
 
-    a = assemble(pool=not args.no_pool_unmix)
+    a = assemble(pool=not args.no_pool_unmix, forced_recharge=args.forced_recharge,
+                 config=args.config)
     region, ctx = a["region"], a["ctx"]
     n_et = R.NDIST * R.NYEAR
     obs = np.concatenate([a["et_obs"].ravel(), R.head_anomaly(a["wl"], ctx)])
@@ -79,7 +88,7 @@ def main() -> None:
     print(f"observations: {n_et} county-year evapotranspiration, "
           f"{obs.size - n_et} well-year head anomalies from {len(a['wl']['wells'])} wells")
 
-    pr = R.prior(region, a["irr_area"])
+    pr = R.prior(region, a["irr_area"], ctx)
     X0 = R.sample_prior(pr, args.ne, seed=args.seed)
     root = ROOT / "runs" / ("ks" + args.tag)
     rho_full = R.taper(ctx)
@@ -180,7 +189,12 @@ def main() -> None:
                               "H": "heads only"}[key],
                     **sc, "phi_history": hist,
                     "eta_hat": X[R.LAYOUT["eta"]][:, ok].mean(axis=1).tolist(),
-                    "sy_hat": float((10.0 ** X[R.LAYOUT["log_sy"]][:, ok]).mean()),
+                    "sy_hat": float((10.0 ** X[R.LAYOUT["log_sy"]][:, ok]).mean()
+                                    * (1.0 if ctx.sy_field is None
+                                       else float(ctx.sy_field[region.county >= 0].mean()))),
+                    "sy_mult_hat": float((10.0 ** X[R.LAYOUT["log_sy"]][:, ok]).mean()),
+                    "ret_hat": float((10.0 ** X[R.LAYOUT["log_ret"]][:, ok]).mean()),
+                    "config": args.config, "forced_recharge": bool(args.forced_recharge),
                     "bmul_hat": float((10.0 ** X[R.LAYOUT["log_bmul"]][:, ok]).mean()),
                     "bsat_hat": float((10.0 ** X[R.LAYOUT["log_bmul"]][:, ok]).mean()
                                       * ctx.bsat[ctx.active].mean()),

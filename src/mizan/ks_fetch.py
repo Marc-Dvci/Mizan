@@ -467,6 +467,36 @@ def ssebop_year(year: int, cache: Path) -> Path:
     return tif
 
 
+USGS_FIELDS = {
+    # Cederstrand and Becker (1998): digital maps of specific yield (OFR 98-414) and
+    # hydraulic conductivity (OFR 98-548) for the High Plains aquifer. ArcInfo export
+    # format, Albers equal-area on NAD83, class polygons.
+    "sy": "https://water.usgs.gov/GIS/dsdl/ofr98-414.e00.gz",
+    "k": "https://water.usgs.gov/GIS/dsdl/ofr98-548.e00.gz",
+}
+
+
+def fetch_usgs_fields(out_dir: Path, log=print) -> None:
+    """The published specific-yield and hydraulic-conductivity maps of the aquifer.
+
+    Like the saturated-thickness grid these are observations of the aquifer into
+    which no water-use report enters, and they are what the `_v5` configuration puts
+    the storage coefficient and the conductivity prior on.
+    """
+    import gzip
+    dest = out_dir / "usgs_fields"
+    dest.mkdir(parents=True, exist_ok=True)
+    for key, url in USGS_FIELDS.items():
+        e00 = dest / (url.rsplit("/", 1)[1][:-3])
+        if e00.exists():
+            log("  usgs {}: cached".format(key))
+            continue
+        raw = urllib.request.urlopen(
+            urllib.request.Request(url, headers={"User-Agent": UA}), timeout=600).read()
+        e00.write_bytes(gzip.decompress(raw))
+        log("  usgs {}: {:.1f} MB".format(key, e00.stat().st_size / 1e6))
+
+
 # --------------------------------------------------------------------------- nClimDiv
 NCEI = ("https://www.ncei.noaa.gov/access/monitoring/climate-at-a-glance/county/"
         "time-series/KS-{fips}/pcp/12/12/{y0}-{y1}/data.json")

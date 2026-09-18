@@ -1,0 +1,713 @@
+{
+  "_meta": {
+    "tag": "_v5",
+    "era_year0": 2009,
+    "ne_converged": 250,
+    "counties": [
+      "CN",
+      "RA",
+      "DC",
+      "SH",
+      "TH",
+      "SD"
+    ],
+    "years": [
+      2000,
+      2024
+    ]
+  },
+  "audit": {
+    "note": "share of the block's reported irrigation volume whose WIMAS report carries a meter code (A, M, I), by year; the rest is code G, hours of pump operation times a rate",
+    "metered_share_by_year": {
+      "2000": 0.23592841897294706,
+      "2001": 0.23171424536029767,
+      "2002": 0.24984205739033458,
+      "2003": 0.2547391175082247,
+      "2004": 0.26764337569830904,
+      "2005": 0.2871303406341595,
+      "2006": 0.5207033488788527,
+      "2007": 0.6873054789190347,
+      "2008": 0.8641338855802039,
+      "2009": 0.9882331105864215,
+      "2010": 0.9913187667033229,
+      "2011": 0.9938567313694309,
+      "2012": 0.9924981462805043,
+      "2013": 0.9946974955136643,
+      "2014": 0.9931661975153535,
+      "2015": 0.9960989828855809,
+      "2016": 0.995675706257787,
+      "2017": 0.9958720413629338,
+      "2018": 0.9977303044371391,
+      "2019": 0.9995947918947476,
+      "2020": 0.9997045148208857,
+      "2021": 0.9988279477506493,
+      "2022": 0.9997927726356199,
+      "2023": 0.9990876877219987,
+      "2024": 0.9996977679224032
+    },
+    "min_county_metered_share_by_year": {
+      "2000": 0.1369895031463235,
+      "2001": 0.13599321952625382,
+      "2002": 0.1510590482881747,
+      "2003": 0.14871022336417825,
+      "2004": 0.15889186351628537,
+      "2005": 0.15531962321145518,
+      "2006": 0.41482961515461036,
+      "2007": 0.6286512430525057,
+      "2008": 0.8310864888891086,
+      "2009": 0.9803050277159086,
+      "2010": 0.9585114277983426,
+      "2011": 0.9886949141933513,
+      "2012": 0.9873944050109712,
+      "2013": 0.9915912552037266,
+      "2014": 0.987002495328106,
+      "2015": 0.9858636511956907,
+      "2016": 0.9887353592872271,
+      "2017": 0.9927753676427324,
+      "2018": 0.9944699354845037,
+      "2019": 0.9989379740193319,
+      "2020": 0.994113552861708,
+      "2021": 0.9958070859096471,
+      "2022": 0.9982939969407529,
+      "2023": 0.9973923918254516,
+      "2024": 0.9984229724615629
+    },
+    "metered_share_by_county_2000_2008": {
+      "CN": 0.37853267918064687,
+      "RA": 0.5025686588633838,
+      "DC": 0.8646191712540465,
+      "SH": 0.3001737401577627,
+      "TH": 0.362447511337776,
+      "SD": 0.4654931153969567
+    },
+    "metered_share_by_county_era": {
+      "CN": 0.9953711754729606,
+      "RA": 0.9947157762851394,
+      "DC": 0.9928541342206738,
+      "SH": 0.9960205706845356,
+      "TH": 0.996670178841634,
+      "SD": 0.9959064970331178
+    },
+    "reported_over_published_truth_by_year": {
+      "2000": 1.0689343376570053,
+      "2001": 1.0705797209783285,
+      "2002": 1.0712297670276638,
+      "2003": 1.0806438921780936,
+      "2004": 1.073522774414648,
+      "2005": 1.081217870973081,
+      "2006": 1.0766452604271026,
+      "2007": 1.083313450973023,
+      "2008": 1.0873411184529065,
+      "2009": 1.0894502931190466,
+      "2010": 1.0863106052939506,
+      "2011": 1.0834843920325568,
+      "2012": 1.0844712769646212,
+      "2013": 1.0846475995057439,
+      "2014": 1.0857824821938948,
+      "2015": 1.093801317945923,
+      "2016": 1.0873070983592201,
+      "2017": 1.0977457452032096,
+      "2018": 1.0961432858846702,
+      "2019": 1.0956145648076874,
+      "2020": 1.087870102005412,
+      "2021": 1.0920139578850756,
+      "2022": 1.0878150019030894,
+      "2023": 1.095526208970426,
+      "2024": 1.088044696835961
+    },
+    "reported_over_published_truth_by_county": {
+      "CN": 1.1163354426783814,
+      "RA": 1.120622622022942,
+      "DC": 1.1619041138735193,
+      "SH": 1.138193621866194,
+      "TH": 1.041388793517431,
+      "SD": 1.0207334510176809
+    },
+    "n_reports_metered_era": 48240,
+    "first_year_every_later_year_above_98pct": 2009
+  },
+  "level": {
+    "published_truth_all_years": {
+      "CLOSURE": {
+        "mae_mcm": 14.860230013124294,
+        "bias_mcm": -6.7328458027444125,
+        "rmse_mcm": 20.32925046603714,
+        "mape_pct": 22.308883014268872,
+        "basin_bias_pct": -9.148659258374863,
+        "cover_50": 0.6066666666666667,
+        "cover_80": 0.88,
+        "cover_90": 0.94,
+        "width90_mcm": 87.71540386262923,
+        "crps_mcm": 11.680600230170457
+      },
+      "FLAT": {
+        "mae_mcm": 14.778559116624594,
+        "bias_mcm": -4.757892873508519,
+        "rmse_mcm": 20.77822320185712,
+        "mape_pct": 21.670322146894677,
+        "basin_bias_pct": -6.4650731596788695
+      },
+      "WATERBAL": {
+        "mae_mcm": 11.479216096699446,
+        "bias_mcm": -4.87642552950852,
+        "rmse_mcm": 15.646422211826744,
+        "mape_pct": 16.766674823802028,
+        "basin_bias_pct": -6.626136536519033
+      },
+      "OPENLOOP": {
+        "mae_mcm": 22.5172786962633,
+        "bias_mcm": -15.43705583856368,
+        "rmse_mcm": 29.440180544343736,
+        "mape_pct": 42.178178845966045,
+        "basin_bias_pct": -20.976028258653763
+      }
+    },
+    "reported_truth_all_years": {
+      "CLOSURE": {
+        "mae_mcm": 19.009735406985726,
+        "bias_mcm": -12.913401909625776,
+        "rmse_mcm": 26.220733277390774,
+        "mape_pct": 24.545695114257807,
+        "basin_bias_pct": -16.18741019551241,
+        "cover_50": 0.49333333333333335,
+        "cover_80": 0.8,
+        "cover_90": 0.9066666666666666,
+        "width90_mcm": 87.71540386262923,
+        "crps_mcm": 14.525597262752806
+      },
+      "FLAT": {
+        "mae_mcm": 18.24886943155277,
+        "bias_mcm": -10.938448980389882,
+        "rmse_mcm": 26.11277424183279,
+        "mape_pct": 23.596632050328452,
+        "basin_bias_pct": -13.711736209206752
+      },
+      "WATERBAL": {
+        "mae_mcm": 15.668900816857567,
+        "bias_mcm": -11.056981636389883,
+        "rmse_mcm": 21.78654975884556,
+        "mape_pct": 20.601438476156687,
+        "basin_bias_pct": -13.860321124139608
+      },
+      "OPENLOOP": {
+        "mae_mcm": 26.734094282636082,
+        "bias_mcm": -21.61761194544505,
+        "rmse_mcm": 35.15576243649723,
+        "mape_pct": 44.33981546435279,
+        "basin_bias_pct": -27.098448143822118
+      }
+    },
+    "reported_truth_metered_era": {
+      "CLOSURE": {
+        "mae_mcm": 18.897002485405427,
+        "bias_mcm": -11.076638585563717,
+        "rmse_mcm": 25.5227503037675,
+        "mape_pct": 26.008220256646435,
+        "basin_bias_pct": -14.856705209767037,
+        "cover_50": 0.4895833333333333,
+        "cover_80": 0.8020833333333334,
+        "cover_90": 0.8958333333333334,
+        "width90_mcm": 84.68005467527726,
+        "crps_mcm": 14.06245965324164
+      },
+      "FLAT": {
+        "mae_mcm": 16.618189169397326,
+        "bias_mcm": -5.9518881353214415,
+        "rmse_mcm": 24.94787860521382,
+        "mape_pct": 23.03715831187003,
+        "basin_bias_pct": -7.9830579272692255
+      },
+      "WATERBAL": {
+        "mae_mcm": 13.753923773732826,
+        "bias_mcm": -7.195173342686025,
+        "rmse_mcm": 20.270082451891867,
+        "mape_pct": 19.110724740319807,
+        "basin_bias_pct": -9.650632586747
+      },
+      "OPENLOOP": {
+        "mae_mcm": 28.282257809675098,
+        "bias_mcm": -21.996224109031573,
+        "rmse_mcm": 36.446913233878924,
+        "mape_pct": 49.27457134314019,
+        "basin_bias_pct": -29.502760678836502
+      },
+      "ET": {
+        "mae_mcm": 17.329206791044182,
+        "bias_mcm": -9.603368374666164,
+        "rmse_mcm": 25.819509105528052,
+        "mape_pct": 20.784591129960532,
+        "basin_bias_pct": -12.880659765243536,
+        "cover_50": 0.71875,
+        "cover_80": 0.9583333333333334,
+        "cover_90": 0.9791666666666666,
+        "width90_mcm": 110.44977078125464
+      },
+      "H": {
+        "mae_mcm": 18.583735668971876,
+        "bias_mcm": -3.7073824158537776,
+        "rmse_mcm": 26.019541055254493,
+        "mape_pct": 27.189583180326878,
+        "basin_bias_pct": -4.972581458421792,
+        "cover_50": 0.5208333333333334,
+        "cover_80": 0.8333333333333334,
+        "cover_90": 0.8645833333333334,
+        "width90_mcm": 106.32902052512426
+      }
+    }
+  },
+  "anomaly_metered_era": {
+    "CLOSURE": {
+      "r": 0.6850564013221736,
+      "raw_skill": 0.2344858423949111,
+      "loco_skill": 0.2052624708451284,
+      "oracle_skill": 0.23591874430715032,
+      "loco_factors": [
+        0.9500000000000001,
+        0.9500000000000001,
+        0.9500000000000001,
+        1.23,
+        0.9400000000000001,
+        0.9500000000000001
+      ],
+      "dispersion": 0.5144338648188035
+    },
+    "ET": {
+      "r": 0.6801514640020963,
+      "raw_skill": 0.2217370901635468,
+      "loco_skill": 0.20755160631947323,
+      "oracle_skill": 0.2586749589463414,
+      "loco_factors": [
+        0.78,
+        0.77,
+        0.77,
+        0.56,
+        0.76,
+        0.85
+      ],
+      "dispersion": 0.8475758979304766
+    },
+    "H": {
+      "r": 0.29673731225948685,
+      "raw_skill": -0.06739377449505946,
+      "loco_skill": -0.014410344138091613,
+      "oracle_skill": 0.00874219888924066,
+      "loco_factors": [
+        0.15,
+        0.16,
+        0.16,
+        0.0,
+        0.33,
+        0.16
+      ],
+      "dispersion": 0.544574712566287
+    },
+    "OPENLOOP": {
+      "r": 0.6598373104258136,
+      "raw_skill": -0.04636633166443227,
+      "loco_skill": 0.1321491175431304,
+      "oracle_skill": 0.2104507061087103,
+      "loco_factors": [
+        0.54,
+        0.46,
+        0.46,
+        0.34,
+        0.35000000000000003,
+        0.54
+      ],
+      "dispersion": 1.3240255317544913
+    }
+  },
+  "anomaly_published": {
+    "CLOSURE": {
+      "r": 0.5710509329916834,
+      "raw_skill": 0.10773266519163005,
+      "loco_skill": 0.07822163255989223,
+      "oracle_skill": 0.14098036203322606,
+      "loco_factors": [
+        0.76,
+        0.75,
+        0.75,
+        1.11,
+        0.75,
+        0.75
+      ],
+      "dispersion": 0.6790439725569196
+    }
+  },
+  "contrasts_metered_era": {
+    "GMD4": {
+      "why": "the district-wide GMD4 LEMA period against the five years before it",
+      "baseline_years": [
+        2013,
+        2017
+      ],
+      "period_years": [
+        2018,
+        2022
+      ],
+      "metered_pct": -6.019098888031193,
+      "CLOSURE": {
+        "pct": -8.013055131394442,
+        "sd": 11.147603816471362,
+        "ci90": [
+          -24.19623185719344,
+          11.303152958757574
+        ],
+        "contains_truth": true,
+        "excludes_zero": false,
+        "abs_error_pts": 1.9939562433632485
+      },
+      "FLAT": {
+        "pct": -1.4907201739793097,
+        "abs_error_pts": 4.528378714051883
+      },
+      "WATERBAL": {
+        "pct": 12.18020823588548,
+        "abs_error_pts": 18.199307123916675
+      },
+      "OPENLOOP": {
+        "pct": -12.245855197589893,
+        "abs_error_pts": 6.2267563095587
+      }
+    },
+    "ERA": {
+      "why": "the last five years of the metered era against its first five",
+      "baseline_years": [
+        2009,
+        2013
+      ],
+      "period_years": [
+        2020,
+        2024
+      ],
+      "metered_pct": -5.768994464097443,
+      "CLOSURE": {
+        "pct": -16.28419007291464,
+        "sd": 10.613862914065542,
+        "ci90": [
+          -31.124851576057345,
+          1.7733978110943347
+        ],
+        "contains_truth": true,
+        "excludes_zero": false,
+        "abs_error_pts": 10.515195608817198
+      },
+      "FLAT": {
+        "pct": -4.999076834276517,
+        "abs_error_pts": 0.7699176298209265
+      },
+      "WATERBAL": {
+        "pct": 5.9038478776241465,
+        "abs_error_pts": 11.67284234172159
+      },
+      "OPENLOOP": {
+        "pct": -30.317557856332655,
+        "abs_error_pts": 24.548563392235213
+      }
+    }
+  },
+  "sweep_5yr": {
+    "metered_era_reported_truth": {
+      "n_pairs": 28,
+      "mean_abs_error_pts": {
+        "CLOSURE": 7.176443930558794,
+        "FLAT": 14.711150837674989,
+        "WATERBAL": 13.507085912311494,
+        "OPENLOOP": 12.291114361987999
+      },
+      "median_abs_error_pts": {
+        "CLOSURE": 7.035160799733349,
+        "FLAT": 14.581434450904979,
+        "WATERBAL": 14.710330179966924,
+        "OPENLOOP": 8.675094542384105
+      },
+      "closure_beats_pct": {
+        "FLAT": 75.0,
+        "WATERBAL": 82.14285714285714,
+        "OPENLOOP": 67.85714285714286
+      },
+      "coverage_90": 0.9642857142857143,
+      "n_declared_change": 6,
+      "n_declared_change_sign_correct": 6,
+      "n_metered_change_negative": 24,
+      "declaration_auc_vs_metered_magnitude": 0.8863636363636364,
+      "metered_pct_where_declared": 25.684525590530658,
+      "metered_pct_where_not_declared": 15.358253886095996,
+      "change_r": 0.8964966637062323
+    },
+    "all_years_reported_truth": {
+      "n_pairs": 136,
+      "mean_abs_error_pts": {
+        "CLOSURE": 7.7102235225983256,
+        "FLAT": 14.489604266654142,
+        "WATERBAL": 10.785663462419942,
+        "OPENLOOP": 10.194949088181614
+      },
+      "median_abs_error_pts": {
+        "CLOSURE": 6.866901449901814,
+        "FLAT": 13.863327149659682,
+        "WATERBAL": 11.072291611370577,
+        "OPENLOOP": 8.675094542384105
+      },
+      "closure_beats_pct": {
+        "FLAT": 80.88235294117648,
+        "WATERBAL": 63.23529411764706,
+        "OPENLOOP": 57.35294117647059
+      },
+      "coverage_90": 0.9338235294117647,
+      "n_declared_change": 36,
+      "n_declared_change_sign_correct": 35,
+      "n_metered_change_negative": 118,
+      "declaration_auc_vs_metered_magnitude": 0.7208333333333333,
+      "metered_pct_where_declared": 20.412578791056536,
+      "metered_pct_where_not_declared": 13.76006255429707,
+      "change_r": 0.6151962030215014
+    },
+    "all_years_published_truth": {
+      "n_pairs": 136,
+      "mean_abs_error_pts": {
+        "CLOSURE": 8.009033544739381,
+        "FLAT": 15.022780178352363,
+        "WATERBAL": 11.396073998339158,
+        "OPENLOOP": 9.929010737003226
+      },
+      "median_abs_error_pts": {
+        "CLOSURE": 6.9472810990617795,
+        "FLAT": 14.582560111683302,
+        "WATERBAL": 11.849683849795968,
+        "OPENLOOP": 8.36122213424846
+      },
+      "closure_beats_pct": {
+        "FLAT": 81.61764705882352,
+        "WATERBAL": 63.970588235294116,
+        "OPENLOOP": 55.14705882352941
+      },
+      "coverage_90": 0.9117647058823529,
+      "n_declared_change": 36,
+      "n_declared_change_sign_correct": 35,
+      "n_metered_change_negative": 119,
+      "declaration_auc_vs_metered_magnitude": 0.7233333333333334,
+      "metered_pct_where_declared": 21.172513685354758,
+      "metered_pct_where_not_declared": 14.320157620832292,
+      "change_r": 0.6098567393802045
+    }
+  },
+  "window_curve_metered_era": {
+    "by_window_years": {
+      "2": {
+        "n_pairs": 91,
+        "mean_abs_error_pts": {
+          "CLOSURE": 13.928382382498997,
+          "FLAT": 20.986461330371004,
+          "WATERBAL": 11.73978241612817,
+          "OPENLOOP": 20.762206592948345
+        },
+        "median_abs_error_pts": {
+          "CLOSURE": 11.58142021664997,
+          "FLAT": 18.971977977504054,
+          "WATERBAL": 11.705955591938661,
+          "OPENLOOP": 15.23139946334804
+        },
+        "closure_beats_pct": {
+          "FLAT": 73.62637362637363,
+          "WATERBAL": 48.35164835164835,
+          "OPENLOOP": 58.24175824175825
+        },
+        "coverage_90": 0.8791208791208791,
+        "n_declared_change": 6,
+        "n_declared_change_sign_correct": 6,
+        "n_metered_change_negative": 56,
+        "declaration_auc_vs_metered_magnitude": 0.7411764705882353,
+        "metered_pct_where_declared": 31.917198113169476,
+        "metered_pct_where_not_declared": 20.972402437932793,
+        "change_r": 0.8281779114929305
+      },
+      "3": {
+        "n_pairs": 66,
+        "mean_abs_error_pts": {
+          "CLOSURE": 12.613650948711673,
+          "FLAT": 18.809565697667818,
+          "WATERBAL": 11.729119804426094,
+          "OPENLOOP": 16.535699929362046
+        },
+        "median_abs_error_pts": {
+          "CLOSURE": 9.950146443098106,
+          "FLAT": 17.89090285883818,
+          "WATERBAL": 11.802677987554716,
+          "OPENLOOP": 10.76715961926379
+        },
+        "closure_beats_pct": {
+          "FLAT": 72.72727272727273,
+          "WATERBAL": 48.484848484848484,
+          "OPENLOOP": 56.060606060606055
+        },
+        "coverage_90": 0.8484848484848485,
+        "n_declared_change": 8,
+        "n_declared_change_sign_correct": 8,
+        "n_metered_change_negative": 43,
+        "declaration_auc_vs_metered_magnitude": 0.7112068965517241,
+        "metered_pct_where_declared": 27.944059766376384,
+        "metered_pct_where_not_declared": 19.334318889300867,
+        "change_r": 0.8472139104172495
+      },
+      "4": {
+        "n_pairs": 45,
+        "mean_abs_error_pts": {
+          "CLOSURE": 9.808416075801185,
+          "FLAT": 16.283745496239547,
+          "WATERBAL": 12.257411666545018,
+          "OPENLOOP": 12.782643906625797
+        },
+        "median_abs_error_pts": {
+          "CLOSURE": 8.938594058348318,
+          "FLAT": 14.400877457446894,
+          "WATERBAL": 13.77133872437989,
+          "OPENLOOP": 8.29557227207156
+        },
+        "closure_beats_pct": {
+          "FLAT": 82.22222222222221,
+          "WATERBAL": 62.22222222222222,
+          "OPENLOOP": 55.55555555555556
+        },
+        "coverage_90": 0.9333333333333333,
+        "n_declared_change": 7,
+        "n_declared_change_sign_correct": 7,
+        "n_metered_change_negative": 36,
+        "declaration_auc_vs_metered_magnitude": 0.9172932330827067,
+        "metered_pct_where_declared": 31.050132830962642,
+        "metered_pct_where_not_declared": 16.477096396721116,
+        "change_r": 0.8923150411988535
+      },
+      "5": {
+        "n_pairs": 28,
+        "mean_abs_error_pts": {
+          "CLOSURE": 7.176443930558794,
+          "FLAT": 14.711150837674989,
+          "WATERBAL": 13.507085912311494,
+          "OPENLOOP": 12.291114361987999
+        },
+        "median_abs_error_pts": {
+          "CLOSURE": 7.035160799733349,
+          "FLAT": 14.581434450904979,
+          "WATERBAL": 14.710330179966924,
+          "OPENLOOP": 8.675094542384105
+        },
+        "closure_beats_pct": {
+          "FLAT": 75.0,
+          "WATERBAL": 82.14285714285714,
+          "OPENLOOP": 67.85714285714286
+        },
+        "coverage_90": 0.9642857142857143,
+        "n_declared_change": 6,
+        "n_declared_change_sign_correct": 6,
+        "n_metered_change_negative": 24,
+        "declaration_auc_vs_metered_magnitude": 0.8863636363636364,
+        "metered_pct_where_declared": 25.684525590530658,
+        "metered_pct_where_not_declared": 15.358253886095996,
+        "change_r": 0.8964966637062323
+      },
+      "6": {
+        "n_pairs": 15,
+        "mean_abs_error_pts": {
+          "CLOSURE": 3.7425644332386385,
+          "FLAT": 12.972239886521843,
+          "WATERBAL": 14.252527886342007,
+          "OPENLOOP": 12.97867194721688
+        },
+        "median_abs_error_pts": {
+          "CLOSURE": 3.5401896454255724,
+          "FLAT": 13.266231963608243,
+          "WATERBAL": 14.072193459060811,
+          "OPENLOOP": 13.919585580454388
+        },
+        "closure_beats_pct": {
+          "FLAT": 93.33333333333333,
+          "WATERBAL": 100.0,
+          "OPENLOOP": 93.33333333333333
+        },
+        "coverage_90": 1.0,
+        "n_declared_change": 2,
+        "n_declared_change_sign_correct": 2,
+        "n_metered_change_negative": 14,
+        "declaration_auc_vs_metered_magnitude": 0.8846153846153846,
+        "metered_pct_where_declared": 21.363227968898624,
+        "metered_pct_where_not_declared": 15.290355709686073,
+        "change_r": 0.7972150795281104
+      },
+      "7": {
+        "n_pairs": 6,
+        "mean_abs_error_pts": {
+          "CLOSURE": 1.3958632287447308,
+          "FLAT": 11.945637875463227,
+          "WATERBAL": 14.053622646948213,
+          "OPENLOOP": 14.931449871839007
+        },
+        "median_abs_error_pts": {
+          "CLOSURE": 0.7545149019129056,
+          "FLAT": 11.403851098613144,
+          "WATERBAL": 13.859791429325663,
+          "OPENLOOP": 15.383745230251158
+        },
+        "closure_beats_pct": {
+          "FLAT": 100.0,
+          "WATERBAL": 100.0,
+          "OPENLOOP": 100.0
+        },
+        "coverage_90": 1.0,
+        "n_declared_change": 2,
+        "n_declared_change_sign_correct": 2,
+        "n_metered_change_negative": 6,
+        "declaration_auc_vs_metered_magnitude": 1.0,
+        "metered_pct_where_declared": 18.362046227465562,
+        "metered_pct_where_not_declared": 13.968419283772176,
+        "change_r": 0.46008512441414656
+      },
+      "8": {
+        "n_pairs": 1,
+        "mean_abs_error_pts": {
+          "CLOSURE": 0.7055109114747022,
+          "FLAT": 10.11239517911956,
+          "WATERBAL": 11.613193347155981,
+          "OPENLOOP": 15.802949986031988
+        },
+        "median_abs_error_pts": {
+          "CLOSURE": 0.7055109114747022,
+          "FLAT": 10.11239517911956,
+          "WATERBAL": 11.613193347155981,
+          "OPENLOOP": 15.802949986031988
+        },
+        "closure_beats_pct": {
+          "FLAT": 100.0,
+          "WATERBAL": 100.0,
+          "OPENLOOP": 100.0
+        },
+        "coverage_90": 1.0,
+        "n_declared_change": 0,
+        "n_declared_change_sign_correct": 0,
+        "n_metered_change_negative": 1
+      }
+    },
+    "crossover_window_years": 4
+  },
+  "closure_error_by_metered_share": {
+    "both_windows_metered": {
+      "n_pairs": 28,
+      "closure_mean_abs_error_pts": 7.176443930558794,
+      "openloop_mean_abs_error_pts": 12.291114361987999
+    },
+    "mixed": {
+      "n_pairs": 105,
+      "closure_mean_abs_error_pts": 7.452964428187374,
+      "openloop_mean_abs_error_pts": 9.419882170713294
+    },
+    "both_windows_pre_meter": {
+      "n_pairs": 3,
+      "closure_mean_abs_error_pts": 21.696234686017245,
+      "openloop_mean_abs_error_pts": 17.758081977379913
+    }
+  },
+  "resolution": {
+    "posterior_sd_pts": 11.147603816471362,
+    "one_sided_90pct_detectable_pct": 14.286769051189697
+  }
+}

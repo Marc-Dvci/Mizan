@@ -49,6 +49,13 @@ NDIST = len(K.COUNTIES)
 PRIOR_DEPTH_M = 0.3048
 RETURN_FRAC = 0.30            # share of the non-consumed water returning as percolation
 
+# Prior on the deep-percolation share of pumping under the `_v5` configuration, where
+# it is a named parameter rather than the fixed product above. Field studies under
+# centre-pivot irrigation on the Kansas High Plains put deep drainage at 5 to 20 per
+# cent of applied water; the prior sits inside that range with a factor of 1.6 either
+# way and cannot leave it by more than a factor of two.
+RETURN_PRIOR = 0.12
+
 # Numerical floor on the saturated thickness of a cell. The published surface goes to
 # a metre at the margin of the mapped aquifer, which is a thickness a 2 km cell cannot
 # carry through twenty-five years of pumping without the Newton solve failing on it.
@@ -65,6 +72,8 @@ def _layout() -> dict:
         ("eta", NDIST),
         ("logk", NPILOT),
         ("log_sy", 1), ("log_bmul", 1), ("log_rch", 1), ("log_ghb", 1),
+        # Appended last so that every posterior written before it keeps its indices.
+        ("log_ret", 1),
     ]:
         out[name] = slice(idx, idx + n)
         idx += n
@@ -89,7 +98,14 @@ class Context:
     well_seen: np.ndarray         # (nwell, NYEAR) bool, where a level exists
     active: np.ndarray            # (nrow, ncol) bool
     bsat: np.ndarray              # (nrow, ncol) published saturated thickness, m
-    rmul: np.ndarray              # (NDIST, NYEAR) observed recharge multiplier, mean 1
+    rmul: np.ndarray              # (NDIST, NYEAR) recharge multiplier; ones unless forced
+    # The `_v5` configuration. `sy_field` is the published specific-yield map that
+    # `log_sy` multiplies, `k_prior` the log10 of the published conductivity at the
+    # pilot points that the `logk` prior is centred on, and `ret_param` puts the
+    # deep-percolation share on `log_ret` instead of the fixed RETURN_FRAC product.
+    sy_field: np.ndarray = None
+    k_prior: np.ndarray = None
+    ret_param: bool = False
 
 
 def interpolate(region: K.Region, lon, lat, val, power: float = 2.0,
@@ -103,7 +119,15 @@ def interpolate(region: K.Region, lon, lat, val, power: float = 2.0,
     return (w * np.asarray(val)).sum(axis=-1) / w.sum(axis=-1)
 
 
-def make_context(region: K.Region, wl: dict, weight: np.ndarray = None) -> Context:
+def pilot_xy(region: K.Region):
+    """Pilot-point rows and columns, the same lattice `pilot_field` expands."""
+    r = np.linspace(0, region.nrow - 1, NPP)
+    c = np.linspace(0, region.ncol - 1, NPP)
+    return np.round(r).astype(int), np.round(c).astype(int)
+
+
+def make_context(region: K.Region, wl: dict, weight: np.ndarray = None,
+                 forced_recharge: bool = False, config: str = "v3") -> Context:
     wells = wl["wells"]
     lon = np.array([w["lon"] for w in wells])
     lat = np.array([w["lat"] for w in wells])
@@ -132,7 +156,27 @@ def make_context(region: K.Region, wl: dict, weight: np.ndarray = None) -> Conte
                    well_row=row, well_col=col, well_seen=np.isfinite(head),
                    active=region.county >= 0,
                    bsat=K.saturated_thickness(region),
-                   rmul=K.recharge_weight())
+                   rmul=(K.recharge_weight() if forced_recharge
+                         else np.ones((NDIST, NYEAR))),
+                   **_config(region, config))
+
+
+def _config(region: K.Region, config: str) -> dict:
+    """What each configuration holds fixed from a published map.
+
+    `v3`, the published rung: one block-wide specific yield, a uniform conductivity
+    prior, return flow a fixed share of the non-consumed water. `v5`: specific yield on
+    the USGS map times one multiplier, the conductivity prior centred on the USGS map,
+    and the deep-percolation share a parameter with a published prior.
+    """
+    if config == "v3":
+        return {}
+    if config == "v5":
+        kf = K.usgs_field(region, "k")
+        rr, cc = pilot_xy(region)
+        kp = np.log10(kf[np.ix_(rr, cc)]).ravel()
+        return dict(sy_field=K.usgs_field(region, "sy"), k_prior=kp, ret_param=True)
+    raise ValueError(config)
 
 
 # --------------------------------------------------------------------------- prior
@@ -145,7 +189,7 @@ class Prior:
     names: list
 
 
-def prior(region: K.Region, irr_area: np.ndarray) -> Prior:
+def prior(region: K.Region, irr_area: np.ndarray, ctx: Context = None) -> Prior:
     mean = np.zeros(NPAR)
     sd = np.zeros(NPAR)
     lo = np.full(NPAR, -np.inf)
@@ -169,7 +213,8 @@ def prior(region: K.Region, irr_area: np.ndarray) -> Prior:
     hi[LAYOUT["eta"]] = 1.30
     names += [f"eta_{c}" for c in K.COUNTIES]
 
-    mean[LAYOUT["logk"]] = np.log10(20.0)
+    mean[LAYOUT["logk"]] = (np.log10(20.0) if ctx is None or ctx.k_prior is None
+                            else ctx.k_prior)
     sd[LAYOUT["logk"]] = 0.40
     lo[LAYOUT["logk"]] = np.log10(1.5)
     hi[LAYOUT["logk"]] = np.log10(250.0)
@@ -182,7 +227,12 @@ def prior(region: K.Region, irr_area: np.ndarray) -> Prior:
         hi[LAYOUT[key]] = b
         names.append(label)
 
-    scalar("log_sy", np.log10(0.15), 0.16, np.log10(0.04), np.log10(0.32), "log_sy")
+    if ctx is not None and ctx.sy_field is not None:
+        # One multiplier on the published specific-yield map, held to about twenty per
+        # cent: the map is a class map with five-point bands, and that is its width.
+        scalar("log_sy", 0.0, 0.08, np.log10(0.6), np.log10(1.6), "log_sy_mult")
+    else:
+        scalar("log_sy", np.log10(0.15), 0.16, np.log10(0.04), np.log10(0.32), "log_sy")
     # Saturated thickness is not estimated. The USGS High Plains saturated-thickness
     # grid maps it cell by cell over exactly this block, it is an observation of the
     # aquifer's geometry rather than of its use, and no water-use report enters it. What
@@ -195,6 +245,14 @@ def prior(region: K.Region, irr_area: np.ndarray) -> Prior:
     scalar("log_rch", np.log10(20.0), 0.30, np.log10(3.0), np.log10(60.0), "log_rch")
     # Lateral conductance, bounded so the boundary cannot supply the basin either.
     scalar("log_ghb", np.log10(2.0e-2), 0.50, np.log10(1e-4), np.log10(0.2), "log_ghb")
+    # The deep-percolation share of pumping. Under `v3` it is not a parameter: the
+    # slot is pinned so the fixed product in `build` is what runs.
+    if ctx is not None and ctx.ret_param:
+        scalar("log_ret", np.log10(RETURN_PRIOR), 0.20, np.log10(RETURN_PRIOR / 2.0),
+               np.log10(RETURN_PRIOR * 2.0), "log_ret")
+    else:
+        scalar("log_ret", np.log10(RETURN_PRIOR), 1e-6, np.log10(RETURN_PRIOR) - 1e-6,
+               np.log10(RETURN_PRIOR) + 1e-6, "log_ret_pinned")
     return Prior(mean, sd, lo, hi, names)
 
 
@@ -227,7 +285,9 @@ def decode(x: np.ndarray) -> dict:
                 sy=10.0 ** float(x[LAYOUT["log_sy"]][0]),
                 bmul=10.0 ** float(x[LAYOUT["log_bmul"]][0]),
                 rch=10.0 ** float(x[LAYOUT["log_rch"]][0]),
-                ghb=10.0 ** float(x[LAYOUT["log_ghb"]][0]))
+                ghb=10.0 ** float(x[LAYOUT["log_ghb"]][0]),
+                ret=(10.0 ** float(x[LAYOUT["log_ret"]][0])
+                     if x.shape[0] > LAYOUT["log_ret"].start else RETURN_PRIOR))
 
 
 def pilot_field(logk: np.ndarray, region: K.Region) -> np.ndarray:
@@ -283,7 +343,9 @@ def build(ws: Path, x: np.ndarray, ctx: Context) -> None:
     flopy.mf6.ModflowGwfic(gwf, strt=ctx.h0.reshape(1, nrow, ncol))
     flopy.mf6.ModflowGwfnpf(gwf, icelltype=1, k=(10.0 ** pilot_field(p["logk"], reg)
                                                  ).reshape(1, nrow, ncol))
-    flopy.mf6.ModflowGwfsto(gwf, iconvert=1, ss=1e-6, sy=p["sy"],
+    sy = (p["sy"] if ctx.sy_field is None
+          else (ctx.sy_field * p["sy"]).reshape(1, nrow, ncol))
+    flopy.mf6.ModflowGwfsto(gwf, iconvert=1, ss=1e-6, sy=sy,
                             steady_state={0: True},
                             transient={i + 1: True for i in range(NYEAR)})
 
@@ -323,9 +385,10 @@ def build(ws: Path, x: np.ndarray, ctx: Context) -> None:
         return rows
 
     q_rate = p["q"] / 365.25
+    ret = (np.full(NDIST, p["ret"]) if ctx.ret_param
+           else RETURN_FRAC * (1.0 - p["eta"]))
     for pname, sign, scale, fn, pre in (("wel_abs", -1.0, np.ones(NDIST), "abs.ts", "q"),
-                                        ("wel_ret", +1.0,
-                                         RETURN_FRAC * (1.0 - p["eta"]), "ret.ts", "r")):
+                                        ("wel_ret", +1.0, ret, "ret.ts", "r")):
         rows = [[(0, i, j), f"{pre}{d}", w] for d, i, j, w in cells]
         wel = flopy.mf6.ModflowGwfwel(
             gwf, pname=pname, auxiliary=["wmult"], auxmultname="wmult",
@@ -511,7 +574,7 @@ def taper(ctx: Context, radius_km: float = 45.0) -> np.ndarray:
             rho[sl.start + k] = v
             k += 1
 
-    for key in ("log_sy", "log_bmul", "log_rch", "log_ghb"):
+    for key in ("log_sy", "log_bmul", "log_rch", "log_ghb", "log_ret"):
         v = np.zeros(nobs, dtype=np.float32)
         v[n_et:] = 1.0
         rho[LAYOUT[key]] = v

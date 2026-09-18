@@ -706,6 +706,35 @@ def main():
                   f"{v['openloop_mean_abs_error_pts']:.1f} |")
         print("")
 
+    ni = load("net_inflow.json")
+    if ni:
+        section("How far apart the two rungs are: the share of pumping that is storage")
+        print("The closure reads abstraction out of storage, so what the two rungs "
+              "have in common is not the basin but the method. Net inflow "
+              "`N = Q + Sy*A*dh` from the withheld meters, the winter water levels and "
+              "the USGS specific-yield map puts a number on the difference. No model "
+              "enters it.\n")
+        print("| county | pumping, Mm3/yr | water-level change, m/yr | net inflow, "
+              "Mm3/yr | N/Q |")
+        print("|---|---:|---:|---:|---:|")
+        for c_ in ni["_specific_yield_by_county"]:
+            v = ni["by_county"][c_]
+            print(f"| {c_} | {v['pumping_mcm_yr']:.1f} | "
+                  f"{v['water_level_change_m_yr']:+.2f} | {v['net_inflow_mcm_yr']:.1f} | "
+                  f"{v['net_inflow_over_pumping']:.2f} |")
+        b = ni["block"]
+        print(f"| **block** | **{b['pumping_mcm_yr']:.0f}** | | "
+              f"**{b['net_inflow_mcm_yr']:.0f}** | "
+              f"**{b['net_inflow_over_pumping']:.2f}** |")
+        print(f"\nStorage supplies {100 * b['storage_share_of_pumping']:.0f} per cent of "
+              f"what Northwest Kansas pumps over {ni['_metered_era']} to 2023 and "
+              f"{100 * ni['twin']['storage_share_of_pumping']:.0f} per cent of what the "
+              f"twin pumps, a factor of {ni['ratio_of_storage_shares']:.1f} on the share "
+              f"of pumping the closure's own signal carries. The synthetic error rate is "
+              f"therefore not a prediction for this basin, and the basin the method is "
+              f"built for, where recharge is a rounding error, sits at the twin's end of "
+              f"that range.\n")
+
     al = load("aljawf.json")
     if al:
         section("L3 Al Jawf: how far apart the published instruments are on the Saq")

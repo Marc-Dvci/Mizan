@@ -8,7 +8,7 @@ NA ?= 8
 SAQ_SIGMA ?= 20.4
 EE_PROJECT ?= $(EARTHENGINE_PROJECT)
 
-.PHONY: all setup env truth ablation allocation voi detection figures report test clean         robustness null kansas-data kansas kansas-score metered-era aljawf verify referee gain saq-gain drift reproduce reproduce-ee
+.PHONY: all setup env truth ablation allocation voi detection figures report test clean         robustness null kansas-data kansas kansas-score kansas-forced kansas-v5 metered-era net-inflow aljawf verify referee gain saq-gain drift reproduce reproduce-ee
 
 all: truth ablation allocation voi detection null figures report
 
@@ -25,6 +25,7 @@ reproduce:
 	$(MAKE) kansas-score
 	$(MAKE) verify
 	$(MAKE) metered-era
+	$(MAKE) net-inflow
 	$(MAKE) gain
 	$(MAKE) drift
 	$(MAKE) report
@@ -114,6 +115,19 @@ kansas:
 	$(PY) scripts/11_kansas_run.py --ne $(NE) --na 6 --workers 6 --pooled-error --budget-from kansas_posterior_ETH_v3s1.npz --out kansas_v3p.json --tag _v3p
 	$(PY) scripts/16_kansas_convergence.py --ne 80 --workers 6
 
+# The precipitation-forced recharge, `_v4`, run and rejected in the decision log. It
+# is a driver flag so that `make kansas` reproduces the published `_v3`.
+kansas-forced:
+	$(PY) scripts/11_kansas_run.py --ne $(NE) --na 6 --workers 6 --forced-recharge --nominal-error --rows ETH --out kansas_v4_stage1.json --tag _v4s1
+	$(PY) scripts/11_kansas_run.py --ne $(NE) --na 6 --workers 6 --forced-recharge --budget-from kansas_posterior_ETH_v4s1.npz --out kansas_v4.json --tag _v4
+
+# `_v5`: specific yield on the USGS map times one multiplier, the conductivity prior
+# centred on the USGS map, the deep-percolation share a parameter. The prediction is
+# written in the decision log before the run.
+kansas-v5:
+	$(PY) scripts/11_kansas_run.py --ne $(NE) --na 6 --workers 6 --config v5 --nominal-error --rows ETH --out kansas_v5_stage1.json --tag _v5s1
+	$(PY) scripts/11_kansas_run.py --ne $(NE) --na 6 --workers 6 --config v5 --budget-from kansas_posterior_ETH_v5s1.npz --out kansas_v5.json --tag _v5
+
 kansas-score: null
 	$(PY) scripts/12_kansas_anomaly.py --tag $(KTAG)
 	$(PY) scripts/14_kansas_resolution.py --tag $(KTAG) --out kansas_resolution$(KTAG).json
@@ -124,6 +138,11 @@ kansas-score: null
 # rebuilt from the per-point use file, which the history page under-counts.
 metered-era:
 	$(PY) scripts/27_metered_era.py --tag $(KTAG)
+
+# How much of what Kansas pumps the aquifer replaces within the year, against the twin,
+# which is the size of the difference between the two rungs.
+net-inflow:
+	$(PY) scripts/28_net_inflow.py
 
 # L3. Everything is read live from Earth Engine, so this target needs an authenticated
 # project and nothing else: `earthengine authenticate`, then set EARTHENGINE_PROJECT to

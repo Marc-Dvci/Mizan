@@ -1,0 +1,91 @@
+{
+  "_note": "net inflow N = Q + Sy*A*dh from the WIMAS meters, the WIZARD winter levels and the USGS specific-yield map; N/Q is the share of pumping the aquifer replaces within the year",
+  "_metered_era": 2009,
+  "_specific_yield_by_county": {
+    "CN": 0.1735,
+    "RA": 0.1801,
+    "DC": 0.1278,
+    "SH": 0.2109,
+    "TH": 0.192,
+    "SD": 0.1502
+  },
+  "_wells_per_county_year_median": 51,
+  "by_county": {
+    "CN": {
+      "pumping_mcm_yr": 64.34620300369122,
+      "water_level_change_m_yr": -0.0845640608114284,
+      "net_inflow_mcm_yr": 24.905525041240995,
+      "net_inflow_over_pumping": 0.38705508450610976
+    },
+    "RA": {
+      "pumping_mcm_yr": 22.238620171258,
+      "water_level_change_m_yr": -0.043269348414636435,
+      "net_inflow_mcm_yr": 1.2962555385739702,
+      "net_inflow_over_pumping": 0.05828848771153968
+    },
+    "DC": {
+      "pumping_mcm_yr": 12.4829114695504,
+      "water_level_change_m_yr": 0.012963624828141807,
+      "net_inflow_mcm_yr": 16.4601515668243,
+      "net_inflow_over_pumping": 1.318614780452108
+    },
+    "SH": {
+      "pumping_mcm_yr": 145.8724063034784,
+      "water_level_change_m_yr": -0.22863171460165477,
+      "net_inflow_mcm_yr": 16.28395046726049,
+      "net_inflow_over_pumping": 0.111631465332674
+    },
+    "TH": {
+      "pumping_mcm_yr": 114.72033087407965,
+      "water_level_change_m_yr": -0.13344180838665218,
+      "net_inflow_mcm_yr": 43.40902847225268,
+      "net_inflow_over_pumping": 0.3783900215551129
+    },
+    "SD": {
+      "pumping_mcm_yr": 84.3287693386464,
+      "water_level_change_m_yr": -0.0998247581141985,
+      "net_inflow_mcm_yr": 49.789403031133695,
+      "net_inflow_over_pumping": 0.5904201308949505
+    }
+  },
+  "block": {
+    "pumping_mcm_yr": 443.98924116070407,
+    "net_inflow_mcm_yr": 152.14431411728617,
+    "net_inflow_over_pumping": 0.3426756777248501,
+    "net_inflow_over_pumping_by_year": {
+      "2000": -0.6923855525034731,
+      "2001": 0.23902944196248269,
+      "2002": -0.9161285723353418,
+      "2003": -0.5471769909174728,
+      "2004": 0.292271541885153,
+      "2005": 0.007509360760170641,
+      "2006": 0.7415746583540055,
+      "2007": -0.7170011972459543,
+      "2008": 0.719012595498729,
+      "2009": 1.4699903731665287,
+      "2010": 0.15525991725119193,
+      "2011": 0.15908492524402157,
+      "2012": -0.8787016476761986,
+      "2013": -0.0076142641979342306,
+      "2014": 0.43259841251002923,
+      "2015": 0.2821300376670185,
+      "2016": 0.17773782643558603,
+      "2017": 1.7979342333769988,
+      "2018": 1.2153334446996642,
+      "2019": 2.660810098594546,
+      "2020": -0.3471288898011702,
+      "2021": -0.17252537090243417,
+      "2022": -0.8334115521191606,
+      "2023": 2.080142233875543
+    },
+    "net_inflow_over_pumping_year_sd": 1.0253000161275334,
+    "storage_share_of_pumping": 0.6573243222751499
+  },
+  "twin": {
+    "abstracted_km3": 31.04,
+    "storage_depleted_km3": 29.06,
+    "net_inflow_over_pumping": 0.06378865979381444,
+    "storage_share_of_pumping": 0.9362113402061856
+  },
+  "ratio_of_storage_shares": 1.4242761274461042
+}
