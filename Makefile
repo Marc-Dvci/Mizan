@@ -8,7 +8,7 @@ NA ?= 8
 SAQ_SIGMA ?= 20.4
 EE_PROJECT ?= $(EARTHENGINE_PROJECT)
 
-.PHONY: all setup env truth ablation allocation voi detection figures report test clean         robustness null kansas-data kansas kansas-score kansas-forced kansas-v5 metered-era net-inflow headline aljawf verify referee gain saq-gain drift reproduce reproduce-ee transfer-data transfer-run transfer-truth transfer
+.PHONY: all setup env truth ablation allocation voi detection figures report test clean         robustness null kansas-data kansas kansas-score kansas-forced kansas-v5 metered-era net-inflow headline aljawf verify referee gain saq-gain drift reproduce reproduce-ee transfer-data transfer-run transfer-truth transfer reproduce-transfer
 
 all: truth ablation allocation voi detection null figures report
 
@@ -156,6 +156,15 @@ transfer-truth:
 
 transfer:
 	$(PY) scripts/30_transfer.py --tag _v3 --arms _v5
+
+# Every transfer block end to end, in the order the protocol requires. The use files are
+# fetched last and the fetcher itself refuses them until each block's predictions are in
+# a committed decision log, so this target reproduces the protocol and not only the
+# numbers. It is separate from `reproduce` because it is three more inversions.
+reproduce-transfer:
+	for b in west gmd3w gmd3e; do 	  $(MAKE) transfer-data BLOCK=$$b; 	  sh scripts/transfer_run.sh $$b $(NE) 6; 	  $(MAKE) transfer-truth BLOCK=$$b; 	done
+	$(MAKE) transfer
+	$(MAKE) report
 
 # Every Kansas score again, on the years the truth is fully metered. WIMAS codes each
 # report by how it was measured; the block is meter-coded from 2009. The truth is also

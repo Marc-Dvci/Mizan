@@ -65,6 +65,27 @@ five-year figure is 8.6 on 136 pairs against 10.2 for the best bar. The closure 
 every meter-free bar from a four-year window upward on both, the gap widens with every
 year added, and it is the only one of these accounts that states an interval at all.
 
+**L2 blind transfer, eighteen counties it never saw.** Six counties of one climate cannot
+establish a seventh, so the configuration above was frozen and run on three further blocks
+of six, in two more climates. The retrieval script fetches a new block's estimator inputs
+and refuses its water-use files until that block's predictions are in a committed
+`DECISION_LOG.md`; the runs write their posteriors with no truth in them; `make transfer`
+scores them afterwards. Nothing was tuned on any new block.
+
+| | 18 counties never seen | all 24 counties run here |
+|---|---|---|
+| Points of relative error the closure removes from the published open-loop account | **+10.9 ± 5.6** (2.0 se by county), 13 of 18 | **+13.4 ± 5.1** (2.6 se), 17 of 24 |
+| The same against mapped area times one acre-foot per acre | +4.1 ± 4.0, 10 of 18 | +1.6 ± 3.4, 12 of 24 |
+
+Five of six written predictions held. The one that failed is the interval: it over-covers
+away from the block it was calibrated on, 98 per cent of new county-years inside a nominal
+90. The arithmetic bar that beats the closure in the northwest, which irrigates at 1.09
+acre-feet per acre, loses to it by 7.3 points in the southwest, which meters 1.42 to 1.53:
+that rule needs a constant the basin has to supply, and the closure reads it. West Kansas
+is the block that did not transfer, at 37.3 per cent relative error, and it is reported at
+the same size as the three that did. Protocol and full tables: `make transfer`,
+[`RESULTS.md`](RESULTS.md), `DECISION_LOG.md`.
+
 **The decision product.** Every cubic kilometre of water taken from the test basin destroys
 about 147 Mm3 of storage capacity permanently, verified in full MODFLOW across the
 posterior. 9.5 per cent of the simulated storage depletion never returns, at any price.
@@ -95,6 +116,8 @@ make kansas-data    # retrieve the public Kansas records, no account needed
 make kansas         # the L2 rung, scored against reported pumping
 make kansas-score   # the anomaly, resolution and amplitude scoring on top of it
 make metered-era    # every Kansas score again on the years the record is metered
+make reproduce-transfer  # the same closure, blind, on eighteen further counties
+make transfer       # score every transfer block and pool the new counties
 make verify         # the window-pair scoring a reduction target is written in
 make aljawf         # the L3 rung, read live from Earth Engine
 make env            # rewrite the lock and the licence audit from what is installed
