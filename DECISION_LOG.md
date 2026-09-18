@@ -994,3 +994,42 @@ leave-one-out structure and rejects that form.
 moves; the guard asserts the script writes no npz. The documents now state the interval
 as conservative away from the tuned block, with the size of the correction a next basin
 would need and its out-of-sample score.
+
+### Is the deformation leg observable over the Saq's own pivots? Measured, from public data
+
+Run 18 September 2026, `make saq-insar` (`scripts/32_saq_insar.py`). Two of the four legs
+are exercised on real data and the deformation leg is the one the entry has never
+observed on a real aquifer. The question a juror asks about the Saq is not whether
+interferometry works but whether it works over irrigated ground in Al Jawf, where active
+centre pivots decorrelate the radar.
+
+**The route.** COMET's LiCSAR service publishes processed Sentinel-1 interferograms, and
+frame `116A_05991_141313` (track 116, ascending) contains the Wadi As-Sirhan pivot field.
+Thirty of its thirty-eight published interferograms carry usable phase over the Al Jawf
+box, eleven epochs from 30 December 2022 to 11 May 2023. The pivot mask is the ESA
+WorldCover 2021 cropland class averaged onto the 111 m radar grid, so the classification
+carries no radar information and the contrast below is not circular. No account, no
+credential, two public hosts.
+
+**The contrast, over 2.6 million pixels.**
+
+| | pivot fields | desert |
+|---|---:|---:|
+| mean coherence over 30 interferograms | 0.14 | 0.52 |
+| share of pixels above 0.3 | 0.12 | 0.82 |
+| share above 0.5 | 0.02 | 0.62 |
+
+The pivots decorrelate exactly as expected and the ground between them holds phase in
+four pixels out of five. **The deformation leg is readable over this basin, on the
+interpivot ground, which is where a compaction signal from the aquifer would be read
+anyway.** The coherence map reproduces the pivot pattern of an independent land-cover
+map, which is its own check that the two are seeing the same ground.
+
+**What this published window does not do.** Eleven epochs over 0.36 years: the
+line-of-sight rate comes out -7.2 ± 35.0 mm/yr over the pivots and -26.1 ± 42.2 over an
+independent desert control levelled against the far field. At two standard errors that
+span resolves 70 mm/yr, against a published Saq subsidence range of 4 to 15. **This
+frame's published archive establishes where the phase can be read, not the rate.** A rate
+needs the full Sentinel-1 archive over that frame, which is ASF HyP3 plus a time-series
+inversion and an Earthdata login; the entry states the observability result and the route
+to the rate, and claims no rate.

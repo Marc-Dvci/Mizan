@@ -1088,3 +1088,40 @@ def test_the_interval_calibration_never_sees_the_block_it_is_applied_to():
     # The posteriors the entry ships are the uncalibrated ones.
     src = (ROOT / "scripts" / "31_interval.py").read_text(encoding="utf-8")
     assert "np.savez" not in src, "the calibration must not rewrite a posterior"
+
+
+def test_the_saq_coherence_contrast_is_not_circular():
+    """Pivots are labelled by a land-cover map, never by the radar that is being scored.
+
+    The claim is that active centre pivots decorrelate and the deformation leg has to be
+    read on the ground between them. If the pivot mask were thresholded out of the
+    coherence itself the contrast would be true by construction, so the mask comes from
+    the ESA WorldCover cropland class and the guard holds that. The control ground is
+    also held apart from the reference the interferograms are levelled against, because a
+    control that is the reference returns zero whatever the data say.
+    """
+    import json
+
+    f = ROOT / "results" / "saq_insar.json"
+    if not f.exists():
+        pytest.skip("Saq interferometry not run (make saq-insar)")
+    S = json.loads(f.read_text())
+    assert "WorldCover" in S["_meta"]["pivot_mask"]
+    assert S["_meta"]["n_reference_px"] > 0 and S["_meta"]["n_control_px"] > 0
+
+    src = (ROOT / "scripts" / "32_saq_insar.py").read_text(encoding="utf-8")
+    body = src.split("def cropland_mask")[1].split("def main")[0]
+    for forbidden in ("coherence", "C[", "unw", "cc_stack"):
+        assert forbidden not in body, (
+            "the pivot mask must not be derived from the radar: " + forbidden)
+
+    # The contrast itself, and the honest reading of what the published span resolves.
+    c = S["coherence"]
+    assert c["mean_over_desert"] > c["mean_over_pivots"]
+    r = S["rate_los_mm_yr"]
+    assert r["detectable_at_2se_mm_yr"] > max(r["published_saq_subsidence_mm_yr"]), (
+        "if this span did resolve the published range, the entry would have to say so")
+
+    # The corruption: a mask thresholded from the coherence would separate the two
+    # populations by construction, whatever the ground is.
+    assert "np.nanmean(C" not in body

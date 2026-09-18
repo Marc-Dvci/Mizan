@@ -8,7 +8,7 @@ NA ?= 8
 SAQ_SIGMA ?= 20.4
 EE_PROJECT ?= $(EARTHENGINE_PROJECT)
 
-.PHONY: all setup env truth ablation allocation voi detection figures report test clean         robustness null kansas-data kansas kansas-score kansas-forced kansas-v5 metered-era net-inflow headline aljawf verify referee gain saq-gain drift reproduce reproduce-ee transfer-data transfer-run transfer-truth transfer reproduce-transfer interval
+.PHONY: all setup env truth ablation allocation voi detection figures report test clean         robustness null kansas-data kansas kansas-score kansas-forced kansas-v5 metered-era net-inflow headline aljawf verify referee gain saq-gain drift reproduce reproduce-ee transfer-data transfer-run transfer-truth transfer reproduce-transfer interval saq-insar
 
 all: truth ablation allocation voi detection null figures report
 
@@ -166,6 +166,12 @@ reproduce-transfer:
 	$(MAKE) transfer
 	$(MAKE) interval
 	$(MAKE) report
+
+# Is the deformation leg observable over the target basin's own pivots? Reads COMET
+# LiCSAR's published Sentinel-1 interferograms and the ESA WorldCover cropland map over
+# the Al Jawf box. Public hosts, no account.
+saq-insar:
+	$(PY) scripts/32_saq_insar.py
 
 # The interval the transfer found too wide, measured per block and corrected
 # leave-one-block-out, so the factor a block is scored under was fitted without it.
