@@ -1,0 +1,97 @@
+{
+  "_meta": {
+    "seed": 5,
+    "ne": 250,
+    "na": 6,
+    "block": "gmd3w",
+    "blind": true,
+    "layout": "polygons",
+    "grid": [
+      71,
+      44
+    ],
+    "active_cells": 2962,
+    "irrigated_km2": 1830.7125,
+    "n_wells": 245,
+    "n_obs_head": 4833,
+    "counties": [
+      "HM",
+      "KE",
+      "ST",
+      "GT",
+      "MT",
+      "SV"
+    ],
+    "years": [
+      2000,
+      2001,
+      2002,
+      2003,
+      2004,
+      2005,
+      2006,
+      2007,
+      2008,
+      2009,
+      2010,
+      2011,
+      2012,
+      2013,
+      2014,
+      2015,
+      2016,
+      2017,
+      2018,
+      2019,
+      2020,
+      2021,
+      2022,
+      2023,
+      2024
+    ],
+    "nominal_error": true,
+    "per_site_error": true,
+    "pooled_unmixing": true,
+    "n_rights": 0,
+    "n_missing": 0
+  },
+  "BASELINE": {
+    "label": "open loop, efficiency fixed at 0.80"
+  },
+  "PRIOR_FLAT": {
+    "label": "mapped irrigated area times one acre-foot per acre, no data at all"
+  },
+  "PRIOR": {
+    "label": "the same prior drawn as an ensemble, no data at all"
+  },
+  "ETH": {
+    "label": "evapotranspiration + heads, closure",
+    "basin_mcm_yr": 890.7254992197737,
+    "phi_history": [
+      3969.8660549211613,
+      382.22215003812886,
+      45.58570150966159,
+      28.299406819832384,
+      27.6634426644027,
+      26.83146751765974,
+      25.667525308285164
+    ],
+    "eta_hat": [
+      0.352482991553966,
+      0.6138179885309814,
+      1.0027730188894939,
+      0.3512553165586001,
+      0.8617249355532144,
+      0.5363104536863162
+    ],
+    "sy_hat": 0.17052843775548146,
+    "sy_mult_hat": 1.3836604098938121,
+    "ret_hat": 0.06009801424684035,
+    "config": "v5",
+    "forced_recharge": false,
+    "bmul_hat": 0.5999999999999999,
+    "bsat_hat": 18.781154610002737,
+    "rch_hat": 24.14346176233661,
+    "seconds": 474.9883642196655
+  }
+}
