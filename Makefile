@@ -8,7 +8,7 @@ NA ?= 8
 SAQ_SIGMA ?= 20.4
 EE_PROJECT ?= $(EARTHENGINE_PROJECT)
 
-.PHONY: all setup env truth ablation allocation voi detection figures report test clean         robustness null kansas-data kansas kansas-score kansas-forced kansas-v5 metered-era net-inflow headline aljawf verify referee gain saq-gain drift reproduce reproduce-ee transfer-data transfer-run transfer-truth transfer reproduce-transfer
+.PHONY: all setup env truth ablation allocation voi detection figures report test clean         robustness null kansas-data kansas kansas-score kansas-forced kansas-v5 metered-era net-inflow headline aljawf verify referee gain saq-gain drift reproduce reproduce-ee transfer-data transfer-run transfer-truth transfer reproduce-transfer interval
 
 all: truth ablation allocation voi detection null figures report
 
@@ -164,7 +164,13 @@ transfer:
 reproduce-transfer:
 	for b in west gmd3w gmd3e; do 	  $(MAKE) transfer-data BLOCK=$$b; 	  sh scripts/transfer_run.sh $$b $(NE) 6; 	  $(MAKE) transfer-truth BLOCK=$$b; 	done
 	$(MAKE) transfer
+	$(MAKE) interval
 	$(MAKE) report
+
+# The interval the transfer found too wide, measured per block and corrected
+# leave-one-block-out, so the factor a block is scored under was fitted without it.
+interval:
+	$(PY) scripts/31_interval.py --tag $(KTAG)
 
 # Every Kansas score again, on the years the truth is fully metered. WIMAS codes each
 # report by how it was measured; the block is meter-coded from 2009. The truth is also

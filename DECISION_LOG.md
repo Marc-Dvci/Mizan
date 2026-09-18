@@ -950,3 +950,47 @@ on every block. The level comparison remains the one the record resolves.
 **Nothing on the published block changed.** No parameter, prior or procedure was touched
 for the transfer; the published block reproduces `_v3` byte for byte under the block table
 and a guard holds that.
+
+### The failed prediction, measured and corrected out of sample
+
+Run 18 September 2026, after the transfer, `make interval` (`scripts/31_interval.py`).
+P2 was the one prediction the transfer failed: the 90 per cent interval covered 0.98 of
+new county-years against a band of 0.80 to 0.97. This asks what the defect is and what a
+correction would be worth, and it answers both without touching a posterior.
+
+**What it is.** The factor on the posterior spread, about its own mean and in the log the
+inversion parameterises, that makes the 90 per cent interval nominal:
+
+| block | factor | cover 50 | cover 80 | cover 90 |
+|---|---:|---:|---:|---:|
+| GMD4 north, where the error budget was estimated | 1.00 | 0.50 | 0.77 | 0.91 |
+| West Kansas | 0.65 | 0.71 | 0.95 | 0.98 |
+| GMD3 west | 0.84 | 0.52 | 0.85 | 0.97 |
+| GMD3 east | 0.80 | 0.61 | 0.92 | 0.99 |
+
+The block the two-stage error budget was estimated on wants no correction at all. All
+three blocks it was not estimated on want the same one, 0.65 to 0.84, mean 0.82, spread
+0.14. **The defect is not a property of any block; it is the error budget being read in
+sample.** The structural term comes from each block's own converged residual, and where
+the water-level network is sparser and the county volumes larger that term comes out too
+large for the fit it is describing.
+
+**What a correction buys, scored where it was not fitted.** Leave-one-block-out: the
+factor applied to a block is the mean of the factors fitted on the other blocks, so no
+block enters its own calibration. Pooled over the 222 county-years of the blocks the
+method had never seen, coverage goes **0.98 to 0.92 at the 90 per cent level, 0.91 to
+0.81 at 80, and 0.62 to 0.50 at 50**: nominal at all three, out of sample. It costs CRPS,
+26.76 to 27.16 Mm3/yr, 1.5 per cent, which is what a narrower interval costs when the
+point estimate carries bias, and that trade is reported rather than hidden.
+
+**What is not claimed.** The rule fitted on the published block alone, which is all the
+entry had before the transfer, is a factor of 1.00 and corrects nothing: 0.98, 0.97 and
+0.99 on the three new blocks. **The correction is only visible because the blocks exist**,
+which is the second thing the transfer bought. Fitting the factor on the block it is
+applied to reaches nominal coverage by construction and is an oracle; a guard holds the
+leave-one-out structure and rejects that form.
+
+**The shipped scores stay uncalibrated.** No posterior is rewritten and no shipped number
+moves; the guard asserts the script writes no npz. The documents now state the interval
+as conservative away from the tuned block, with the size of the correction a next basin
+would need and its out-of-sample score.

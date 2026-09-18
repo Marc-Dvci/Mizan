@@ -1,0 +1,293 @@
+{
+  "_meta": {
+    "tag": "_v3",
+    "blocks": [
+      "gmd4a",
+      "west",
+      "gmd3w",
+      "gmd3e"
+    ],
+    "what": "the multiplicative factor on the posterior spread that makes the 90 per cent interval nominal; below one means the interval was too wide",
+    "rule": "leave-one-block-out: the factor applied to a block is the mean of the factors fitted on the other blocks, so no block enters its own calibration"
+  },
+  "per_block": {
+    "gmd4a": {
+      "label": "Northwest Kansas, GMD4 north (the published block)",
+      "n_county_years": 96,
+      "uncalibrated": {
+        "factor": 1.0,
+        "cover_50": 0.5,
+        "cover_80": 0.7708333333333334,
+        "cover_90": 0.90625,
+        "width90_mcm": 84.88823530503358,
+        "crps_mcm": 15.496889086854276,
+        "mape_pct": 28.613972436745915
+      },
+      "in_sample_factor": 1.0,
+      "in_sample": {
+        "factor": 1.0,
+        "cover_50": 0.5,
+        "cover_80": 0.7708333333333334,
+        "cover_90": 0.90625,
+        "width90_mcm": 84.88823530503358,
+        "crps_mcm": 15.496889086854276,
+        "mape_pct": 28.613972436745915
+      },
+      "cover_by_level_uncalibrated": {
+        "50": 0.5,
+        "80": 0.7708333333333334,
+        "90": 0.90625
+      }
+    },
+    "west": {
+      "label": "West Kansas, GMD4 south and GMD1",
+      "n_county_years": 66,
+      "uncalibrated": {
+        "factor": 1.0,
+        "cover_50": 0.7121212121212122,
+        "cover_80": 0.9545454545454546,
+        "cover_90": 0.9848484848484849,
+        "width90_mcm": 52.469409994786496,
+        "crps_mcm": 5.347688593792734,
+        "mape_pct": 37.31122459082057
+      },
+      "in_sample_factor": 0.65,
+      "in_sample": {
+        "factor": 0.65,
+        "cover_50": 0.5606060606060606,
+        "cover_80": 0.7878787878787878,
+        "cover_90": 0.9242424242424242,
+        "width90_mcm": 32.91103049692432,
+        "crps_mcm": 4.592321376787978,
+        "mape_pct": 31.36752857069111
+      },
+      "cover_by_level_uncalibrated": {
+        "50": 0.7121212121212122,
+        "80": 0.9545454545454546,
+        "90": 0.9848484848484849
+      }
+    },
+    "gmd3w": {
+      "label": "Southwest Kansas, GMD3 west",
+      "n_county_years": 60,
+      "uncalibrated": {
+        "factor": 1.0,
+        "cover_50": 0.5166666666666667,
+        "cover_80": 0.85,
+        "cover_90": 0.9666666666666667,
+        "width90_mcm": 163.58490276647478,
+        "crps_mcm": 24.690677296423086,
+        "mape_pct": 24.30384567006477
+      },
+      "in_sample_factor": 0.8400000000000001,
+      "in_sample": {
+        "factor": 0.8400000000000001,
+        "cover_50": 0.35,
+        "cover_80": 0.75,
+        "cover_90": 0.9,
+        "width90_mcm": 133.72489496997795,
+        "crps_mcm": 25.299222453624104,
+        "mape_pct": 27.383482800843357
+      },
+      "cover_by_level_uncalibrated": {
+        "50": 0.5166666666666667,
+        "80": 0.85,
+        "90": 0.9666666666666667
+      }
+    },
+    "gmd3e": {
+      "label": "Southwest Kansas, GMD3 east",
+      "n_county_years": 96,
+      "uncalibrated": {
+        "factor": 1.0,
+        "cover_50": 0.6145833333333334,
+        "cover_80": 0.9166666666666666,
+        "cover_90": 0.9895833333333334,
+        "width90_mcm": 291.7922323726234,
+        "crps_mcm": 42.77934020928103,
+        "mape_pct": 21.15273117981106
+      },
+      "in_sample_factor": 0.8,
+      "in_sample": {
+        "factor": 0.8,
+        "cover_50": 0.4375,
+        "cover_80": 0.7708333333333334,
+        "cover_90": 0.90625,
+        "width90_mcm": 224.83406447453308,
+        "crps_mcm": 43.67010897177084,
+        "mape_pct": 24.260083727479998
+      },
+      "cover_by_level_uncalibrated": {
+        "50": 0.6145833333333334,
+        "80": 0.9166666666666666,
+        "90": 0.9895833333333334
+      }
+    }
+  },
+  "factor_spread": {
+    "by_block": {
+      "gmd4a": 1.0,
+      "west": 0.65,
+      "gmd3w": 0.84,
+      "gmd3e": 0.8
+    },
+    "mean": 0.8225,
+    "sd": 0.14384598244882152,
+    "min": 0.65,
+    "max": 1.0,
+    "reading": "one factor exists if the spread is small against the distance from one; the numbers are reported either way"
+  },
+  "leave_one_block_out": {
+    "gmd4a": {
+      "factor_from": [
+        "west",
+        "gmd3w",
+        "gmd3e"
+      ],
+      "factor": 0.7633333333333333,
+      "cover_50": 0.3333333333333333,
+      "cover_80": 0.6458333333333334,
+      "cover_90": 0.7291666666666666,
+      "width90_mcm": 63.29471959740842,
+      "crps_mcm": 16.256304097492972,
+      "mape_pct": 29.19624500090359
+    },
+    "west": {
+      "factor_from": [
+        "gmd4a",
+        "gmd3w",
+        "gmd3e"
+      ],
+      "factor": 0.88,
+      "cover_50": 0.6818181818181818,
+      "cover_80": 0.8939393939393939,
+      "cover_90": 0.9696969696969697,
+      "width90_mcm": 45.48561045168983,
+      "crps_mcm": 5.040814040745466,
+      "mape_pct": 34.8556840196963
+    },
+    "gmd3w": {
+      "factor_from": [
+        "gmd4a",
+        "west",
+        "gmd3e"
+      ],
+      "factor": 0.8166666666666668,
+      "cover_50": 0.3333333333333333,
+      "cover_80": 0.7333333333333333,
+      "cover_90": 0.8666666666666667,
+      "width90_mcm": 129.5696746243195,
+      "crps_mcm": 25.458954913257603,
+      "mape_pct": 27.80368545090645
+    },
+    "gmd3e": {
+      "factor_from": [
+        "gmd4a",
+        "west",
+        "gmd3w"
+      ],
+      "factor": 0.8300000000000001,
+      "cover_50": 0.4895833333333333,
+      "cover_80": 0.8020833333333334,
+      "cover_90": 0.9166666666666666,
+      "width90_mcm": 234.42499662632213,
+      "crps_mcm": 43.42158301615382,
+      "mape_pct": 23.802634725276086
+    }
+  },
+  "leave_one_new_block_out": {
+    "west": {
+      "factor_from": [
+        "gmd3w",
+        "gmd3e"
+      ],
+      "factor": 0.8200000000000001,
+      "cover_50": 0.6363636363636364,
+      "cover_80": 0.8636363636363636,
+      "cover_90": 0.9696969696969697,
+      "width90_mcm": 42.112894125452,
+      "crps_mcm": 4.904051004908841,
+      "mape_pct": 33.80307339777784
+    },
+    "gmd3w": {
+      "factor_from": [
+        "west",
+        "gmd3e"
+      ],
+      "factor": 0.7250000000000001,
+      "cover_50": 0.25,
+      "cover_80": 0.6666666666666666,
+      "cover_90": 0.8,
+      "width90_mcm": 113.66613065899763,
+      "crps_mcm": 26.26371384792087,
+      "mape_pct": 29.328922547913617
+    },
+    "gmd3e": {
+      "factor_from": [
+        "west",
+        "gmd3w"
+      ],
+      "factor": 0.7450000000000001,
+      "cover_50": 0.4166666666666667,
+      "cover_80": 0.7604166666666666,
+      "cover_90": 0.84375,
+      "width90_mcm": 207.6125711647545,
+      "crps_mcm": 44.26280959260432,
+      "mape_pct": 25.07845794336148
+    }
+  },
+  "pooled_new_counties": {
+    "leave_one_new_block_out": {
+      "cover_50": 0.4369369369369369,
+      "cover_80": 0.7657657657657657,
+      "cover_90": 0.8693693693693694,
+      "crps_mcm": 27.696936567969598
+    },
+    "n_county_years": 222,
+    "uncalibrated": {
+      "cover_50": 0.6171171171171171,
+      "cover_80": 0.9099099099099099,
+      "cover_90": 0.9819819819819819,
+      "crps_mcm": 26.76218353633642,
+      "width90_mcm": 185.99157447484794
+    },
+    "leave_one_block_out": {
+      "cover_50": 0.5045045045045045,
+      "cover_80": 0.8108108108108109,
+      "cover_90": 0.918918918918919,
+      "crps_mcm": 27.156319779438842
+    }
+  },
+  "home_block_rule": {
+    "factor": 1.0,
+    "by_block": {
+      "west": {
+        "factor": 1.0,
+        "cover_50": 0.7121212121212122,
+        "cover_80": 0.9545454545454546,
+        "cover_90": 0.9848484848484849,
+        "width90_mcm": 52.469409994786496,
+        "crps_mcm": 5.347688593792734,
+        "mape_pct": 37.31122459082057
+      },
+      "gmd3w": {
+        "factor": 1.0,
+        "cover_50": 0.5166666666666667,
+        "cover_80": 0.85,
+        "cover_90": 0.9666666666666667,
+        "width90_mcm": 163.58490276647478,
+        "crps_mcm": 24.690677296423086,
+        "mape_pct": 24.30384567006477
+      },
+      "gmd3e": {
+        "factor": 1.0,
+        "cover_50": 0.6145833333333334,
+        "cover_80": 0.9166666666666666,
+        "cover_90": 0.9895833333333334,
+        "width90_mcm": 291.7922323726234,
+        "crps_mcm": 42.77934020928103,
+        "mape_pct": 21.15273117981106
+      }
+    }
+  }
+}

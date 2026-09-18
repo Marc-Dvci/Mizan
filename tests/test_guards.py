@@ -1053,3 +1053,38 @@ def test_the_transfer_gain_is_clustered_by_county():
     # The corruption: sixteen county-years per county treated as independent copies.
     fake = np.repeat(g, 16)
     assert fake.std(ddof=1) / np.sqrt(fake.size) < se / 2.0
+
+
+def test_the_interval_calibration_never_sees_the_block_it_is_applied_to():
+    """A spread factor fitted on the block it corrects is an oracle, not a calibration.
+
+    The shipped rule takes each block's factor from the other blocks only. The guard
+    holds that, and the corruption is the in-sample factor, which by construction hits
+    the nominal coverage exactly and so cannot be reported as an out-of-sample result.
+    """
+    import importlib
+    import json
+
+    f = ROOT / "results" / "interval_v3.json"
+    if not f.exists():
+        pytest.skip("interval calibration not computed (make interval)")
+    IV = json.loads(f.read_text())
+
+    for key in ("leave_one_block_out", "leave_one_new_block_out"):
+        for blk, row in IV[key].items():
+            assert blk not in row["factor_from"], (blk, key)
+            assert len(row["factor_from"]) >= 2, (blk, key)
+
+    # The corruption: the in-sample factor reaches nominal coverage on every block,
+    # which is what makes quoting it an oracle rather than a calibration.
+    for blk, row in IV["per_block"].items():
+        assert row["in_sample"]["cover_90"] >= 0.90 - 1e-9, blk
+
+    # And the out-of-sample rule is scored on coverage it did not choose: at least one
+    # block has to miss nominal, or the held-out score is not held out.
+    missed = [b for b, r in IV["leave_one_block_out"].items() if r["cover_90"] < 0.90]
+    assert missed, "no block misses nominal out of sample; the fit is leaking"
+
+    # The posteriors the entry ships are the uncalibrated ones.
+    src = (ROOT / "scripts" / "31_interval.py").read_text(encoding="utf-8")
+    assert "np.savez" not in src, "the calibration must not rewrite a posterior"
