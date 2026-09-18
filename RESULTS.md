@@ -485,6 +485,19 @@ The transfer's one failed prediction was the interval: it covers more than it cl
 The factor applied to a block is fitted on the other blocks only, so no block enters its own calibration; the in-sample factor reaches nominal coverage by construction and is an oracle. The rule fitted on the published block alone, which is all this repository had before the transfer, is 1.00 and corrects nothing.
 
 
+## Is the deformation leg readable over the target basin's own pivots?
+
+COMET LiCSAR frame 116A_05991_141313, track 116, contains the Wadi As-Sirhan pivot field. 30 published interferograms carry usable phase over the Al Jawf box, 11 epochs from 20221230 to 20230511. Pivots are labelled by the ESA WorldCover cropland class on the 111 m radar grid, so the contrast below carries no radar information in its own labels.
+
+| | pivot fields | desert |
+|---|---:|---:|
+| mean coherence | 0.14 | 0.52 |
+| share above 0.3 | 0.12 | 0.82 |
+| share above 0.5 | 0.02 | 0.62 |
+
+The pivots decorrelate and the ground between them holds phase in four pixels out of five, which is where a regional compaction signal is read. The published window is 0.36 years: the line-of-sight rate is -7.2 +- 35.0 mm/yr over the pivots and -26.1 +- 42.2 over an independent desert control, so that span resolves 70 mm/yr at two standard errors against a published Saq range of 4 to 15. It establishes where the phase can be read; the rate needs the full archive over the same frame.
+
+
 ## How far apart the two rungs are: the share of pumping that is storage
 
 The closure reads abstraction out of storage, so what the two rungs have in common is not the basin but the method. Net inflow `N = Q + Sy*A*dh` from the withheld meters, the winter water levels and the USGS specific-yield map puts a number on the difference. No model enters it.

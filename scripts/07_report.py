@@ -857,6 +857,39 @@ def main():
               f"the published block alone, which is all this repository had before the "
               f"transfer, is {iv['home_block_rule']['factor']:.2f} and corrects nothing.\n")
 
+    si = load("saq_insar.json")
+    if si:
+        section("Is the deformation leg readable over the target basin's own pivots?")
+        m, c, r = si["_meta"], si["coherence"], si["rate_los_mm_yr"]
+        print("COMET LiCSAR frame {}, track {}, contains the Wadi As-Sirhan pivot "
+              "field. {} published interferograms carry usable phase over the Al Jawf "
+              "box, {} epochs from {} to {}. Pivots are labelled by the ESA WorldCover "
+              "cropland class on the {:.0f} m radar grid, so the contrast below carries "
+              "no radar information in its own labels.\n".format(
+                  m["frame"], m["track"], m["n_pairs"], len(m["epochs"]),
+                  m["first_epoch"], m["last_epoch"], m["pixel_m"]))
+        print("| | pivot fields | desert |")
+        print("|---|---:|---:|")
+        print("| mean coherence | {:.2f} | {:.2f} |".format(
+            c["mean_over_pivots"], c["mean_over_desert"]))
+        print("| share above 0.3 | {:.2f} | {:.2f} |".format(
+            c["share_of_pivots_above_0.3"], c["share_of_desert_above_0.3"]))
+        print("| share above 0.5 | {:.2f} | {:.2f} |".format(
+            c["share_of_pivots_above_0.5"], c["share_of_desert_above_0.5"]))
+        print("\nThe pivots decorrelate and the ground between them holds phase in four "
+              "pixels out of five, which is where a regional compaction signal is read. "
+              "The published window is {:.2f} years: the line-of-sight rate is "
+              "{:+.1f} +- {:.1f} mm/yr over the pivots and {:+.1f} +- {:.1f} over an "
+              "independent desert control, so that span resolves {:.0f} mm/yr at two "
+              "standard errors against a published Saq range of {:.0f} to {:.0f}. It "
+              "establishes where the phase can be read; the rate needs the full archive "
+              "over the same frame.\n".format(
+                  r["span_years"], r["pivots"]["rate"], r["pivots"]["se"],
+                  r["desert_control"]["rate"], r["desert_control"]["se"],
+                  r["detectable_at_2se_mm_yr"],
+                  r["published_saq_subsidence_mm_yr"][0],
+                  r["published_saq_subsidence_mm_yr"][1]))
+
     ni = load("net_inflow.json")
     if ni:
         section("How far apart the two rungs are: the share of pumping that is storage")
