@@ -945,3 +945,111 @@ def test_the_reproduce_target_runs_every_rung_the_report_reads():
     assert "make reproduce" in readme
     assert "make all` writes every number" not in readme, (
         "`all` is the L0 rung; the whole submission is `reproduce`")
+
+
+def test_the_published_block_reproduces_under_the_block_table():
+    """Generalising the rung to any county block must leave the published block alone.
+
+    `gmd4a` keeps the tier geometry and the published file names, so its county map,
+    its irrigated area and its unmixed evapotranspiration have to come out identical to
+    the inputs stored with the published `_v3` posterior. The corruption is another
+    block: its county list, its parameter layout and its region differ, and switching
+    back restores the published ones exactly.
+    """
+    import importlib
+    from mizan import ks_data as KD, ks_run as R
+
+    post = ROOT / "results" / "kansas_posterior_ETH_v3.npz"
+    if not post.exists() or not (KD.DATA / "wimas_SD.json").exists():
+        pytest.skip("published Kansas posterior or its inputs absent")
+    sys.path.insert(0, str(ROOT / "scripts"))
+    drv = importlib.import_module("11_kansas_run")
+
+    R.set_block("gmd4a")
+    a = drv.assemble(pool=True, block="gmd4a")
+    z = np.load(post)
+    assert np.array_equal(a["region"].county, z["county"])
+    assert np.array_equal(a["et_obs"], z["et_obs"])
+    assert np.array_equal(a["irr_area"], z["irr_area"])
+    assert a["region"].layout == "tiers"
+    npar, ndist = R.NPAR, R.NDIST
+
+    # The corruption: another block is a different problem, and must not leak back.
+    R.set_block("gmd3e")
+    assert KD.COUNTIES == KD.BLOCKS["gmd3e"]["counties"]
+    assert KD.COUNTIES[0] not in z and "FI" in KD.COUNTY_NAME
+    assert R.LAYOUT["logq"].stop == 6 * R.NYEAR      # same count, different names
+    assert KD._sfx() == "_gmd3e"
+    R.set_block("gmd4a")
+    assert KD.COUNTIES == ["CN", "RA", "DC", "SH", "TH", "SD"]
+    assert (R.NPAR, R.NDIST) == (npar, ndist)
+    assert KD._sfx() == ""
+
+
+def test_a_transfer_block_cannot_open_its_meters_before_its_prediction_is_committed():
+    """The blind protocol is held by the fetcher, not by discipline.
+
+    The use files of a transfer block are refused until the committed decision log
+    carries that block's prediction marker and the working copy of the log is clean.
+    Both halves are exercised: a block with no marker is refused, and a block whose
+    marker is committed is refused again the moment the log has an uncommitted edit.
+    """
+    import importlib
+    import subprocess
+
+    sys.path.insert(0, str(ROOT / "scripts"))
+    fetch = importlib.import_module("10_kansas_fetch")
+    if subprocess.run(["git", "rev-parse", "HEAD"], cwd=ROOT,
+                      capture_output=True).returncode != 0:
+        pytest.skip("not a git checkout")
+    log = ROOT / "DECISION_LOG.md"
+    if subprocess.run(["git", "status", "--porcelain", "DECISION_LOG.md"], cwd=ROOT,
+                      capture_output=True, text=True).stdout.strip():
+        pytest.skip("decision log has uncommitted edits; the guard needs a clean copy")
+
+    assert not fetch.predictions_committed("not-a-block")
+    committed = [b for b in ("west", "gmd3w", "gmd3e") if fetch.predictions_committed(b)]
+    assert committed, "the transfer predictions are recorded in the committed log"
+
+    # The corruption: the same block, with the log dirtied, has to be refused.
+    raw = log.read_bytes()
+    try:
+        log.write_bytes(raw + b"scratch line " + b"\n")
+        assert not fetch.predictions_committed(committed[0])
+    finally:
+        log.write_bytes(raw)
+    assert fetch.predictions_committed(committed[0])
+
+    # And a blind run leaves no truth in its posterior.
+    for b in committed:
+        f = ROOT / "results" / f"kansas_posterior_ETH_v3_{b}.npz"
+        if f.exists():
+            assert "q_true" not in np.load(f).files, b
+
+
+def test_the_transfer_gain_is_clustered_by_county():
+    """The pooled transfer result counts counties, never county-years.
+
+    The corruption resamples the same gains as if every county-year were independent,
+    which has to come out far tighter than the county clustering.
+    """
+    import json
+
+    t = ROOT / "results" / "transfer_v3.json"
+    if not t.exists():
+        pytest.skip("transfer not scored (make transfer)")
+    T = json.loads(t.read_text())
+    p = T["pooled_new_counties"]
+    if not p:
+        pytest.skip("no transfer block scored yet")
+    g = np.concatenate([
+        list(T["blocks"][b]["arms"]["_v3"]["level_gain_vs"]["OPENLOOP"]["gain_by_county"]
+             .values()) for b in p["blocks"]])
+    assert g.size == p["n_counties"] == p["OPENLOOP"]["n_counties"]
+    assert all(b != "gmd4a" for b in p["blocks"]), "the tuned block is never pooled in"
+    se = float(g.std(ddof=1) / np.sqrt(g.size))
+    assert abs(se - p["OPENLOOP"]["se_by_county"]) < 1e-9
+
+    # The corruption: sixteen county-years per county treated as independent copies.
+    fake = np.repeat(g, 16)
+    assert fake.std(ddof=1) / np.sqrt(fake.size) < se / 2.0

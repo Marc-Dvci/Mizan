@@ -44,17 +44,19 @@ LABEL = {"CLOSURE": "closure, evapotranspiration + heads",
          "OPENLOOP": "unmixed evapotranspiration over a fixed efficiency of 0.80"}
 
 
-def metered_era_year(q_by: np.ndarray, years: np.ndarray, floor: float = 0.98):
-    """First year from which every later year, block and county, is meter-coded.
+def metered_era_year(q_by: np.ndarray, years: np.ndarray, floor: float = 0.98,
+                     county_floor: float = 0.95):
+    """First year from which every later year is meter-coded, block and county.
 
-    The rule of `27_metered_era.py`, applied to a block's own codes. A county-year with
-    no reported volume at all does not count against the county.
+    The rule the published block's era was held to (`27_metered_era.py` and its guard):
+    above 98 per cent of the block's reported volume in every later year, and above 95
+    in every county. A county-year with no reported volume does not count against it.
     """
     tot = q_by.sum(axis=0)
     blk = q_by[0].sum(axis=0) / np.where(tot.sum(axis=0) > 0, tot.sum(axis=0), 1.0)
     cty = np.where(tot > 0, q_by[0] / np.where(tot > 0, tot, 1.0), 1.0)
     for i, y in enumerate(years):
-        if (blk[i:] > floor).all() and (cty[:, i:] > floor).all():
+        if (blk[i:] > floor).all() and (cty[:, i:] > county_floor).all():
             return int(y)
     return None
 
@@ -130,6 +132,20 @@ def score_block(block: str, tag: str, arms: list, sweep) -> dict:
         acc = {"CLOSURE": ens.mean(axis=0), **pts}
         if (arm, "ET") in post:
             acc["ET"] = post[(arm, "ET")][..., era].mean(axis=0)
+        # Two oracles no practitioner has: each rule with its constant fitted to this
+        # block's own meters. They measure how much of a rule's error is its constant.
+        grid = np.linspace(0.05, 1.0, 951)
+        d_star = float(grid[int(np.argmin([np.abs(a["irr_area"][:, era] * g - q).mean()
+                                           for g in grid]))])
+        acc["FLAT_ORACLE"] = a["irr_area"][:, era] * d_star
+        grid = np.linspace(0.2, 1.6, 1401)
+        e_star = float(grid[int(np.argmin([np.abs(a["et_obs"][:, era] / g - q).mean()
+                                           for g in grid]))])
+        acc["OPENLOOP_ORACLE"] = a["et_obs"][:, era] / e_star
+        LABEL["FLAT_ORACLE"] = (f"area x depth, depth fitted to this block's meters "
+                                f"({d_star / 0.3048:.2f} af/acre)")
+        LABEL["OPENLOOP_ORACLE"] = (f"open loop, efficiency fitted to this block's "
+                                    f"meters ({e_star:.2f})")
         level = {k: {"label": LABEL[k], **MT.point_scores(v, q),
                      "rel_err_by_county": {c: round(float(x), 1) for c, x in zip(
                          K.COUNTIES, (np.abs(v - q) / q).mean(axis=1) * 100.0)}}

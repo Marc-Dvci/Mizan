@@ -8,7 +8,7 @@ NA ?= 8
 SAQ_SIGMA ?= 20.4
 EE_PROJECT ?= $(EARTHENGINE_PROJECT)
 
-.PHONY: all setup env truth ablation allocation voi detection figures report test clean         robustness null kansas-data kansas kansas-score kansas-forced kansas-v5 metered-era net-inflow headline aljawf verify referee gain saq-gain drift reproduce reproduce-ee
+.PHONY: all setup env truth ablation allocation voi detection figures report test clean         robustness null kansas-data kansas kansas-score kansas-forced kansas-v5 metered-era net-inflow headline aljawf verify referee gain saq-gain drift reproduce reproduce-ee transfer-data transfer-run transfer-truth transfer
 
 all: truth ablation allocation voi detection null figures report
 
@@ -133,6 +133,29 @@ kansas-score: null
 	$(PY) scripts/12_kansas_anomaly.py --tag $(KTAG)
 	$(PY) scripts/14_kansas_resolution.py --tag $(KTAG) --out kansas_resolution$(KTAG).json
 	$(PY) scripts/15_kansas_shrink.py --tag $(KTAG)
+
+# The blind transfer. `transfer-data` fetches a block's estimator inputs and refuses
+# its use files; `transfer-run` runs the frozen `_v3` and the `_v5` arm on it, unscored;
+# `transfer-truth` fetches the use files, which the fetcher allows only once the
+# block's predictions are in a committed DECISION_LOG.md; `transfer` scores every
+# block that has both. BLOCK is one of west, gmd3w, gmd3e.
+BLOCK ?= west
+TROWS ?= ETH,ET
+
+transfer-data:
+	$(PY) scripts/10_kansas_fetch.py --block $(BLOCK) --workers 4
+
+transfer-run:
+	$(PY) scripts/11_kansas_run.py --block $(BLOCK) --ne $(NE) --na 6 --workers 6 --nominal-error --rows ETH --out kansas_v3_stage1_$(BLOCK).json --tag _v3s1_$(BLOCK)
+	$(PY) scripts/11_kansas_run.py --block $(BLOCK) --ne $(NE) --na 6 --workers 6 --budget-from kansas_posterior_ETH_v3s1_$(BLOCK).npz --rows $(TROWS) --out kansas_v3_$(BLOCK).json --tag _v3_$(BLOCK)
+	$(PY) scripts/11_kansas_run.py --block $(BLOCK) --ne $(NE) --na 6 --workers 6 --config v5 --nominal-error --rows ETH --out kansas_v5_stage1_$(BLOCK).json --tag _v5s1_$(BLOCK)
+	$(PY) scripts/11_kansas_run.py --block $(BLOCK) --ne $(NE) --na 6 --workers 6 --config v5 --budget-from kansas_posterior_ETH_v5s1_$(BLOCK).npz --rows ETH --out kansas_v5_$(BLOCK).json --tag _v5_$(BLOCK)
+
+transfer-truth:
+	$(PY) scripts/10_kansas_fetch.py --block $(BLOCK) --what wuse
+
+transfer:
+	$(PY) scripts/30_transfer.py --tag _v3 --arms _v5
 
 # Every Kansas score again, on the years the truth is fully metered. WIMAS codes each
 # report by how it was measured; the block is meter-coded from 2009. The truth is also
