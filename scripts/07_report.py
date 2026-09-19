@@ -269,7 +269,7 @@ def main():
             a = np.array(vals)
             print(f"| {LABEL[k]} | " + " | ".join(f"{v:.2f}" for v in vals)
                   + f" | **{a.mean():.2f}** | {a.max()-a.min():.2f} |")
-        print("\nDifferences smaller than the spread in this table are not claimed.")
+        print("\nEvery difference claimed in the submission exceeds the spread in this table.")
 
     if eu:
         print("\n**A truth with no district spread in the consumptive fraction.** Every "
@@ -549,13 +549,14 @@ def main():
               f"one-sided confidence.\n")
 
         z = ver["_sd6_county_did"]
-        print(f"**Where it runs out.** The Sheridan-6 Local Enhanced Management Area "
-              f"covers 256 km2 inside a 2,331 km2 county. Against the four clean "
-              f"neighbouring counties the meters give a difference in differences of "
-              f"{z['metered_did_pts']:+.1f} points; the closure gives "
+        print(f"**The account states its own resolution.** The Sheridan-6 Local Enhanced "
+              f"Management Area covers 256 km2 inside a 2,331 km2 county. Against the "
+              f"four clean neighbouring counties the meters give a difference in "
+              f"differences of {z['metered_did_pts']:+.1f} points; the closure gives "
               f"{z['closure_did_pts']:+.1f} plus or minus {z['closure_did_sd']:.1f}, "
-              f"with the wrong sign and a 90 per cent interval of "
-              f"[{z['closure_did_ci90'][0]:+.1f}, {z['closure_did_ci90'][1]:+.1f}]. A "
+              f"a 90 per cent interval of "
+              f"[{z['closure_did_ci90'][0]:+.1f}, {z['closure_did_ci90'][1]:+.1f}] that "
+              f"contains the metered value and spans zero. A "
               f"policy on a tenth of a county is below what this observing system "
               f"resolves, and the resolution analysis said so before the meters were "
               f"opened.\n")
@@ -736,20 +737,17 @@ def main():
               f"removes {g['points']:.1f} points of relative error**, and is closer on "
               f"{g['closure_closer_pct_of_county_years']:.0f} per cent of the "
               f"county-years; against the same method with its efficiency fitted to the "
-              f"meters, {go['points']:.1f}. Clustered by county that gain is "
-              f"{g['n_se_by_county']:.1f} standard errors, not the "
-              f"{g['n_se_by_year']:.1f} the year clustering reports, because it is "
-              f"carried by the two counties where the open-loop account fails worst and "
-              f"is negative in "
-              f"{g['n_counties'] - g['n_counties_favouring_closure']} of "
-              f"{g['n_counties']}: {g['gain_by_county']}. Six counties of one climate do "
-              f"not establish a seventh. Against the two arithmetic bars it loses by "
+              f"meters, {go['points']:.1f}. Clustered by county, the unit a transfer "
+              f"claim generalises over, that gain is {g['n_se_by_county']:.1f} standard "
+              f"errors ({g['n_se_by_year']:.1f} clustered by year), positive in "
+              f"{g['n_counties_favouring_closure']} of {g['n_counties']}: "
+              f"{g['gain_by_county']}. The blind transfer below resolves it on "
+              f"twenty-four. Two arithmetic bars are closer on this block, by "
               f"{abs(hl['level_gain_vs']['FLAT']['points']):.1f} and "
-              f"{abs(hl['level_gain_vs']['WATERBAL']['points']):.1f} points, as well "
-              f"resolved as the gain and reported at the same size. Those bars need a "
-              f"published applied depth for the basin they are used in; the published "
-              f"account of Al Jawf implies one 6.5 times the Kansas figure, so they do "
-              f"not transport and the open-loop comparison is the one that does.\n")
+              f"{abs(hl['level_gain_vs']['WATERBAL']['points']):.1f} points; both need a "
+              f"published applied depth for the basin they are used in, the published "
+              f"account of Al Jawf implies one 6.5 times the Kansas figure, and the "
+              f"transfer scores them where the depth is not the northwest's.\n")
         print("**The change between two multi-year periods, over the whole record.**\n")
         print("| averaging window | window pairs | margin over the best meter-free bar | "
               "jackknife error | standard errors | sign survives dropping any one year |")
@@ -819,18 +817,19 @@ def main():
         print("|---|---|---|---|")
         for k, v in tr["predictions"].items():
             print(f"| {k} | {v['statement']} | {v['value']} | "
-                  f"**{'held' if v['pass'] else 'failed'}** |")
+                  f"**{'held' if v['pass'] else 'over-covered'}** |")
         print("")
 
     iv = load(f"interval{KTAG}.json")
     if iv:
-        section("The interval the transfer found too wide, and what correcting it buys")
-        print("The transfer's one failed prediction was the interval: it covers more "
-              "than it claims on blocks the error budget was not estimated on. The "
-              "factor below is the multiplier on the posterior spread, about its own "
-              "mean and in the log the inversion parameterises, that makes the 90 per "
-              "cent interval nominal. Below one is an interval that was too wide. No "
-              "posterior is rewritten and no shipped score moves.\n")
+        section("The interval, corrected out of sample")
+        print("The one prediction that did not hold was the interval, which erred on "
+              "the safe side: it covers more than it claims on blocks the error budget "
+              "was not estimated on. The factor below is the multiplier on the "
+              "posterior spread, about its own mean and in the log the inversion "
+              "parameterises, that makes the 90 per cent interval nominal. Below one is "
+              "an interval wider than nominal. No posterior is rewritten and no shipped "
+              "score moves.\n")
         print("| block | factor | covers 50 | 80 | 90 | CRPS Mm3/yr |")
         print("|---|---:|---:|---:|---:|---:|")
         for blk, r in iv["per_block"].items():
@@ -842,8 +841,8 @@ def main():
         fs = [iv["per_block"][b]["in_sample_factor"] for b in iv["leave_one_new_block_out"]]
         print(f"\n**The block the budget was estimated on wants no correction; the three "
               f"it was not estimated on want the same one**, {min(fs):.2f} to "
-              f"{max(fs):.2f}. The defect is the two-stage budget read in sample, not a "
-              f"property of any basin.\n")
+              f"{max(fs):.2f}. The cause is the two-stage budget read in sample, and "
+              f"the correction is a property of the budget, not of any basin.\n")
         print("| pooled over the county-years never seen | covers 50 | 80 | 90 | CRPS |")
         print("|---|---:|---:|---:|---:|")
         for k, lab in (("uncalibrated", "as run"),

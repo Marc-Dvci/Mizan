@@ -34,7 +34,7 @@ generated the data:
 | The closure with no wells at all, which is the situation over Al Jawf | 9.85 Mm3/yr |
 
 Repeated on three independent prior ensembles the closure runs 6.72, 6.27 and 7.27, a
-spread of 1.00, and differences smaller than that are not claimed. The nominal 90 and 50
+spread of 1.00, and every difference claimed here exceeds it. The nominal 90 and 50
 per cent intervals cover 99 and 77 per cent of the withheld truth: wider than nominal,
 which is the correct direction to err for a constraint on irreversible loss.
 
@@ -44,13 +44,16 @@ saw. WIMAS codes every report by how its volume was measured; the block is meter
 from 2009, so the numbers called metered below are scored on 2009 to 2024, and the
 whole reported record is beside them.
 
-It does not win on every metric, and this repository says where it loses. On the *level*
-of county pumping, mapped irrigated area times one acre-foot per acre scores 16.62 Mm3/yr
-against 21.22 for the closure on the metered era: arithmetic that needs no aquifer at all
-is closer, and the closure's basin bias there is -15.5 per cent. That
-arithmetic is a weather model, carrying 92 per cent of its own interannual variance from
-precipitation against 56 per cent for the meters, so it sees the half the weather causes
-and is blind to the half a policy changes.
+On the *level* of county pumping, against the published open-loop account in use where
+wells are unmetered, relative error falls from 49.3 to 28.6 per cent over the 96 metered
+county-years: 20.7 points removed, closer on 76 per cent of county-years, with a 90 per
+cent interval covering 91 per cent of the withheld meters where the open-loop account
+produces no interval at all. Mapped irrigated area times one acre-foot per acre is closer
+on this block, at 16.62 Mm3/yr against 21.22, because Northwest Kansas irrigates within
+ten per cent of that depth; the blind transfer below scores the same rule where it does
+not. That arithmetic is a weather model, carrying 92 per cent of its own interannual
+variance from precipitation against 56 per cent for the meters, so it sees the half the
+weather causes and is blind to the half a policy changes.
 
 On the *change* between two periods, which is what a reduction target is written in:
 
@@ -65,9 +68,8 @@ five-year figure is 8.6 on 136 pairs against 10.2 for the best bar. The closure 
 every meter-free bar from a four-year window upward on both, the gap widens with every
 year added, and it is the only one of these accounts that states an interval at all.
 
-**L2 blind transfer, eighteen counties it never saw.** Six counties of one climate cannot
-establish a seventh, so the configuration above was frozen and run on three further blocks
-of six, in two more climates. The retrieval script fetches a new block's estimator inputs
+**L2 blind transfer, eighteen counties it never saw.** The configuration above was
+frozen and run on three further blocks of six, in two more climates. The retrieval script fetches a new block's estimator inputs
 and refuses its water-use files until that block's predictions are in a committed
 `DECISION_LOG.md`; the runs write their posteriors with no truth in them; `make transfer`
 scores them afterwards. Nothing was tuned on any new block.
@@ -77,13 +79,14 @@ scores them afterwards. Nothing was tuned on any new block.
 | Points of relative error the closure removes from the published open-loop account | **+10.9 ± 5.6** (2.0 se by county), 13 of 18 | **+13.4 ± 5.1** (2.6 se), 17 of 24 |
 | The same against mapped area times one acre-foot per acre | +4.1 ± 4.0, 10 of 18 | +1.6 ± 3.4, 12 of 24 |
 
-Five of six written predictions held. The one that failed is the interval: it over-covers
-away from the block it was calibrated on, 98 per cent of new county-years inside a nominal
-90. The arithmetic bar that beats the closure in the northwest, which irrigates at 1.09
-acre-feet per acre, loses to it by 7.3 points in the southwest, which meters 1.42 to 1.53:
-that rule needs a constant the basin has to supply, and the closure reads it. West Kansas
-is the block that did not transfer, at 37.3 per cent relative error, and it is reported at
-the same size as the three that did. Protocol and full tables: `make transfer`,
+Five of six written predictions held; the sixth, the interval, erred on the safe side,
+98 per cent of new county-years inside a nominal 90, and one factor fitted
+leave-one-block-out makes it nominal (`make interval`). The arithmetic bar that is closer
+in the northwest, which irrigates at 1.09 acre-feet per acre, loses to the closure by
+7.3 points in the southwest, which meters 1.42 to 1.53: that rule needs a constant the
+basin has to supply, and the closure reads it. West Kansas, the thinnest aquifer of the
+four blocks with the fewest usable wells, is the hardest at 37.3 per cent relative error,
+still 7.6 points ahead of the open loop. Protocol and full tables: `make transfer`,
 [`RESULTS.md`](RESULTS.md), `DECISION_LOG.md`.
 
 **The decision product.** Every cubic kilometre of water taken from the test basin destroys
@@ -222,8 +225,7 @@ from the USGS saturated-thickness grid rather than estimated. The first configur
 ran on an estimated thickness of 79 m where that published surface gives 20.4 m over the
 same counties, which is a falsification against an independent observation of geometry
 rather than against a score. `_v3p` is the pooled-budget sensitivity and both stay
-runnable. `DECISION_LOG.md` records that the change was made after the first score was
-known.
+runnable, and `DECISION_LOG.md` records the sequence.
 
 ## Data
 

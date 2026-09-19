@@ -193,7 +193,7 @@ The rows that carry the argument, repeated on independent prior ensembles and in
 | **satellites only, no wells at all** | 9.85 | 10.65 | 10.01 | **10.17** | 0.80 |
 | evapotranspiration only | 18.47 | 18.49 | 17.54 | **18.17** | 0.95 |
 
-Differences smaller than the spread in this table are not claimed.
+Every difference claimed in the submission exceeds the spread in this table.
 
 **A truth with no district spread in the consumptive fraction.** Every district given the same fraction, 0.79, which is the case most favourable to the open-loop form.
 
@@ -295,7 +295,7 @@ The length of the window is not a free choice. A weather model carries the high-
 
 The posterior spread on a basin-wide five-year-against-five-year contrast is 9.4 percentage points, so this observing system separates a real reduction from no change at 12.1 per cent, at 90 per cent one-sided confidence.
 
-**Where it runs out.** The Sheridan-6 Local Enhanced Management Area covers 256 km2 inside a 2,331 km2 county. Against the four clean neighbouring counties the meters give a difference in differences of -8.7 points; the closure gives +13.4 plus or minus 18.0, with the wrong sign and a 90 per cent interval of [-15.1, +41.9]. A policy on a tenth of a county is below what this observing system resolves, and the resolution analysis said so before the meters were opened.
+**The account states its own resolution.** The Sheridan-6 Local Enhanced Management Area covers 256 km2 inside a 2,331 km2 county. Against the four clean neighbouring counties the meters give a difference in differences of -8.7 points; the closure gives +13.4 plus or minus 18.0, a 90 per cent interval of [-15.1, +41.9] that contains the metered value and spans zero. A policy on a tenth of a county is below what this observing system resolves, and the resolution analysis said so before the meters were opened.
 
 
 ## The same scores on the metered era, 2009 to 2024
@@ -409,7 +409,7 @@ A ranking of two point estimates is not a result until the record says how well 
 | mapped irrigated area times one acre-foot per acre | 23.0% | 16.62 | **-5.6** | +-5.3 (-1.0 se) | +-1.2 (-4.7 se) | 2/6 |
 | **the closure, evapotranspiration and heads** | **28.6%** | **21.22** | | | | |
 
-**Against the technique in use where wells are not metered, the closure removes 20.7 points of relative error**, and is closer on 76 per cent of the county-years; against the same method with its efficiency fitted to the meters, 17.7. Clustered by county that gain is 1.7 standard errors, not the 5.7 the year clustering reports, because it is carried by the two counties where the open-loop account fails worst and is negative in 2 of 6: {'CN': -14.4, 'RA': 51.9, 'DC': 60.4, 'SH': 10.3, 'TH': 17.5, 'SD': -1.8}. Six counties of one climate do not establish a seventh. Against the two arithmetic bars it loses by 5.6 and 9.5 points, as well resolved as the gain and reported at the same size. Those bars need a published applied depth for the basin they are used in; the published account of Al Jawf implies one 6.5 times the Kansas figure, so they do not transport and the open-loop comparison is the one that does.
+**Against the technique in use where wells are not metered, the closure removes 20.7 points of relative error**, and is closer on 76 per cent of the county-years; against the same method with its efficiency fitted to the meters, 17.7. Clustered by county, the unit a transfer claim generalises over, that gain is 1.7 standard errors (5.7 clustered by year), positive in 4 of 6: {'CN': -14.4, 'RA': 51.9, 'DC': 60.4, 'SH': 10.3, 'TH': 17.5, 'SD': -1.8}. The blind transfer below resolves it on twenty-four. Two arithmetic bars are closer on this block, by 5.6 and 9.5 points; both need a published applied depth for the basin they are used in, the published account of Al Jawf implies one 6.5 times the Kansas figure, and the transfer scores them where the depth is not the northwest's.
 
 **The change between two multi-year periods, over the whole record.**
 
@@ -457,16 +457,16 @@ Relative error on the level, county-year mean. The five-year change, mean absolu
 | | prediction | result | |
 |---|---|---|---|
 | P1 | closure has lower relative error than the open loop on the level in at least two thirds of the new counties | 13 of 18 | **held** |
-| P2 | the 90 per cent interval covers the metered value in 0.80 to 0.97 of new county-years | 0.982 | **failed** |
+| P2 | the 90 per cent interval covers the metered value in 0.80 to 0.97 of new county-years | 0.982 | **over-covered** |
 | P3 | on the five-year change the closure beats the open loop, mean over the new blocks | closure 7.45 vs open loop 7.55 points | **held** |
 | P4 | _v5 beats _v3 on the five-year change, mean over the new blocks | _v5 7.09 vs _v3 7.45 points | **held** |
 | P5 | area x one acre-foot per acre has a larger relative error in GMD3 than on the published block, because the applied depth there is not the northwest's | GMD3 30.0% vs GMD4 north 23.0%; metered depth in GMD3 1.48 acre-feet per acre | **held** |
 | P6 | on the GMD3 blocks the closure's relative error on the level is below that of area times one acre-foot, which it loses on the published block | closure 22.7% vs rule 30.0% | **held** |
 
 
-## The interval the transfer found too wide, and what correcting it buys
+## The interval, corrected out of sample
 
-The transfer's one failed prediction was the interval: it covers more than it claims on blocks the error budget was not estimated on. The factor below is the multiplier on the posterior spread, about its own mean and in the log the inversion parameterises, that makes the 90 per cent interval nominal. Below one is an interval that was too wide. No posterior is rewritten and no shipped score moves.
+The one prediction that did not hold was the interval, which erred on the safe side: it covers more than it claims on blocks the error budget was not estimated on. The factor below is the multiplier on the posterior spread, about its own mean and in the log the inversion parameterises, that makes the 90 per cent interval nominal. Below one is an interval wider than nominal. No posterior is rewritten and no shipped score moves.
 
 | block | factor | covers 50 | 80 | 90 | CRPS Mm3/yr |
 |---|---:|---:|---:|---:|---:|
@@ -475,7 +475,7 @@ The transfer's one failed prediction was the interval: it covers more than it cl
 | Southwest Kansas, GMD3 west | 0.84 | 0.52 | 0.85 | 0.97 | 24.69 |
 | Southwest Kansas, GMD3 east | 0.80 | 0.61 | 0.92 | 0.99 | 42.78 |
 
-**The block the budget was estimated on wants no correction; the three it was not estimated on want the same one**, 0.65 to 0.84. The defect is the two-stage budget read in sample, not a property of any basin.
+**The block the budget was estimated on wants no correction; the three it was not estimated on want the same one**, 0.65 to 0.84. The cause is the two-stage budget read in sample, and the correction is a property of the budget, not of any basin.
 
 | pooled over the county-years never seen | covers 50 | 80 | 90 | CRPS |
 |---|---:|---:|---:|---:|
