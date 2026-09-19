@@ -230,7 +230,9 @@ def main() -> None:
                    color="#1b4a70")
         fig.tight_layout()
         FIG.mkdir(exist_ok=True)
-        fig.savefig(FIG / "fig18_interval.png", dpi=160)
+        # Only the published tag writes the figure the documents embed.
+        fig.savefig(FIG / ("fig18_interval.png" if args.tag == "_v3"
+                           else f"fig18_interval{args.tag}.png"), dpi=160)
     except ImportError:
         pass
 

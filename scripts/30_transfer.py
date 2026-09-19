@@ -380,7 +380,9 @@ def main() -> None:
         ax[1].set_title("Every account, every block, its own metered era", fontsize=10)
         fig.tight_layout()
         FIG.mkdir(exist_ok=True)
-        fig.savefig(FIG / "fig17_transfer.png", dpi=160)
+        # Only the published tag writes the figure the documents embed.
+        fig.savefig(FIG / ("fig17_transfer.png" if args.tag == "_v3"
+                           else f"fig17_transfer{args.tag}.png"), dpi=160)
     except ImportError:
         pass
 

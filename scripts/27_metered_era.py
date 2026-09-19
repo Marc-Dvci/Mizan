@@ -343,7 +343,9 @@ def main() -> None:
         ax[2].legend(fontsize=8)
         fig.tight_layout()
         FIG.mkdir(exist_ok=True)
-        fig.savefig(FIG / "fig16_metered_era.png", dpi=160)
+        # Only the published tag writes the figure the documents embed.
+        fig.savefig(FIG / ("fig16_metered_era.png" if args.tag == "_v3"
+                           else f"fig16_metered_era{args.tag}.png"), dpi=160)
     except ImportError:
         pass
 
