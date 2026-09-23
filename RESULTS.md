@@ -409,7 +409,7 @@ A ranking of two point estimates is not a result until the record says how well 
 | mapped irrigated area times one acre-foot per acre | 23.0% | 16.62 | **-5.6** | +-5.3 (-1.0 se) | +-1.2 (-4.7 se) | 2/6 |
 | **the closure, evapotranspiration and heads** | **28.6%** | **21.22** | | | | |
 
-**Against the technique in use where wells are not metered, the closure removes 20.7 points of relative error**, and is closer on 76 per cent of the county-years; against the same method with its efficiency fitted to the meters, 17.7. Clustered by county, the unit a transfer claim generalises over, that gain is 1.7 standard errors (5.7 clustered by year), positive in 4 of 6: {'CN': -14.4, 'RA': 51.9, 'DC': 60.4, 'SH': 10.3, 'TH': 17.5, 'SD': -1.8}. The blind transfer below resolves it on twenty-four. Two arithmetic bars are closer on this block, by 5.6 and 9.5 points; both need a published applied depth for the basin they are used in, the published account of Al Jawf implies one 6.5 times the Kansas figure, and the transfer scores them where the depth is not the northwest's.
+**Against the published open-loop method, the closure removes 20.7 points of relative error**, and is closer on 76 per cent of the county-years; against the same method with its efficiency fitted to the meters, 17.7. Clustered by county, the unit a transfer claim generalises over, that gain is 1.7 standard errors (5.7 clustered by year), positive in 4 of 6: {'CN': -14.4, 'RA': 51.9, 'DC': 60.4, 'SH': 10.3, 'TH': 17.5, 'SD': -1.8}. The blind transfer below resolves it on twenty-four. Two arithmetic bars are closer on this block, by 5.6 and 9.5 points; both need a published applied depth for the basin they are used in, the published account of Al Jawf implies one 6.5 times the Kansas figure, and the transfer scores them where the depth is not the northwest's.
 
 **The change between two multi-year periods, over the whole record.**
 
@@ -500,7 +500,7 @@ The pivots decorrelate and the ground between them holds phase in four pixels ou
 
 ## How far apart the two rungs are: the share of pumping that is storage
 
-The closure reads abstraction out of storage, so what the two rungs have in common is not the basin but the method. Net inflow `N = Q + Sy*A*dh` from the withheld meters, the winter water levels and the USGS specific-yield map puts a number on the difference. No model enters it.
+The closure reads abstraction out of storage, so what the two rungs have in common is not the basin but the method. Net inflow in the water-balance form of Butler et al. (GRL 2016), `N = Q + Sy*A*dh` from the withheld meters, the winter water levels and the USGS specific-yield map puts a number on the difference. No model enters it.
 
 | county | pumping, Mm3/yr | water-level change, m/yr | net inflow, Mm3/yr | N/Q |
 |---|---:|---:|---:|---:|

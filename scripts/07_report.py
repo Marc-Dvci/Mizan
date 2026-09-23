@@ -733,7 +733,7 @@ def main():
               f"**{lv['mae_mcm']:.2f}** | | | | |")
         g = hl["level_gain_vs"]["OPENLOOP"]
         go = hl["level_gain_vs"]["OPENLOOP_ORACLE"]
-        print(f"\n**Against the technique in use where wells are not metered, the closure "
+        print(f"\n**Against the published open-loop method, the closure "
               f"removes {g['points']:.1f} points of relative error**, and is closer on "
               f"{g['closure_closer_pct_of_county_years']:.0f} per cent of the "
               f"county-years; against the same method with its efficiency fitted to the "
@@ -893,7 +893,8 @@ def main():
     if ni:
         section("How far apart the two rungs are: the share of pumping that is storage")
         print("The closure reads abstraction out of storage, so what the two rungs "
-              "have in common is not the basin but the method. Net inflow "
+              "have in common is not the basin but the method. Net inflow in the "
+              "water-balance form of Butler et al. (GRL 2016), "
               "`N = Q + Sy*A*dh` from the withheld meters, the winter water levels and "
               "the USGS specific-yield map puts a number on the difference. No model "
               "enters it.\n")

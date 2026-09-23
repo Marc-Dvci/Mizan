@@ -44,8 +44,8 @@ saw. WIMAS codes every report by how its volume was measured; the block is meter
 from 2009, so the numbers called metered below are scored on 2009 to 2024, and the
 whole reported record is beside them.
 
-On the *level* of county pumping, against the published open-loop account in use where
-wells are unmetered, relative error falls from 49.3 to 28.6 per cent over the 96 metered
+On the *level* of county pumping, against the published open-loop account, consumptive use
+over an assumed efficiency, relative error falls from 49.3 to 28.6 per cent over the 96 metered
 county-years: 20.7 points removed, closer on 76 per cent of county-years, with a 90 per
 cent interval covering 91 per cent of the withheld meters where the open-loop account
 produces no interval at all. Mapped irrigated area times one acre-foot per acre is closer
