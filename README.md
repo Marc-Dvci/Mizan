@@ -89,6 +89,14 @@ four blocks with the fewest usable wells, is the hardest at 37.3 per cent relati
 still 7.6 points ahead of the open loop. Protocol and full tables: `make transfer`,
 [`RESULTS.md`](RESULTS.md), `DECISION_LOG.md`.
 
+**The Saq test, pre-registered.** The pilot is held to the same protocol. Its scoring rule
+and four predictions are committed to [`DECISION_LOG.md`](DECISION_LOG.md) (last section)
+before any Saudi meter record is seen: the efficiency the closure recovers is below 0.80;
+the closure beats the open loop in at least two thirds of scoring units; the 90 per cent
+interval, carrying the spread factor Kansas measured, covers 0.80 to 0.97 of withheld
+meters; and the full Sentinel-1 stack resolves subsidence on the coherent ground between
+the pivots.
+
 **The decision product.** Every cubic kilometre of water taken from the test basin destroys
 about 147 Mm3 of storage capacity permanently, verified in full MODFLOW across the
 posterior. 9.5 per cent of the simulated storage depletion never returns, at any price.
