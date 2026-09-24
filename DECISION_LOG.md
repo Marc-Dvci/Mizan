@@ -1033,3 +1033,49 @@ frame's published archive establishes where the phase can be read, not the rate.
 needs the full Sentinel-1 archive over that frame, which is ASF HyP3 plus a time-series
 inversion and an Earthdata login; the entry states the observability result and the route
 to the rate, and claims no rate.
+
+### The Saq pilot, pre-registered before any Saudi meter record is seen
+
+Written 24 September 2026, before the pilot exists and before any MEWA meter record,
+Saq monitoring-well head or Saq aquifer model has been seen by this project. The Kansas
+blind transfer is the template: the scoring rule and the predictions go on public record
+first, and whatever comes out is reported, a failed prediction in the same table as the
+passes.
+
+**The unit and the truth.** The account is the Wadi As-Sirhan pivot block, the 2,541 km²
+delineated for 2015 by `20_aljawf.py`, inside Sentinel-1 frame 116A. The truth is the MEWA
+agricultural well-meter record over that block. A share of the metered wells, drawn at
+random by district before any record is read, is withheld from the estimator; the account
+is scored on the fields those withheld wells serve, aggregated to the smallest unit the
+meter records support. The basin total is reported over a footprint of whole gravimetric
+mascons, where the averaging gain is one by construction, as the calibration rule already
+states.
+
+**The configuration is frozen before the withheld meters are opened.** The conceptual
+model, priors and error budget are fixed and committed first. The interval carries the
+spread factor Kansas measured off the block it was fitted on, the mean over the four
+Kansas blocks, 0.8225 (`31_interval.py`), applied from the start and never refitted on
+the Saq.
+
+**The accounts compared.** The closure; the evapotranspiration leg alone; the published
+open-loop method, each evapotranspiration product over a fixed 0.80; and the published
+5.5 bcm/yr for 2015 (López Valencia et al. 2020).
+
+**Predictions, derived from the Kansas results and scored as written.**
+
+- S1. The efficiency the closure recovers over the block, consumptive use over
+  abstraction, posterior median, is below 0.80. In Kansas the efficiency fitted to each
+  block's own meters was 0.63, 0.78, 0.51 and 0.62, below 0.80 in all four blocks, and
+  MEWA states national irrigation efficiency at around 50 per cent.
+- S2. On the level, the closure has lower relative error than the open loop at 0.80 in at
+  least two thirds of the scoring units. In Kansas it was 13 of 18 counties never seen.
+- S3. The 90 per cent interval, with the Kansas spread factor applied, covers the withheld
+  meters in 0.80 to 0.97 of scoring unit-years. This is Kansas P2, which failed by
+  over-covering, restated with the correction that failure measured.
+- S4. Over the coherent desert ground inside the pivot field's outline (mean coherence at
+  least 0.3 in the 30-interferogram probe), the full Sentinel-1 stack over frame 116A
+  gives a vertical rate below zero, subsidence, resolved from zero at two standard errors.
+  Published rates for Saudi agricultural areas are 4 to 15 mm a year (Othman et al. 2018)
+  and 1.1 to 5.1 in a separate estimate.
+
+SAQ PREDICTIONS COMMITTED
