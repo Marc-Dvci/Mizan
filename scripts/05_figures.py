@@ -34,6 +34,7 @@ def fig_basin(tr):
     """The synthetic basin: irrigated area, subsidence, drawdown."""
     mask = F.pivot_mask(C.TRUTH)
     fig, ax = plt.subplots(1, 3, figsize=(10.2, 3.4))
+    fig.subplots_adjust(wspace=0.45)
     ext = [0, C.DOMAIN_KM, 0, C.DOMAIN_KM]
 
     ax[0].imshow(mask, origin="lower", extent=ext, cmap="Greens", vmin=0, vmax=1.6)
@@ -44,18 +45,18 @@ def fig_basin(tr):
         i, j = divmod(d, 3)
         ax[0].text((j + 0.5) * C.DOMAIN_KM / 3, (i + 0.5) * C.DOMAIN_KM / 3, f"D{d}",
                    ha="center", va="center", color=FG.INK, fontsize=8, alpha=0.55)
-    ax[0].set_title(f"irrigated land, {int(mask.sum())} km$^2$ in 9 districts")
+    ax[0].set_title(f"irrigated land\n{int(mask.sum())} km$^2$ in 9 districts")
 
     im = ax[1].imshow(tr["subsidence_final"] * 100, origin="lower", extent=ext,
                       cmap="magma_r")
-    plt.colorbar(im, ax=ax[1], label="cm")
-    ax[1].set_title(f"subsidence after {C.NYEAR} yr, peak "
+    plt.colorbar(im, ax=ax[1], label="cm", shrink=0.8, pad=0.07)
+    ax[1].set_title(f"subsidence after {C.NYEAR} yr\npeak "
                     f"{tr['subsidence_final'].max()*100:.0f} cm")
 
     im = ax[2].imshow(C.H_INIT - tr["head_final"], origin="lower", extent=ext,
                       cmap="Blues")
-    plt.colorbar(im, ax=ax[2], label="m")
-    ax[2].set_title(f"drawdown, peak {(C.H_INIT - tr['head_final']).max():.0f} m")
+    plt.colorbar(im, ax=ax[2], label="m", shrink=0.8, pad=0.07)
+    ax[2].set_title(f"drawdown after {C.NYEAR} yr\npeak {(C.H_INIT - tr['head_final']).max():.0f} m")
     for a in ax:
         a.set_xlabel("km")
         a.grid(False)

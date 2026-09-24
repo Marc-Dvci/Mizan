@@ -183,6 +183,7 @@ interval:
 # rebuilt from the per-point use file, which the history page under-counts.
 metered-era:
 	$(PY) scripts/27_metered_era.py --tag $(KTAG)
+	$(PY) scripts/34_window_figure.py --tag $(KTAG)
 
 # How much of what Kansas pumps the aquifer replaces within the year, against the twin,
 # which is the size of the difference between the two rungs.
